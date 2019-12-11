@@ -1,5 +1,33 @@
 {% extends "prelogin-layout.html" %}
+
 {% block title %}Index{% endblock %}
+
 {% block content %}
+
 <h1>Get started</h1>
+<form action="{{ url_for('index') }}" , method="POST">
+    <div>
+        {{ form.username(class_='form-control', 
+        placeholder='Username', autocomplete='off',
+        autofocus=true)}}
+
+    </div>
+    <div>
+        {{ form.password(class_='form-control', 
+            placeholder='Password')}}
+
+    </div>
+    <div>
+        {{ form.confirm_pswd(class_='form-control', 
+                placeholder='Retype Password')}}
+
+    </div>
+    <div>
+        {{ form.submit_button }}
+    </div>
+
+
+    {{ form.csrf_token }}
+</form>
+
 {% endblock %}
