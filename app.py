@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, flash
 from flask_login import (
     LoginManager,
     login_user,
@@ -37,7 +37,7 @@ def index():
 
     reg_form = RegistrationForm()
 
-    # Updated database if validation success
+    # Update database if validation success
 
     if reg_form.validate_on_submit():
         username = reg_form.username.data
@@ -51,6 +51,7 @@ def index():
         db.session.add(user)
         db.session.commit()
 
+        flash("Registered Succesfully. Please Login.", "success")
         return redirect(url_for("login"))
 
     return render_template("index.html", form=reg_form)
@@ -75,7 +76,8 @@ def login():
 # @login_required
 def chat():
     if not current_user.is_authenticated:
-        return "Please login before acessing chat"
+        flash("Please login.", "danger")
+        return redirect(url_for("login"))
 
     return "Chat with me"
 
@@ -83,7 +85,8 @@ def chat():
 @app.route("/logout", methods=["GET"])
 def logout():
     logout_user()
-    return "Logged out using flask-login!"
+    flash("You have logged our successfully", "success")
+    return redirect(url_for("login"))
 
 
 if __name__ == "__main__":
@@ -91,4 +94,4 @@ if __name__ == "__main__":
     app.run(debug=True)
 
 # WSGI interface for backend
-
+# check short polling
