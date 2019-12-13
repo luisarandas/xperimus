@@ -19,6 +19,8 @@ from models import *
 # For (current machine env) pip install -r requirements.txt
 # Get all dependencies pip3 freeze > requirements.txt
 
+# ~ heroku git:remote -a <name> // git push heroku master [on env]
+
 # Configure app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET")
