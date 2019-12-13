@@ -1,3 +1,4 @@
+import os
 from time import localtime, strftime
 from flask import Flask, render_template, redirect, url_for, flash
 from flask_login import (
@@ -13,20 +14,22 @@ from passlib.hash import pbkdf2_sha256
 from wtform_fields import *
 from models import *
 
+# python3 -m venv local_python_environment
+# source local_py_env/bin/activate
+# For (current machine env) pip install -r requirements.txt
+# Get all dependencies pip3 freeze > requirements.txt
+
 # Configure app
 app = Flask(__name__)
-app.secret_key = "replace later"
+app.secret_key = os.environ.get("SECRET")
 
 # Configure database
-app.config[
-    "SQLALCHEMY_DATABASE_URI"
-] = "postgres://eajdbtaoaffwhp:c9e4b7ffa763731fffdd0af7ccd9c9888d78d1c29f1664d582d1a885e99779fa@ec2-54-217-243-19.eu-west-1.compute.amazonaws.com:5432/d8eaj48551fat3"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 db = SQLAlchemy(app)
 
 # Initialize Flask-SocketIO
 socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
 ROOMS = ["lounge", "news", "games", "coding"]
-
 
 # Configure flask login
 login = LoginManager(app)
@@ -133,7 +136,8 @@ def leave(data):
 
 if __name__ == "__main__":
     # Will always execute
-    socketio.run(app, debug=True)
+    app.run()
+    # socketio.run(app, debug=True) No need with heroku
 
 # WSGI interface for backend
 # check short polling
