@@ -20,13 +20,24 @@ from models import *
 # Get all dependencies pip3 freeze > requirements.txt
 
 # ~ heroku git:remote -a <name> // git push heroku master [on env]
+# ~ heroku ps:scale web=1
+
+# Check entrances => psql postgres://eajdbtaoaffwhp:c9e4b7ffa763731fffdd0af7ccd9c9888d78d1c29f1664d582d1a885e99779fa@ec2-54-217-243-19.eu-west-1.compute.amazonaws.com:5432/d8eaj48551fat3
+# \dt - \d name - if not CREATE TABLE _tablenamevar_( -
+
+# Play music, and open microphone
+# NOW CHECK LOGS, PROPERTIES AND SERVER SIDE W CHILL
+
 
 # Configure app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET")
+app.secret_key = "replace later"  # os.environ.get("SECRET")
 
 # Configure database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config[
+    "SQLALCHEMY_DATABASE_URI"
+] = "postgres://eajdbtaoaffwhp:c9e4b7ffa763731fffdd0af7ccd9c9888d78d1c29f1664d582d1a885e99779fa@ec2-54-217-243-19.eu-west-1.compute.amazonaws.com:5432/d8eaj48551fat3"
+# os.environ.get("DATABASE_URL")
 db = SQLAlchemy(app)
 
 # Initialize Flask-SocketIO
@@ -65,6 +76,7 @@ def index():
         flash("Registered Succesfully. Please Login.", "success")
         return redirect(url_for("login"))
 
+    # return "<html><body><h1>Hello World</h1></body></html>"
     return render_template("index.html", form=reg_form)
 
 
@@ -135,6 +147,8 @@ def leave(data):
         room=data["room"],
     )
 
+
+print("Xperimus Server Console Print.")
 
 if __name__ == "__main__":
     # Will always execute

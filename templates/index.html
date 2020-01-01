@@ -1,34 +1,46 @@
-{% extends "prelogin-layout.html" %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block title %}Index{% endblock %}
+<head>
+    <title>Xperimus Project</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
 
-{% block content %}
+</head>
 
-<h1>xperimus Research Server Running</h1>
-<form action="{{ url_for('index') }}" , method="POST">
-    <div>
-        {{ form.username(class_='form-control', 
+<body>
+
+    <h1>xperimus Research Server Running</h1>
+    <form action="{{ url_for('index') }}" , method="POST">
+        <div>
+            {{ form.username(class_='form-control', 
         placeholder='Username', autocomplete='off',
         autofocus=true)}}
 
-    </div>
-    <div>
-        {{ form.password(class_='form-control', 
+        </div>
+        <div>
+            {{ form.password(class_='form-control', 
             placeholder='Password')}}
 
-    </div>
-    <div>
-        {{ form.confirm_pswd(class_='form-control', 
+        </div>
+        <div>
+            {{ form.confirm_pswd(class_='form-control', 
                 placeholder='Retype Password')}}
 
-    </div>
+        </div>
 
-    <div>
-        {{ form.submit_button }}
-    </div>
+        <div>
+            {{ form.submit_button }}
+        </div>
 
 
-    {{ form.csrf_token }}
-</form>
+        {{ form.csrf_token }}
+    </form>
 
-{% endblock %}
+    <br><br>
+    <h3>Testing Sound File Load</h3>
+    <audio controls="controls" autoplay="autoplay" src="/static/sound/tst.wav"></audio>
+
+    {# a comment #}
+</body>
+
+</html>
