@@ -25,6 +25,7 @@ from models import *
 # Check entrances => psql postgres://eajdbtaoaffwhp:c9e4b7ffa763731fffdd0af7ccd9c9888d78d1c29f1664d582d1a885e99779fa@ec2-54-217-243-19.eu-west-1.compute.amazonaws.com:5432/d8eaj48551fat3
 # \dt - \d name - if not CREATE TABLE _tablenamevar_( -
 
+# Turn connection to secure
 # Play music, and open microphone
 # NOW CHECK LOGS, PROPERTIES AND SERVER SIDE W CHILL
 
@@ -112,6 +113,12 @@ def logout():
     logout_user()
     flash("You have logged our successfully", "success")
     return redirect(url_for("login"))
+
+
+######### Testing Functions
+
+
+#########
 
 
 @socketio.on("message")
