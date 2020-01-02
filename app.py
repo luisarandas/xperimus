@@ -13,6 +13,7 @@ from passlib.hash import pbkdf2_sha256
 
 from wtform_fields import *
 from models import *
+from main import *
 
 # python3 -m venv local_python_environment
 # source local_py_env/bin/activate
@@ -25,7 +26,8 @@ from models import *
 # Check entrances => psql postgres://eajdbtaoaffwhp:c9e4b7ffa763731fffdd0af7ccd9c9888d78d1c29f1664d582d1a885e99779fa@ec2-54-217-243-19.eu-west-1.compute.amazonaws.com:5432/d8eaj48551fat3
 # \dt - \d name - if not CREATE TABLE _tablenamevar_( -
 
-# Turn connection to secure
+# Make the allocation part in rooms and then try webassembly
+# Turn connection to secure, continue with python bindings
 # Play music, and open microphone
 # NOW CHECK LOGS, PROPERTIES AND SERVER SIDE W CHILL
 
@@ -113,12 +115,6 @@ def logout():
     logout_user()
     flash("You have logged our successfully", "success")
     return redirect(url_for("login"))
-
-
-######### Testing Functions
-
-
-#########
 
 
 @socketio.on("message")
