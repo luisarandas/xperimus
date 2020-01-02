@@ -30,7 +30,13 @@ from main import *
 # Turn connection to secure, continue with python bindings
 # Play music, and open microphone
 # NOW CHECK LOGS, PROPERTIES AND SERVER SIDE W CHILL
+# https://github.com/sicklincoln/MMLL/tree/master/Examples
 
+# If you want to execute your function without generating a request to the server, then your function must be defined in JavaScript. Otherwise, you need to fire an HTTP request.
+
+# Test flask deep learning - machine listening in JS and visualizations
+# https://www.youtube.com/watch?v=mrExsjcvF4o
+# https://github.com/jnmaloney/WebGui
 
 # Configure app
 app = Flask(__name__)
@@ -115,6 +121,21 @@ def logout():
     logout_user()
     flash("You have logged our successfully", "success")
     return redirect(url_for("login"))
+
+
+################################ Testing
+
+# Background process happening without any refreshing
+# Now only printing
+@app.route('/background_process')
+def background_process_test():
+    print("Hello")
+    return "nothing"
+
+# Open Microphone with other func
+
+
+################################ Testing
 
 
 @socketio.on("message")

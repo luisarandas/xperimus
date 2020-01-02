@@ -4,16 +4,33 @@
 <head>
     <title>Xperimus Project</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
-
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="/static/scripts/xperimus.js"></script>
+    <!-- Change Parts from other Page - Chat 
+        <script src="{{ url_for('static', filename='scripts/socketio.js')}}"></script>
+    <script src="{{ url_for('static', filename='scripts/chat_page.js') }}"></script>-->
+
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type=text/javascript>
+            $(function() {
+              $('a#backgroundprocess').bind('click', function() {
+                $.getJSON('/background_process',
+                 function(data) {
+                 //do nothing
+                });
+             return false;
+             });
+            });
+    </script>
 
     <link rel="shortcut icon" href="">
 </head>
 
-<body>
-    <h1>xperimus Research Server Running</h1>
+<body>    
+    <h1>Xperimus Research Server Running</h1>
     <form action="{{ url_for('index') }}" , method="POST">
         <div>
             {{ form.username(class_='form-control', 
@@ -40,12 +57,14 @@
         {{ form.csrf_token }}
     </form>
 
-    <br><br>
+    
     <h3>Testing Sound File Load</h3>
     <audio controls="controls" autoplay="autoplay" src="/static/sound/tst.wav"></audio>
     <br>
     <button type="button" id="1">JS Function Call</button>
-    <button type="button" id="2">Python Function Call</button>
+    <a id=backgroundprocess><button>HTTP Request for Python Backend - Backside Process</button></a>
+    <br>
+    <button type="button" id="2">Microphone Test</button>
     <br><br>
 
 
