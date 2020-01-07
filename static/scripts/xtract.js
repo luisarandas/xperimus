@@ -64,8 +64,9 @@ console.log("ola");
 
 /* Test MMLL */
 
+// It would be good to encode the tempo - test with two simple wav files
 // Agora correlacionar o RMS e o Onset Detection com a nota - 
-// Codificar uma progressão harmónica algoritmicamente
+// Codificar uma progressão harmónica algoritmicamente - TEST WITH MOBILE
 
 "use strict";
 var i;
