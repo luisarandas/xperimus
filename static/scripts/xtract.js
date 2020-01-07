@@ -62,6 +62,60 @@ if (typeof Meyda === "undefined"){
 
 console.log("ola");
 
+/* Test MMLL */
+
+// Agora correlacionar o RMS e o Onset Detection com a nota - 
+// Codificar uma progressão harmónica algoritmicamente
+
+"use strict";
+var i;
+var audioblocksize = 256;
+var chorddetector;
+var onsetdetector;
+
+var canvas = document.getElementById("canvas");
+var context = canvas.getContext("2d");
+
+var setup = function SetUp(sampleRate){
+    console.log("Setting Up!");
+    onsetdetector = new MMLLOnsetDetector(sampleRate);
+    chorddetector = new MMLLChordDetector(sampleRate,2,0.5);
+};
+
+var callback = function CallBack(input, output, n){
+    var chord = chorddetector.next(input.monoinput);
+    console.log("chord", chord);
+    document.getElementById('chordText').innerHTML = "Detected " + chord;
+
+    var detection = onsetdetector.next(input.monoinput);
+    if (detection) {
+        console.log("Onset now!");
+        var randomcolor = "rgb(" +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ ")";
+        context.fillStyle = randomcolor;
+        context.fillRect(0,0,canvas.width,canvas.height);
+    }
+
+    for (i=0; i<n; i++){
+        output.outputL[i] = input.inputL[i];
+        output.outputR[i] = input.inputR[i];
+    }
+};
+
+function setThreshold(newValue){
+    var threshold = parseFloat(newValue)*0.01;
+    onsetdetector.threshold = threshold;
+}
+
+var gui = new MMLLBasicGUISetup(callback,setup,audioblocksize,true,true);
+
+function setKeyDecay(newValue) {
+    chorddetector.keydecay = parseFloat(newValue)*0.1;
+}
+
+function setChromaLeak(newValue) {
+    chorddetector.chromaleak = parseFloat(newValue)*0.01;
+}
+
 /*audioContext = new window.AudioContext()
 analyser = audioContext.createAnalyser();
 const constraints = { audio: true, video: false };
@@ -70,3 +124,5 @@ navigator.mediaDevices.getUserMedia(constraints).then((str) => {
   source = this.audioContext.createMediaStreamSource(stream);
   source.connect(analyser);
 });*/ 
+
+/* Transfer Learning Example */

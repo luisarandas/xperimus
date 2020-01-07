@@ -8,6 +8,10 @@
     <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
+    <!-- Tensorflow Transfer Learning Test -->
+    <script src="https://unpkg.com/@tensorflow/tfjs"></script>
+    <script src="https://unpkg.com/@tensorflow-models/speech-commands"></script>
+
     <script src="/static/scripts/xperimus.js"></script>
     <!-- Change Parts from other Page - Chat 
         <script src="{{ url_for('static', filename='scripts/socketio.js')}}"></script>
@@ -98,11 +102,23 @@
     <input type="range" id="chroma12" class="slider" name="chroma11" min="0.0" max="1.0" step="0.001"/>B
     <br>
 
-    {# Comment #}
+    <h1>MMLL testing </h1>
+    <p>Recent browsers supporting Web Audio API only.</p>
+    <input type="range" min="0" max="100" value="20" step="1" oninput="setKeyDecay(this.value)" /> Set key decay<br><br>
+    <input type="range" min="0" max="100" value="50" step="1" oninput="setChromaLeak(this.value)" /> Set chroma leak<br><br>
 
-        <!--Meyda -->
-        <script src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
-        <script src="/static/scripts/xtract.js"></script>
+    {# Comment #}
+    <p id="chordText">Chord Detected</p>
+
+    <br>
+    <canvas id="canvas" width="400" height="200">
+        This text is displayed if your browser does not support HTML5 Canvas.
+    </canvas><br><br>
+
+    <!-- Meyda && MMLL -->
+    <script src="/static/scripts/libs/MMLL.js"></script>
+    <script src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
+    <script src="/static/scripts/xtract.js"></script>
 
 </body>
 
