@@ -5,13 +5,13 @@
     <title>Xperimus Project</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
     <script src="/static/scripts/xperimus.js"></script>
     <!-- Change Parts from other Page - Chat 
         <script src="{{ url_for('static', filename='scripts/socketio.js')}}"></script>
     <script src="{{ url_for('static', filename='scripts/chat_page.js') }}"></script>-->
-
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script type=text/javascript>
@@ -59,16 +59,50 @@
 
     
     <h3>Testing Sound File Load</h3>
-    <audio controls="controls" autoplay="autoplay" src="/static/sound/tst.wav"></audio>
+    <audio controls="controls" loop id="player1" autoplay="autoplay" src="/static/sound/tst.wav"></audio>
     <br>
     <button type="button" id="1">JS Function Call</button>
     <a id=backgroundprocess><button>HTTP Request for Python Backend - Backside Process</button></a>
     <br>
     <button type="button" id="2">Microphone Test</button>
+    <br>
+    <audio controls loop crossorigin="anonymous" id="audio" src="/static/sound/gminor.wav"></audio>
+    <br>
+    <label for="level">RMS</label>
+    <input type="range" id="levelRange" class="slider" name="level" min="0.0" max="1.0" step="0.001"/>
     <br><br>
-
+    <label for="level">Chroma</label>
+    <br>
+    <input type="range" id="chroma1" class="slider" name="chroma1" min="0.0" max="1.0" step="0.001"/>C
+    <br>
+    <input type="range" id="chroma2" class="slider" name="chroma2" min="0.0" max="1.0" step="0.001"/>C#
+    <br>
+    <input type="range" id="chroma3" class="slider" name="chroma3" min="0.0" max="1.0" step="0.001"/>D
+    <br>
+    <input type="range" id="chroma4" class="slider" name="chroma4" min="0.0" max="1.0" step="0.001"/>D#
+    <br>
+    <input type="range" id="chroma5" class="slider" name="chroma5" min="0.0" max="1.0" step="0.001"/>E
+    <br>
+    <input type="range" id="chroma6" class="slider" name="chroma6" min="0.0" max="1.0" step="0.001"/>F
+    <br>
+    <input type="range" id="chroma7" class="slider" name="chroma7" min="0.0" max="1.0" step="0.001"/>F#
+    <br>
+    <input type="range" id="chroma8" class="slider" name="chroma8" min="0.0" max="1.0" step="0.001"/>G
+    <br>
+    <input type="range" id="chroma9" class="slider" name="chroma9" min="0.0" max="1.0" step="0.001"/>G#
+    <br>
+    <input type="range" id="chroma10" class="slider" name="chroma10" min="0.0" max="1.0" step="0.001"/>A
+    <br>
+    <input type="range" id="chroma11" class="slider" name="chroma11" min="0.0" max="1.0" step="0.001"/>A#
+    <br>
+    <input type="range" id="chroma12" class="slider" name="chroma11" min="0.0" max="1.0" step="0.001"/>B
+    <br>
 
     {# Comment #}
+
+        <!--Meyda -->
+        <script src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
+        <script src="/static/scripts/xtract.js"></script>
 
 </body>
 
