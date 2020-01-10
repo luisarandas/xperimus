@@ -1,6 +1,10 @@
+
+/*
+//document.addEventListener('DOMContentLoaded', () => {
+//    document.getElementById("startAudioCtx").addEventListener("click", () => {
+console.log("testing listener on button;"); 
 const audioContext = new AudioContext();
 //Now we need to have the audio context take control of your HTML Audio Element.
-
 // Select the Audio Element from the DOM
 const htmlAudioElement = document.getElementById("audio");
 // Create an "Audio Node" from the Audio Element
@@ -9,8 +13,9 @@ const source = audioContext.createMediaElementSource(htmlAudioElement);
 // Audio Context, you have to explicitly connect it to the speakers in order to
 // hear it
 source.connect(audioContext.destination);
-
 console.log("ctx done");
+//});    
+//});
 
 const levelRangeElement = document.getElementById("levelRange");
 
@@ -59,8 +64,7 @@ if (typeof Meyda === "undefined"){
     });
     analyzer.start();
 }
-
-console.log("ola");
+*/
 
 /* Test MMLL */
 
@@ -68,7 +72,10 @@ console.log("ola");
 // Agora correlacionar o RMS e o Onset Detection com a nota - 
 // Codificar uma progressão harmónica algoritmicamente - TEST WITH MOBILE
 
+
+
 "use strict";
+
 var i;
 var audioblocksize = 256;
 var chorddetector;
@@ -117,6 +124,131 @@ function setChromaLeak(newValue) {
     chorddetector.chromaleak = parseFloat(newValue)*0.01;
 }
 
+//------
+
+// Isto 
+
+class xperimusFeatureCollector {
+    constructor(onsets){//filename, seconds, samples, onsets){
+        this._onsets = onsets;
+        //this._filename = filename;
+        //this._seconds = seconds;
+        //this._samples = samples;
+        //this._onsets = onsets;
+    }
+    get features() {
+        return this._onsets;
+    }
+    set features(x) {
+        this._onsets = x;
+    }
+}
+
+var newOnsets = new xperimusFeatureCollector();
+//newOnsets.features = [1,2,3,4,5];
+//console.log(newOnsets.features);
+
+ 
+function pressedStopButton(){
+    console.log("jst prsd;");
+}
+
+// class xperimusFingerprinting
+
+var xperimus1 = new Array();
+var xperimus2 = new Array();
+var xperimus3 = new Array();
+var xperimus4 = new Array();
+var xperimus5 = new Array();
+var xperimus6 = new Array();
+
+var inputfile = document.getElementById('file-input'); //document.createElement('input');
+        //inputfile.type = "file";
+        //inputfile.style = "display: none;";
+        
+        inputfile.addEventListener("change",function uploadFile()
+                                        {
+                                   
+                                   //arguments: array of features to extract, block size in samples, sampling rate
+                                   //assumes that sampling rate is same for audio files to be loaded
+                                   //assumes that no feature extractor has a window hop less than block size
+                                   // VER DE QUE É O TAMANHO DA ARRAY MAS WORKS GOOD ON CHORD DETECTION
+
+                                        var extractor = new MMLLFeatureExtractor(["MMLLOnsetDetector", "MMLLChordDetector", "MMLLSensoryDissonance"]);
+                                        
+                                        // Blocksize tends to be == as Buffersize = delay in samples from 0 to 1;
+                                        // var numblocks = Math.ceil(self.sampleplayer.lengthinsampleframes/self.audioblocksize);
+                                        // Isto vem dividido em blocs pois cada array vem junta
+                                        // User o sensory dissonance e ver os chromas
+
+                                        var updateFunction = function(blocknow,numblocks) {
+                                            /* Array.prototype.set0 = function(v) {
+                                                var i, n = this.length;
+                                                for (i, 0; i < n; i++) {
+                                                    this[i] = v;
+                                                }
+                                            } 
+                                            xperimus1.set0(numblocks); */
+                                            xperimus1.length = numblocks;
+                                            xperimus1.fill(0);
+
+                                            console.log("Which block " + blocknow + "Number of blocks " + numblocks);
+                                            if(blocknow%200==0) console.log(blocknow/numblocks)
+                                            };
+
+                                   
+                                   //returns a Promise
+                                   extractor.analyseAudioFile(inputfile.files[0],updateFunction).then((results) => {
+
+                                    
+                                    for (var i = 0; i < results.length; i++){
+
+                                        // NumSamples
+                                        console.log("1 " + xperimus1);
+                                        
+                                        // Num Onsets Per Sample
+                                        xperimus2.push(results[i][0]);
+                                        console.log("2 " + xperimus2);
+
+                                        // Num Chords Per Sample
+                                        xperimus3.push(results[i][1][0]);
+                                        console.log("3 " + xperimus3);
+
+                                        // ~~ Chromas
+
+                                        xperimus4.push(results[i][1][1]);
+                                        console.log("4 " + xperimus4);
+
+                                        // ~~ Dissonance 
+
+                                        // xperimus5.push(results[i][2][0]); No need for dissonance
+                                        // console.log("5 " + xperimus5);
+
+                                        // Num Peaks Per Sample 
+
+                                        xperimus6.push(results[i][2][1]);
+                                        var x = 0;
+                                        while (x < xperimus6.length) {
+                                            xperimus6[x] = xperimus6[x].toFixed(2);
+                                            x++
+                                        }
+                                        console.log("6 " + xperimus6);
+
+                                    }
+                                    //    console.log("Only 0 " + results[i][0]);
+                                    //}
+
+                                       //console.log(results)
+                                       //newOnsets.features = results;
+                                       //console.log(newOnsets.features); 
+                                       
+                                       
+                                       
+                                    });
+                                 
+                                        }, false);
+
+
 /*audioContext = new window.AudioContext()
 analyser = audioContext.createAnalyser();
 const constraints = { audio: true, video: false };
@@ -127,3 +259,26 @@ navigator.mediaDevices.getUserMedia(constraints).then((str) => {
 });*/ 
 
 /* Transfer Learning Example */
+
+/*
+let recognizer;
+
+function predictWord() {
+ // Array of words that the recognizer is trained to recognize.
+ const words = recognizer.wordLabels();
+ recognizer.listen(({scores}) => {
+   // Turn scores into a list of (score,word) pairs.
+   scores = Array.from(scores).map((s, i) => ({score: s, word: words[i]}));
+   // Find the most probable word.
+   scores.sort((s1, s2) => s2.score - s1.score);
+   document.querySelector('#console').textContent = scores[0].word;
+ }, {probabilityThreshold: 0.75});
+}
+
+async function app() {
+ recognizer = speechCommands.create('BROWSER_FFT');
+ await recognizer.ensureModelLoaded();
+ predictWord();
+}
+
+app();*/

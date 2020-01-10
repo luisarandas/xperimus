@@ -864,7 +864,8 @@ self.next = function(input) {
     
     self.previousfftdatapointer = (self.previousfftdatapointer+1)%self.numpreviousframes;
 
-	//update for new round; leaky integration
+  //update for new round; leaky integration
+
 	for (i=0;i<12;++i)
 		self.chroma[i] *= self.chromaleak;
     
@@ -960,7 +961,7 @@ self.next = function(input) {
     
     }
     
-    return self.chord;
+    return [self.chord, self.chroma[index]];
     
   }
 
@@ -9999,19 +10000,13 @@ function MMLLSensoryDissonance(sampleRate,fftsize=2048,maxpeaks=100,peakthreshol
             //self.dissonance_ = sc_min(self.clamp_,dissonancesum*self.norm_); //numpeaks; //dissonancesum;  //divide by fftsize as compensation for amplitudes via FFT
             
         }
-        
-        
+            
         //ZOUT0(i) = self.dissonance_;
-        return self.dissonance_;
-        
+        return [self.dissonance_, self.peakamps_];
         //return ready;
         
     }
-    
-    
 }
-
-
 
 //sampleRate
 function MMLLSpectralCentroid(sampleRate, fftsize=2048,hopsize=1024) {
@@ -11766,7 +11761,6 @@ function MMLLSamplePlayer() {
     
     //offset code should abstract out to superclass Player
     
-    
     //CHECK FOR STEREO COMPATIBILITY
     
     //arrayL, arrayR not stereo rendering
@@ -11792,7 +11786,7 @@ function MMLLSamplePlayer() {
 
         if(numsamplesnow>samplesleft) {
             samplestodo = samplesleft;
-             self.playing = 0;
+            self.playing = 0;
         }
         
         var pos = self.playbackposition;
@@ -11901,8 +11895,11 @@ function MMLLSamplePlayer() {
         }
         
         self.playbackposition += samplestodo;
-        
-       
+        if (samplestodo === 0){
+          console.log("Just finished.");
+          //self.webaudio.audiocontext.close();
+          //self.audionotrunning = true;
+        }
         
     }
     
@@ -12709,6 +12706,8 @@ function MMLLBasicGUISetup(callback,setup,audioblocksize=256,microphone=true,aud
                 self.webaudio.audiocontext.close();
                 
                 self.audionotrunning = true;
+
+                pressedStopButton();
                 
                 self.stopbutton.parentNode.removeChild(self.stopbutton);
                 
@@ -12760,7 +12759,7 @@ function MMLLBasicGUISetup(callback,setup,audioblocksize=256,microphone=true,aud
             self.parent.removeChild(self.textnode);
             
             self.createStopButton();
-            
+
             
         }
     
@@ -12810,7 +12809,9 @@ function MMLLBasicGUISetup(callback,setup,audioblocksize=256,microphone=true,aud
         self.parent.removeChild(self.textnode);
             
             self.createStopButton();
-            
+        
+            //here             self.webaudio.audiocontext.close();
+
             
         };
         

@@ -61,7 +61,9 @@
         {{ form.csrf_token }}
     </form>
 
-    
+    <h3>Start AudioCtx</h3>
+    <button type="button" id="startAudioCtx">startAudioCtx</button>
+    <br><br>
     <h3>Testing Sound File Load</h3>
     <audio controls="controls" loop id="player1" autoplay="autoplay" src="/static/sound/tst.wav"></audio>
     <br>
@@ -70,7 +72,8 @@
     <br>
     <button type="button" id="2">Microphone Test</button>
     <br>
-    <audio controls loop crossorigin="anonymous" id="audio" src="/static/sound/gminor.wav"></audio>
+    <!--
+    <audio controls="controls" loop id="audio" src="/static/sound/gminor.wav"></audio>
     <br>
     <label for="level">RMS</label>
     <input type="range" id="levelRange" class="slider" name="level" min="0.0" max="1.0" step="0.001"/>
@@ -101,8 +104,9 @@
     <br>
     <input type="range" id="chroma12" class="slider" name="chroma11" min="0.0" max="1.0" step="0.001"/>B
     <br>
-
-    <h1>MMLL testing </h1>
+    -->
+    <br>________________________________________________________________________
+    <h1>machine listening test</h1>
     <p>Recent browsers supporting Web Audio API only.</p>
     <input type="range" min="0" max="100" value="20" step="1" oninput="setKeyDecay(this.value)" /> Set key decay<br><br>
     <input type="range" min="0" max="100" value="50" step="1" oninput="setChromaLeak(this.value)" /> Set chroma leak<br><br>
@@ -115,11 +119,20 @@
         This text is displayed if your browser does not support HTML5 Canvas.
     </canvas><br><br>
 
+    <h1>transfer learning test</h1>
+    <br>________________________________________________________________________
+    <div id="console"></div>
+    <br><br>
+    <h1>feature extractor by hand</h1>
+    <br>________________________________________________________________________
+    <br><br><br><br>
+    <button onclick="document.getElementById('file-input').click();">Choose Audio File</button>
+    <input id="file-input" type="file" name="name" style="display: none;" />
+
     <!-- Meyda && MMLL -->
     <script src="/static/scripts/libs/MMLL.js"></script>
     <script src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
     <script src="/static/scripts/xtract.js"></script>
-    <br>need tflearning
 </body>
 
 </html>
