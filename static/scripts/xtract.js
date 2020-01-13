@@ -126,8 +126,6 @@ function setChromaLeak(newValue) {
 
 //------
 
-// Isto 
-
 class xperimusFeatureCollector {
     constructor(blocks, onsets, chords, summedevidence, rchromaenergy){
         this._blocks = blocks;
@@ -136,7 +134,10 @@ class xperimusFeatureCollector {
         this._summedevidence = summedevidence;
         this._rchromaenergy = rchromaenergy;
 
-        var yes = [];
+        this.onsetsArray = [];
+        this.chordsArray = [];
+        this.summedEvid = [];
+        this.chromaEnerg = [];
     }
     addBlocks(v) {
         this.array = new Array();
@@ -145,19 +146,23 @@ class xperimusFeatureCollector {
         this._blocks = this.array;
     }
     addOnsets(v) {
-        //this._onsets.array.push(v);
+        this.onsetsArray.push(v);
+        this._onsets = this.onsetsArray;
     }
-    addChords(x) {
-        this._chords = x;
+    addChords(v) {
+        this.chordsArray.push(v);
+        this._chords = this.chordsArray;
     }
-    addSummedevidence(x) {
-        this._summedevidence = x;
+    addSummedevidence(v) {
+        this.summedEvid.push(v);
+        this._summedevidence = this.summedEvid;
     }
-    addChromaEnergy(x) {
-        this._rchromaenergy = x;
+    addChromaEnergy(v) {
+        this.chromaEnerg.push(v);
+        this._rchromaenergy = this.chromaEnerg;
     }
     get features() {
-        return [this._blocks, '\n\n'];
+        return [this._blocks, '\n', this._onsets, '\n', this._chords, '\n', this._summedevidence, '\n', this.chromaEnerg, '\n'];
     }
     /*set features(x) {
         this._blocks = new Array();
@@ -171,7 +176,6 @@ function pressedStopButton(){
 }
 
 // class xperimusFingerprinting
-var classArray = new Array();
 
 var xperimus1 = new Array();
 var xperimus2 = new Array();
@@ -192,7 +196,16 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
                                    //assumes that sampling rate is same for audio files to be loaded
                                    //assumes that no feature extractor has a window hop less than block size
                                    // VER DE QUE É O TAMANHO DA ARRAY MAS WORKS GOOD ON CHORD DETECTION
-
+                                        collector._blocks = [];
+                                        collector._onsets = [];
+                                        collector._chords = [];
+                                        collector._summedevidence = [];
+                                        collector._rchromaenergy = [];
+                                        collector.onsetsArray = [];
+                                        collector.chordsArray = [];
+                                        collector.summedEvid = [];
+                                        collector.chromaEnerg = [];
+                                        collector.array = [];
                                         var extractor = new MMLLFeatureExtractor(["MMLLOnsetDetector", "MMLLChordDetector", "MMLLSensoryDissonance"]);
                                         
                                         // Blocksize tends to be == as Buffersize = delay in samples from 0 to 1;
@@ -215,7 +228,8 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
                                             xperimus1.fill(0);
 
                                             console.log("Which block " + blocknow + "Number of blocks " + numblocks);
-                                            if(blocknow%200==0) console.log(blocknow/numblocks)
+                                            if (blocknow%200==0) console.log(blocknow/numblocks)
+
                                             };
 
                                    
@@ -224,6 +238,9 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
                                     for (var i = 0; i < results.length; i++){
                                         
                                         collector.addOnsets(results[i][0]);
+                                        collector.addChords(results[i][1][0]);
+                                        collector.addSummedevidence(results[i][1][1]);
+                                        collector.addChromaEnergy(results[i][1][2]);
                                         console.log("Xperimus Collector \n \n" + collector.features);    
                                         
                                         // NumSamples
@@ -257,10 +274,7 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
                                         //xperimus6.push(results[i][2][1]);
                                         //console.log("6 " + xperimus6);
                                         xperimus6.push(results[i][2][1]);
-                                        console.log("6 " + xperimus6);
-
-                                        searchFeaturesClass();
-    
+                                        console.log("6 " + xperimus6);    
                                     }
                                        
                                        
@@ -270,7 +284,18 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
 
 
 function searchFeaturesClass() {
+
+    console.log("works bro;");
+    console.log(collector);
+
+    const indexOfAll = (arr, val) => arr.reduce((acc, el, i) => (el === val ? [...acc, i] : acc), []);
+    console.log(indexOfAll(collector._onsets, 1));
+    var e = indexOfAll(collector._onsets, 1);
+
+    var v = collector._chords[e]; // checking e place inside chords array
+    console.log("chord " + v);
 }
+
 /*audioContext = new window.AudioContext()
 analyser = audioContext.createAnalyser();
 const constraints = { audio: true, video: false };
