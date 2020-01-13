@@ -961,7 +961,7 @@ self.next = function(input) {
     
     }
     
-    return [self.chord, self.chroma[index]];
+    return [self.chord, self.m_key, self.chroma];
     
   }
 

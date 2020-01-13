@@ -129,31 +129,49 @@ function setChromaLeak(newValue) {
 // Isto 
 
 class xperimusFeatureCollector {
-    constructor(onsets){//filename, seconds, samples, onsets){
+    constructor(blocks, onsets, chords, summedevidence, rchromaenergy){
+        this._blocks = blocks;
         this._onsets = onsets;
-        //this._filename = filename;
-        //this._seconds = seconds;
-        //this._samples = samples;
-        //this._onsets = onsets;
+        this._chords = chords;
+        this._summedevidence = summedevidence;
+        this._rchromaenergy = rchromaenergy;
+
+        var yes = [];
+    }
+    addBlocks(v) {
+        this.array = new Array();
+        this.array.length = v;
+        this.array.fill(0);
+        this._blocks = this.array;
+    }
+    addOnsets(v) {
+        //this._onsets.array.push(v);
+    }
+    addChords(x) {
+        this._chords = x;
+    }
+    addSummedevidence(x) {
+        this._summedevidence = x;
+    }
+    addChromaEnergy(x) {
+        this._rchromaenergy = x;
     }
     get features() {
-        return this._onsets;
+        return [this._blocks, '\n\n'];
     }
-    set features(x) {
-        this._onsets = x;
-    }
+    /*set features(x) {
+        this._blocks = new Array();
+    }*/
 }
 
-var newOnsets = new xperimusFeatureCollector();
-//newOnsets.features = [1,2,3,4,5];
-//console.log(newOnsets.features);
-
+var collector = new xperimusFeatureCollector();
  
 function pressedStopButton(){
     console.log("jst prsd;");
 }
 
 // class xperimusFingerprinting
+var classArray = new Array();
 
 var xperimus1 = new Array();
 var xperimus2 = new Array();
@@ -161,6 +179,7 @@ var xperimus3 = new Array();
 var xperimus4 = new Array();
 var xperimus5 = new Array();
 var xperimus6 = new Array();
+var xperimus7 = new Array();
 
 var inputfile = document.getElementById('file-input'); //document.createElement('input');
         //inputfile.type = "file";
@@ -188,7 +207,10 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
                                                     this[i] = v;
                                                 }
                                             } 
+                                            
                                             xperimus1.set0(numblocks); */
+                                            collector.addBlocks(numblocks);
+                                            
                                             xperimus1.length = numblocks;
                                             xperimus1.fill(0);
 
@@ -199,10 +221,11 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
                                    
                                    //returns a Promise
                                    extractor.analyseAudioFile(inputfile.files[0],updateFunction).then((results) => {
-
-                                    
                                     for (var i = 0; i < results.length; i++){
-
+                                        
+                                        collector.addOnsets(results[i][0]);
+                                        console.log("Xperimus Collector \n \n" + collector.features);    
+                                        
                                         // NumSamples
                                         console.log("1 " + xperimus1);
                                         
@@ -210,14 +233,19 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
                                         xperimus2.push(results[i][0]);
                                         console.log("2 " + xperimus2);
 
-                                        // Num Chords Per Sample
+                                        // Num Chords Per Sample 
                                         xperimus3.push(results[i][1][0]);
                                         console.log("3 " + xperimus3);
 
-                                        // ~~ Chromas
+                                        // Summed Evidence per 24 Options
 
                                         xperimus4.push(results[i][1][1]);
                                         console.log("4 " + xperimus4);
+
+                                        // Raw (Leaky FFT) per chroma energy
+
+                                        xperimus5.push(results[i][1][2]);
+                                        console.log("5 " + xperimus5);
 
                                         // ~~ Dissonance 
 
@@ -226,22 +254,14 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
 
                                         // Num Peaks Per Sample 
 
+                                        //xperimus6.push(results[i][2][1]);
+                                        //console.log("6 " + xperimus6);
                                         xperimus6.push(results[i][2][1]);
-                                        var x = 0;
-                                        while (x < xperimus6.length) {
-                                            xperimus6[x] = xperimus6[x].toFixed(2);
-                                            x++
-                                        }
                                         console.log("6 " + xperimus6);
 
+                                        searchFeaturesClass();
+    
                                     }
-                                    //    console.log("Only 0 " + results[i][0]);
-                                    //}
-
-                                       //console.log(results)
-                                       //newOnsets.features = results;
-                                       //console.log(newOnsets.features); 
-                                       
                                        
                                        
                                     });
@@ -249,6 +269,8 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
                                         }, false);
 
 
+function searchFeaturesClass() {
+}
 /*audioContext = new window.AudioContext()
 analyser = audioContext.createAnalyser();
 const constraints = { audio: true, video: false };
