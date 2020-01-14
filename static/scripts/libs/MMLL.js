@@ -803,7 +803,7 @@ self.setup = function(sampleRate) {
 
     self.keydecay = keydecay;
     self.chromaleak = chromaleak;
-    
+
 }
 
     self.setup(sampleRate);
@@ -986,6 +986,7 @@ self.next = function(input) {
 
 function MMLLOnsetDetector(sampleRate,threshold=0.34) {
     
+  
     var self = this; 
     //helpful constants
 

@@ -127,17 +127,28 @@ function setChromaLeak(newValue) {
 //------
 
 class xperimusFeatureCollector {
-    constructor(blocks, onsets, chords, summedevidence, rchromaenergy){
+    constructor(blocks, onsets, chords, summedevidence, rchromaenergy, peakamps, dissonance, sones, centroid, rms){
         this._blocks = blocks;
         this._onsets = onsets;
         this._chords = chords;
+        this.__chords = [];
         this._summedevidence = summedevidence;
         this._rchromaenergy = rchromaenergy;
+        this._peakamps = peakamps;
+        this._dissonance = dissonance;
+        this._sones = sones;
+        this._centroid = centroid;
+        this._rms = rms;
 
         this.onsetsArray = [];
         this.chordsArray = [];
         this.summedEvid = [];
         this.chromaEnerg = [];
+        this.peaksArray = [];
+        this.dissonanceArray = [];
+        this.sonesArray = [];
+        this.centroidArray = [];
+        this.rmsArray = [];
     }
     addBlocks(v) {
         this.array = new Array();
@@ -161,12 +172,29 @@ class xperimusFeatureCollector {
         this.chromaEnerg.push(v);
         this._rchromaenergy = this.chromaEnerg;
     }
-    get features() {
-        return [this._blocks, '\n', this._onsets, '\n', this._chords, '\n', this._summedevidence, '\n', this.chromaEnerg, '\n'];
+    addDissonance(v) {
+        this.dissonanceArray.push(v);
+        this._dissonance = this.dissonanceArray;
     }
-    /*set features(x) {
-        this._blocks = new Array();
-    }*/
+    addPeakAmps(v) {
+        this.peaksArray.push(v);
+        this._peakamps = this.peaksArray;
+    }
+    addCentroid(v) {
+        this.centroidArray.push(v);
+        this._centroid = this.centroidArray;
+    }
+    addSones(v) {
+        this.sonesArray.push(v);
+        this._sones = this.sonesArray;
+    }
+    addRootMeamSquare(v) {
+        this.rmsArray.push(v);
+        this._rms = this.rmsArray;
+    }
+    get features() {
+        return [this._blocks, '\n', this._onsets, '\n', this._chords, '\n', this._summedevidence, '\n', this._rchromaenergy, '\n', this._peakamps, '\n', this._dissonance, '\n', this._sones, '\n', this._centroid, '\n', this._rms, '\n'];
+    }
 }
 
 var collector = new xperimusFeatureCollector();
@@ -176,14 +204,6 @@ function pressedStopButton(){
 }
 
 // class xperimusFingerprinting
-
-var xperimus1 = new Array();
-var xperimus2 = new Array();
-var xperimus3 = new Array();
-var xperimus4 = new Array();
-var xperimus5 = new Array();
-var xperimus6 = new Array();
-var xperimus7 = new Array();
 
 var inputfile = document.getElementById('file-input'); //document.createElement('input');
         //inputfile.type = "file";
@@ -196,17 +216,31 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
                                    //assumes that sampling rate is same for audio files to be loaded
                                    //assumes that no feature extractor has a window hop less than block size
                                    // VER DE QUE É O TAMANHO DA ARRAY MAS WORKS GOOD ON CHORD DETECTION
+                                        
+                                        /* Melhor forma de fazer isto */ 
                                         collector._blocks = [];
                                         collector._onsets = [];
                                         collector._chords = [];
+                                        collector.__chords = [];
                                         collector._summedevidence = [];
                                         collector._rchromaenergy = [];
+                                        collector._peakamps = [];
+                                        collector._dissonance = [];
+                                        collector._sones = [];
+                                        collector._centroid = [];
+                                        collector._rms = [];
                                         collector.onsetsArray = [];
+                                        collector.dissonanceArray = [];
                                         collector.chordsArray = [];
                                         collector.summedEvid = [];
                                         collector.chromaEnerg = [];
+                                        collector.peaksArray = [];
                                         collector.array = [];
-                                        var extractor = new MMLLFeatureExtractor(["MMLLOnsetDetector", "MMLLChordDetector", "MMLLSensoryDissonance"]);
+                                        collector.sonesArray = [];
+                                        collector.centroidArray = [];
+                                        collector.rmsArray = [];
+
+                                        var extractor = new MMLLFeatureExtractor(["MMLLOnsetDetector", "MMLLChordDetector", "MMLLSensoryDissonance", "MMLLSpectralCentroid", "MMLLLoudness", "MMLLRMS"]);
                                         
                                         // Blocksize tends to be == as Buffersize = delay in samples from 0 to 1;
                                         // var numblocks = Math.ceil(self.sampleplayer.lengthinsampleframes/self.audioblocksize);
@@ -223,12 +257,9 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
                                             
                                             xperimus1.set0(numblocks); */
                                             collector.addBlocks(numblocks);
-                                            
-                                            xperimus1.length = numblocks;
-                                            xperimus1.fill(0);
 
-                                            console.log("Which block " + blocknow + "Number of blocks " + numblocks);
-                                            if (blocknow%200==0) console.log(blocknow/numblocks)
+                                            //console.log("Which block " + blocknow + "Number of blocks " + numblocks);
+                                            //if (blocknow%200==0) console.log(blocknow/numblocks)
 
                                             };
 
@@ -239,44 +270,19 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
                                         
                                         collector.addOnsets(results[i][0]);
                                         collector.addChords(results[i][1][0]);
-                                        collector.addSummedevidence(results[i][1][1]);
-                                        collector.addChromaEnergy(results[i][1][2]);
+                                        collector.addSummedevidence(results[i][1][1]); // self.m_key Summed Evidence Per 24 Options
+                                        collector.addChromaEnergy(results[i][1][2]); // self.chroma Raw (leaky fft frame by frame) per chroma energy
+                                        collector.addDissonance(results[i][2][0]);
+                                        collector.addPeakAmps(results[i][2][1]);
+                                        collector.addCentroid(results[i][3]);
+                                        collector.addSones(results[i][4]);
+                                        collector.addRootMeamSquare(results[i][5]);
+                                        
+                                        /*
+                                        collector.addCentroid(results[i][3][0]);
                                         console.log("Xperimus Collector \n \n" + collector.features);    
-                                        
-                                        // NumSamples
-                                        console.log("1 " + xperimus1);
-                                        
-                                        // Num Onsets Per Sample
-                                        xperimus2.push(results[i][0]);
-                                        console.log("2 " + xperimus2);
-
-                                        // Num Chords Per Sample 
-                                        xperimus3.push(results[i][1][0]);
-                                        console.log("3 " + xperimus3);
-
-                                        // Summed Evidence per 24 Options
-
-                                        xperimus4.push(results[i][1][1]);
-                                        console.log("4 " + xperimus4);
-
-                                        // Raw (Leaky FFT) per chroma energy
-
-                                        xperimus5.push(results[i][1][2]);
-                                        console.log("5 " + xperimus5);
-
-                                        // ~~ Dissonance 
-
-                                        // xperimus5.push(results[i][2][0]); No need for dissonance
-                                        // console.log("5 " + xperimus5);
-
-                                        // Num Peaks Per Sample 
-
-                                        //xperimus6.push(results[i][2][1]);
-                                        //console.log("6 " + xperimus6);
-                                        xperimus6.push(results[i][2][1]);
-                                        console.log("6 " + xperimus6);    
+                                        */    
                                     }
-                                       
                                        
                                     });
                                  
@@ -285,15 +291,104 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
 
 function searchFeaturesClass() {
 
-    console.log("works bro;");
     console.log(collector);
 
     const indexOfAll = (arr, val) => arr.reduce((acc, el, i) => (el === val ? [...acc, i] : acc), []);
     console.log(indexOfAll(collector._onsets, 1));
-    var e = indexOfAll(collector._onsets, 1);
 
-    var v = collector._chords[e]; // checking e place inside chords array
-    console.log("chord " + v);
+    var onsetIndexes = indexOfAll(collector._onsets, 1);
+
+    var newCorrelatedChords = [];
+    collector._chords.forEach(function(key, value) {
+        for (i = 0; i < onsetIndexes.length; i++) {
+            if (value == onsetIndexes[i]) {
+                newCorrelatedChords.push(key);
+                if (newCorrelatedChords.length == onsetIndexes.length) {
+                    console.log(newCorrelatedChords)
+                }
+            }
+        }
+    });
+
+    var summedEvidenceArray = collector._summedevidence[0];
+    summedEvidenceArray = summedEvidenceArray.map(function(v){
+        return Number(v.toFixed(1));
+    });
+    var chromaEnergyArray = collector._rchromaenergy[0];
+    chromaEnergyArray = chromaEnergyArray.map(function(v) {
+        return Number(v.toFixed(1));
+    });
+    var ndissonanceArray = collector._dissonance;
+    ndissonanceArray = ndissonanceArray.map(function(v) {
+        return Number(v.toFixed(7));
+    });
+    var npeakampsArray = collector._peakamps[0];
+    npeakampsArray = npeakampsArray.map(function(v) {
+        return Number(v.toFixed(2));
+    });
+    var nsonesArray = collector._sones;
+    nsonesArray = nsonesArray.map(function(v) {
+        return Number(v.toFixed(0));
+    });
+
+    collector.__chords = [...collector._chords];
+    var checker = collector.__chords;
+    for (i = 0; i < checker.length; i++) {
+        if (checker[i] == 0) { checker[i] = "C+"; }
+        if (checker[i] == 1) { checker[i] = "C#+"; }
+        if (checker[i] == 2) { checker[i] = "D+"; }
+        if (checker[i] == 3) { checker[i] = "D#+"; }
+        if (checker[i] == 4) { checker[i] = "E+"; }
+        if (checker[i] == 5) { checker[i] = "F+"; }
+        if (checker[i] == 6) { checker[i] = "F#+"; }
+        if (checker[i] == 7) { checker[i] = "G+"; }
+        if (checker[i] == 8) { checker[i] = "G#+"; }
+        if (checker[i] == 9) { checker[i] = "A+"; }
+        if (checker[i] == 10) { checker[i] = "A#+"; }
+        if (checker[i] == 11) { checker[i] = "B+"; }
+        if (checker[i] == 12) { checker[i] = "C-"; }
+        if (checker[i] == 13) { checker[i] = "C#-"; }
+        if (checker[i] == 14) { checker[i] = "D-"; }
+        if (checker[i] == 15) { checker[i] = "D#-"; }
+        if (checker[i] == 16) { checker[i] = "E-"; }
+        if (checker[i] == 17) { checker[i] = "F-"; }
+        if (checker[i] == 18) { checker[i] = "F#-"; }
+        if (checker[i] == 19) { checker[i] = "G-"; }
+        if (checker[i] == 20) { checker[i] = "G#-"; }
+        if (checker[i] == 21) { checker[i] = "A-"; }
+        if (checker[i] == 22) { checker[i] = "A#-"; }
+        if (checker[i] == 23) { checker[i] = "C-"; }
+    }
+
+    var ncentroidArray = collector._centroid;
+    ncentroidArray = ncentroidArray.map(function(v) {
+        return Number(v.toFixed(6));
+    });
+    var nrmsArray = collector._rms;
+    nrmsArray = nrmsArray.map(function(v) {
+        return Number(v.toFixed(4));
+    });
+
+    collector._summedevidence = summedEvidenceArray;
+    collector._rchromaenergy = chromaEnergyArray;
+    collector._dissonance = ndissonanceArray;
+    collector._peakamps = npeakampsArray;
+    collector._sones = nsonesArray;
+    collector._centroid = ncentroidArray;
+    collector._rms = nrmsArray;
+
+    var newCorrelatedSones = [];
+    collector._sones.forEach(function(key, value) {
+        for (i = 0; i < onsetIndexes.length; i++) {
+            if (value == onsetIndexes[i]) {
+                newCorrelatedSones.push(key);
+                if (newCorrelatedSones.length == onsetIndexes.length) {
+                    console.log(newCorrelatedSones)
+                }
+            }
+        }
+    });
+    /* Dynamic Check of the most high values */ 
 }
 
 /*audioContext = new window.AudioContext()
