@@ -378,6 +378,8 @@ function searchFeaturesClass() {
     collector._rms = nrmsArray;
 
     var newCorrelatedSones = [];
+    var _newCorrelatedSones = Array.from(collector._sones);
+
     collector._sones.forEach(function(key, value) {
         for (i = 0; i < onsetIndexes.length; i++) {
             if (value == onsetIndexes[i]) {
@@ -387,8 +389,34 @@ function searchFeaturesClass() {
                 }
             }
         }
+        _newCorrelatedSones = _newCorrelatedSones.sort((a, b) => a - b);
+        var e = _newCorrelatedSones.slice(Math.max(_newCorrelatedSones.length - 5, 1));
+        // Go through the value
+        for (var i = 0; i < e.length; i++) {
+            for (var j = 0; j < collector._sones.length; j++) {
+                console.log(e[i] + " - " + collector._sones[j]); 
+            }
+        }
     });
-    /* Dynamic Check of the most high values */ 
+
+
+
+    Array.prototype.diff = function(arr2) {
+        var ret = [];
+        this.sort();
+        arr2.sort();
+        for(var i = 0; i < this.length; i += 1) {
+            if(arr2.indexOf(this[i]) > -1){
+                ret.push(this[i]);
+            }
+        }
+        return ret;
+    }
+
+    searchHighSones();
+
+    /* Dynamic Check of the most high values 
+    add HTTPS for secure login */ 
 }
 
 /*audioContext = new window.AudioContext()
