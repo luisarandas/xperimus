@@ -12730,8 +12730,6 @@ function MMLLBasicGUISetup(callback,setup,audioblocksize=256,microphone=true,aud
                 self.webaudio.audiocontext.close();
                 
                 self.audionotrunning = true;
-
-                pressedStopButton();
                 
                 self.stopbutton.parentNode.removeChild(self.stopbutton);
                 

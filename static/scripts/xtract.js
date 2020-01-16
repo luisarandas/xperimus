@@ -1,5 +1,7 @@
 // It would be good to encode the tempo - test with two simple wav files
 // Codificar uma progressão harmónica algoritmicamente - TEST WITH MOBILE
+// Add Dynamic Mapping of Mic Stream
+
 "use strict";
 
 var i;
@@ -8,15 +10,19 @@ var chorddetector;
 var onsetdetector;
 var sones = 0;
 var mmllloudness;
+var sensorydissonance;
+var dissonance = 0;
 
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext("2d");
 
 var setup = function SetUp(sampleRate){
     console.log("Setting Up!");
+
     onsetdetector = new MMLLOnsetDetector(sampleRate);
     chorddetector = new MMLLChordDetector(sampleRate,2,0.5);
     mmllloudness = new MMLLLoudness(sampleRate);
+    sensorydissonance = new MMLLSensoryDissonance(sampleRate); //accept defaults otherwise
 
 };
 
@@ -24,12 +30,15 @@ var callback = function CallBack(input, output, n){
 
     sones = mmllloudness.next(input.monoinput);
     var chord = chorddetector.next(input.monoinput);
-    console.log("chord", chord);
+    dissonance = sensorydissonance.next(input.monoinput);
+
+
+    console.log("chord", chord, "sones ", sones, "dissonance ", dissonance[0]);
     document.getElementById('chordText').innerHTML = "Detected " + chord;
 
     var detection = onsetdetector.next(input.monoinput);
     if (detection) {
-        console.log("Onset now!");
+        console.log("Onset now! ---------------------------");
         var randomcolor = "rgb(" +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ ")";
         context.fillStyle = randomcolor;
         context.fillRect(0,0,canvas.width,canvas.height);
@@ -130,12 +139,6 @@ class xperimusFeatureCollector {
 }
 
 var collector = new xperimusFeatureCollector();
- 
-function pressedStopButton(){
-    console.log("jst prsd;");
-}
-
-// class xperimusFingerprinting
 
 var inputfile = document.getElementById('file-input'); //document.createElement('input');
         //inputfile.type = "file";
@@ -147,7 +150,6 @@ var inputfile = document.getElementById('file-input'); //document.createElement(
                                    //arguments: array of features to extract, block size in samples, sampling rate
                                    //assumes that sampling rate is same for audio files to be loaded
                                    //assumes that no feature extractor has a window hop less than block size
-                                   // VER DE QUE É O TAMANHO DA ARRAY MAS WORKS GOOD ON CHORD DETECTION
                                         
                                         /* Melhor forma de fazer isto */ 
                                         collector._blocks = [];

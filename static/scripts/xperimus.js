@@ -29,8 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    
-    var audioCtx = new AudioContext();
+    //var audioCtx = new AudioContext();
     // Check properties of the context.
 
     sniffNetwork();
