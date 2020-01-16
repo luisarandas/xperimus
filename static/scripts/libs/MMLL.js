@@ -12643,14 +12643,19 @@ function MMLLWebAudioSetup(blocksize, inputtype, callback, setup) {
             //navigator.mediaDevices.getUserMedia
             //https://stackoverflow.com/questions/37673000/typeerror-getusermedia-called-on-an-object-that-does-not-implement-interface
             
-            if (!navigator.getUserMedia)
+            /*if (!navigator.getUserMedia)
                 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
-                 navigator.mozGetUserMedia || navigator.msGetUserMedia;
+                navigator.mediaDevices.getUserMedia ||
+                navigator.mozGetUserMedia || 
+                OTPlugin.getUserMedia ||
+                navigator.msGetUserMedia;*/
             
-            navigator.getUserMedia({audio:true}, self.initAudio, function(e) {
+            /*navigator.getUserMedia({audio:true}, self.initAudio, function(e) {
                                    alert('Error getting audio');
                                    console.log(e);
-                                   });
+                                   });*/
+
+            navigator.mediaDevices.getUserMedia({ audio: true}).then(self.initAudio);//, self.initAudio);
             
             
         } else {

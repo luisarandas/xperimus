@@ -11,6 +11,8 @@
     <!-- Tensorflow Transfer Learning Test -->
     <script src="https://unpkg.com/@tensorflow/tfjs"></script>
     <script src="https://unpkg.com/@tensorflow-models/speech-commands"></script>
+    <!-- WEBRTC Polyfill -->
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 
     <script src="/static/scripts/xperimus.js"></script>
     <!-- Change Parts from other Page - Chat 
@@ -123,7 +125,7 @@
     <br>________________________________________________________________________
     <div id="console"></div>
     <br><br>
-    <h1>feature extractor by hand</h1>
+    <h1>feature extractor by hand - with mic from navigator.mediaDevices.getUserMedia({audio:true})</h1>
     <br>________________________________________________________________________
     <br><br><br><br>
     <button onclick="document.getElementById('file-input').click();">Choose Audio File</button>
