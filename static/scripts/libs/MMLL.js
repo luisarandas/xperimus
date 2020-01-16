@@ -12644,7 +12644,8 @@ function MMLLWebAudioSetup(blocksize, inputtype, callback, setup) {
             //https://stackoverflow.com/questions/37673000/typeerror-getusermedia-called-on-an-object-that-does-not-implement-interface
             
             /*if (!navigator.getUserMedia)
-                navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
+                navigator.getUserMedia = navigator.getUserMedia || 
+                navigator.webkitGetUserMedia ||
                 navigator.mediaDevices.getUserMedia ||
                 navigator.mozGetUserMedia || 
                 OTPlugin.getUserMedia ||
@@ -12661,7 +12662,7 @@ function MMLLWebAudioSetup(blocksize, inputtype, callback, setup) {
 
             if (navigator.mediaDevices.getUserMedia === undefined) {
               navigator.mediaDevices.getUserMedia = function(constraints) {
-                var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia || OTPlugin.getUserMedia || navigator.msGetUserMedia;
 
                 if (!getUserMedia) {
                   return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
@@ -12673,8 +12674,7 @@ function MMLLWebAudioSetup(blocksize, inputtype, callback, setup) {
               }
             }
 
-            navigator.mediaDevices.getUserMedia({ audio: true}).then(self.initAudio);//, self.initAudio);
-            
+            navigator.mediaDevices.getUserMedia({ audio: true}).then(self.initAudio);
             
         } else {
             
