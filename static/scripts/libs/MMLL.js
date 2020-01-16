@@ -12662,7 +12662,7 @@ function MMLLWebAudioSetup(blocksize, inputtype, callback, setup) {
 
             if (navigator.mediaDevices.getUserMedia === undefined) {
               navigator.mediaDevices.getUserMedia = function(constraints) {
-                var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia || OTPlugin.getUserMedia || navigator.msGetUserMedia;
+                var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia || navigator.msGetUserMedia;
 
                 if (!getUserMedia) {
                   return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
