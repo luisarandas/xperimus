@@ -12658,7 +12658,7 @@ function MMLLWebAudioSetup(blocksize, inputtype, callback, setup) {
 
 
 
-            if (navigator.mediaDevices === undefined) {
+            /*if (navigator.mediaDevices === undefined) {
               navigator.mediaDevices = {};
               
             }
@@ -12667,9 +12667,9 @@ function MMLLWebAudioSetup(blocksize, inputtype, callback, setup) {
               navigator.mediaDevices.getUserMedia = function(constraints) {
                 var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia || navigator.msGetUserMedia;
 
-                /*if (!getUserMedia) {
+                if (!getUserMedia) {
                   return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
-                }*/
+                }
 
                 return new Promise(function(resolve, reject) {
                   getUserMedia.call(navigator, constraints, resolve, reject);
@@ -12677,6 +12677,9 @@ function MMLLWebAudioSetup(blocksize, inputtype, callback, setup) {
               }
             }
 
+            navigator.mediaDevices.getUserMedia({ audio: true}).then(self.initAudio);*/
+
+            // testing with polyfill.js
             navigator.mediaDevices.getUserMedia({ audio: true}).then(self.initAudio);
             
         } else {

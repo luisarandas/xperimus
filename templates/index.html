@@ -125,13 +125,14 @@
     <br>________________________________________________________________________
     <div id="console"></div>
     <br><br>
-    <h1>feature extractor by hand - no OT</h1>
+    <h1>feature extractor by hand - no OT w polyfillll</h1>
     <br><br><br><br>
     <button onclick="document.getElementById('file-input').click();">Choose Audio File</button>
     <input id="file-input" type="file" name="name" style="display: none;" />
     <button onclick="searchFeaturesClass()">Search and Correlate</button>
 
     <!-- Meyda && MMLL -->
+    <script src="/static/scripts/libs/polyfill.js"></script>
     <script src="/static/scripts/libs/MMLL.js"></script>
     <script src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
     <script src="/static/scripts/xtract.js"></script>
