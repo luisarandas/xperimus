@@ -1,74 +1,12 @@
 // It would be good to encode the tempo - test with two simple wav files
 // Codificar uma progressão harmónica algoritmicamente - TEST WITH MOBILE
-// Add Dynamic Mapping of Mic Stream
-
-"use strict";
-
-var i;
-var audioblocksize = 256;
-var chorddetector;
-var onsetdetector;
-var sones = 0;
-var mmllloudness;
-var sensorydissonance;
-var dissonance = 0;
-
-var canvas = document.getElementById("canvas");
-var context = canvas.getContext("2d");
-
-var setup = function SetUp(sampleRate){
-    console.log("Setting Up!");
-
-    onsetdetector = new MMLLOnsetDetector(sampleRate);
-    chorddetector = new MMLLChordDetector(sampleRate,2,0.5);
-    mmllloudness = new MMLLLoudness(sampleRate);
-    sensorydissonance = new MMLLSensoryDissonance(sampleRate); //accept defaults otherwise
-
-};
-
-var callback = function CallBack(input, output, n){
-
-    sones = mmllloudness.next(input.monoinput);
-    var chord = chorddetector.next(input.monoinput);
-    dissonance = sensorydissonance.next(input.monoinput);
-
-
-    console.log("chord", chord, "sones ", sones, "dissonance ", dissonance[0]);
-    document.getElementById('chordText').innerHTML = "Detected " + chord;
-
-    var detection = onsetdetector.next(input.monoinput);
-    if (detection) {
-        console.log("Onset now! ---------------------------");
-        var randomcolor = "rgb(" +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ ")";
-        context.fillStyle = randomcolor;
-        context.fillRect(0,0,canvas.width,canvas.height);
-    }
-
-    for (i=0; i<n; i++){
-        output.outputL[i] = input.inputL[i];
-        output.outputR[i] = input.inputR[i];
-    }
-};
-
-function setThreshold(newValue){
-    var threshold = parseFloat(newValue)*0.01;
-    onsetdetector.threshold = threshold;
-}
-
-var gui = new MMLLBasicGUISetup(callback,setup,audioblocksize,true,true);
-
-function setKeyDecay(newValue) {
-    chorddetector.keydecay = parseFloat(newValue)*0.1;
-}
-
-function setChromaLeak(newValue) {
-    chorddetector.chromaleak = parseFloat(newValue)*0.01;
-}
-
-//------
+// Add Dynamic Mapping of Mic Stream && secure login
+// Nome
 
 class xperimusFeatureCollector {
+
     constructor(blocks, onsets, chords, summedevidence, rchromaenergy, peakamps, dissonance, sones, centroid, rms){
+        
         this._blocks = blocks;
         this._onsets = onsets;
         this._chords = chords;
@@ -91,6 +29,7 @@ class xperimusFeatureCollector {
         this.centroidArray = [];
         this.rmsArray = [];
     }
+    // static
     addBlocks(v) {
         this.array = new Array();
         this.array.length = v;
@@ -138,7 +77,106 @@ class xperimusFeatureCollector {
     }
 }
 
+class realTimeFeatureMatcher extends xperimusFeatureCollector {
+    constructor(...args) {
+        super(...args);
+    }
+    matchChordDatabase = function () {
+        var relatedArray = [6, 12, 18, 22];
+        for (i = 0; i < relatedArray.length; i++) {
+            console.log(" Go through matrix");
+        }
+    }
+}
+
+"use strict";
+
 var collector = new xperimusFeatureCollector();
+var matcher = new realTimeFeatureMatcher();
+
+var i;
+var audioblocksize = 256;
+var chorddetector;
+var onsetdetector;
+var sones = 0;
+var mmllloudness;
+var sensorydissonance;
+var dissonance = 0;
+var qitch, sr;
+var freq=440, midipitch=69;
+
+var canvas = document.getElementById("canvas");
+var context = canvas.getContext("2d");
+
+var setup = function SetUp(sampleRate){
+    console.log("Setting Up!");
+
+    onsetdetector = new MMLLOnsetDetector(sampleRate);
+
+    chorddetector = new MMLLChordDetector(sampleRate,2,0.5);
+
+    mmllloudness = new MMLLLoudness(sampleRate);
+
+    sensorydissonance = new MMLLSensoryDissonance(sampleRate); //accept defaults otherwise
+
+    sr = sampleRate;
+    qitch = new MMLLQitch(sampleRate,4096); //accept defaults otherwise
+
+};
+
+var callback = function CallBack(input, output, n){
+
+    sones = mmllloudness.next(input.monoinput);
+    var chord = chorddetector.next(input.monoinput);
+    dissonance = sensorydissonance.next(input.monoinput);
+
+    freq = qitch.next(input.monoinput);
+    
+    midipitch = qitch.m_midipitch;
+
+    var k = freq;
+    var l = midipitch;
+    var m = sones;
+    console.log("chord", chord, "sones", m.toFixed(0), "dissonance ", dissonance[0], "freq", k.toFixed(0), "midipitch", l.toFixed(0));
+    document.getElementById('chordText').innerHTML = "Detected " + chord;
+
+    var detection = onsetdetector.next(input.monoinput);
+    if (detection) {
+        console.log("Onset now! ---------------------------");
+        var randomcolor = "rgb(" +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ ")";
+        context.fillStyle = randomcolor;
+        context.fillRect(0,0,canvas.width,canvas.height);
+    }
+
+    matcher._chords = chord;
+    matcher._sones = sones;
+    matcher._onsets = detection;
+    //console.log("RT Description ", chord, sones, detection, dissonance[0]);
+
+    /* Qitch also */ 
+
+    for (i=0; i<n; i++){
+        output.outputL[i] = input.inputL[i];
+        output.outputR[i] = input.inputR[i];
+    }
+};
+
+function setThreshold(newValue){
+    var threshold = parseFloat(newValue)*0.01;
+    onsetdetector.threshold = threshold;
+}
+
+var gui = new MMLLBasicGUISetup(callback,setup,audioblocksize,true,true);
+
+function setKeyDecay(newValue) {
+    chorddetector.keydecay = parseFloat(newValue)*0.1;
+}
+
+function setChromaLeak(newValue) {
+    chorddetector.chromaleak = parseFloat(newValue)*0.01;
+}
+
+//---------------------------------
 
 var inputfile = document.getElementById('file-input'); //document.createElement('input');
         //inputfile.type = "file";
@@ -329,14 +367,8 @@ function searchFeaturesClass() {
     // Go through the value
     // const found = newCorrelatedSones.some(r => _newCorrelatedSones.indexOf(r) >= 0);
     console.log(e, "Highest Sones in Sample");
-
-
-
-
-
     //Array.prototype.diff 
-    /* Dynamic Check of the most high values 
-    add HTTPS for secure login */ 
+
 }
 
 /* Transfer Learning Example */
@@ -356,7 +388,7 @@ function predictWord() {
  }, {probabilityThreshold: 0.75});
 }
 
-async function app() {
+async function app() { 
  recognizer = speechCommands.create('BROWSER_FFT');
  await recognizer.ensureModelLoaded();
  predictWord();

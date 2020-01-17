@@ -12655,18 +12655,21 @@ function MMLLWebAudioSetup(blocksize, inputtype, callback, setup) {
                                    alert('Error getting audio');
                                    console.log(e);
                                    });*/
+
+
+
             if (navigator.mediaDevices === undefined) {
               navigator.mediaDevices = {};
-              console.log("well.");
+              
             }
 
             if (navigator.mediaDevices.getUserMedia === undefined) {
               navigator.mediaDevices.getUserMedia = function(constraints) {
                 var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia || navigator.msGetUserMedia;
 
-                if (!getUserMedia) {
+                /*if (!getUserMedia) {
                   return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
-                }
+                }*/
 
                 return new Promise(function(resolve, reject) {
                   getUserMedia.call(navigator, constraints, resolve, reject);
