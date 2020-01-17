@@ -12658,7 +12658,7 @@ function MMLLWebAudioSetup(blocksize, inputtype, callback, setup) {
 
 
 
-            /*if (navigator.mediaDevices === undefined) {
+            if (navigator.mediaDevices === undefined) {
               navigator.mediaDevices = {};
               
             }
@@ -12677,10 +12677,10 @@ function MMLLWebAudioSetup(blocksize, inputtype, callback, setup) {
               }
             }
 
-            navigator.mediaDevices.getUserMedia({ audio: true}).then(self.initAudio);*/
+            navigator.mediaDevices.getUserMedia({ audio: true}).then(self.initAudio);
 
             // testing with polyfill.js
-            navigator.mediaDevices.getUserMedia({ audio: true}).then(self.initAudio);
+            //navigator.mediaDevices.getUserMedia({ audio: true}).then(self.initAudio);
             
         } else {
             

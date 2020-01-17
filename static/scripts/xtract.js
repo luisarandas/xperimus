@@ -2,6 +2,7 @@
 // Codificar uma progressão harmónica algoritmicamente - TEST WITH MOBILE
 // Add Dynamic Mapping of Mic Stream && secure login
 // Nome
+// Chrome blocks non secure hosts
 
 class xperimusFeatureCollector {
 
@@ -81,7 +82,7 @@ class realTimeFeatureMatcher extends xperimusFeatureCollector {
     constructor(...args) {
         super(...args);
     }
-    matchChordDatabase = function () {
+    matchChordDatabase() {
         var relatedArray = [6, 12, 18, 22];
         for (i = 0; i < relatedArray.length; i++) {
             console.log(" Go through matrix");
