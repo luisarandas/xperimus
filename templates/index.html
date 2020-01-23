@@ -8,9 +8,13 @@
     <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
-    <!-- Tensorflow Transfer Learning Test -->
+    <!-- Tensorflow Transfer Learning Test-->
     <script src="https://unpkg.com/@tensorflow/tfjs"></script>
     <script src="https://unpkg.com/@tensorflow-models/speech-commands"></script>
+
+    <!-- RapidLib for Series Classification using Dynamic Time Warping -->
+    <script src="https://www.doc.gold.ac.uk/eavi/rapidmix/RapidLib.js"></script>
+
     <!-- WEBRTC Polyfill -->
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 
@@ -120,16 +124,30 @@
     <canvas id="canvas" width="400" height="200">
         This text is displayed if your browser does not support HTML5 Canvas.
     </canvas><br><br>
+    <h1>audio test series</h1>
+    <br>_____ ________ ___________ ________________ ____________________________
+    <br><br>
+    <button onclick="record1()">Record 1</button>
+    <button onclick="stop1()">Stop 1</button>
+    <button onclick="record2()">Record 2</button>
+    <button onclick="stop2()">Stop 2</button>
 
-    <h1>transfer learning test</h1>
-    <br>________________________________________________________________________
-    <div id="console"></div>
+    <br><br>
+
+    <h1>rapidLib</h1>
+    <h1>Shape identification using Series Classification</h1>
+    <br>
+    <canvas id="shape1" width="400" height="400"></canvas>
+    <canvas id="shape2" width="400" height="400"></canvas>
+    <canvas id="shapeTest" width="400" height="400"></canvas>
+
     <br><br>
     <h1>feature extractor by hand - no OT w polyfill</h1>
     <br><br><br><br>
     <button onclick="document.getElementById('file-input').click();">Choose Audio File</button>
     <input id="file-input" type="file" name="name" style="display: none;" />
     <button onclick="searchFeaturesClass()">Search and Correlate</button>
+    <button onclick="matchClassifier()">LIB_matchClassifier</button>
 
     <!-- Meyda && MMLL -->
     <script src="/static/scripts/libs/polyfill.js"></script>

@@ -4,6 +4,15 @@
 // Nome
 // Chrome blocks non secure hosts
 
+// Navigate to chrome://flags/#unsafely-treat-insecure-origin-as-secure
+// Find and enable the `Insecure origins treated as secure` section (see below).
+// Add any addresses you want to ignore the secure origin policy for. Remember to include the port number too (if required).
+// Save and restart Chrome.
+
+// const ; async and await ; http://asmjs.org/ ; https://medium.com/@kelin2025/so-you-wanna-use-es6-modules-714f48b3a953
+// https://blog.acolyer.org/2016/05/11/searching-and-mining-trillions-of-time-series-subsequences-under-dynamic-time-warping/
+// https://www.audiolabs-erlangen.de/fau/professor/mueller/demos
+
 class xperimusFeatureCollector {
 
     constructor(blocks, onsets, chords, summedevidence, rchromaenergy, peakamps, dissonance, sones, centroid, rms){
@@ -95,16 +104,22 @@ class realTimeFeatureMatcher extends xperimusFeatureCollector {
 var collector = new xperimusFeatureCollector();
 var matcher = new realTimeFeatureMatcher();
 
+var rapidLib = window.RapidLib();
+var descriptorClassifier = new rapidLib.SeriesClassification();
+
 var i;
 var audioblocksize = 256;
 var chorddetector;
 var onsetdetector;
 var sones = 0;
+var chord = -1;
 var mmllloudness;
 var sensorydissonance;
 var dissonance = 0;
 var qitch, sr;
 var freq=440, midipitch=69;
+
+var soundState = "rec1";
 
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext("2d");
@@ -128,21 +143,24 @@ var setup = function SetUp(sampleRate){
 var callback = function CallBack(input, output, n){
 
     sones = mmllloudness.next(input.monoinput);
-    var chord = chorddetector.next(input.monoinput);
+    chord = chorddetector.next(input.monoinput);
     dissonance = sensorydissonance.next(input.monoinput);
 
     freq = qitch.next(input.monoinput);
     
     midipitch = qitch.m_midipitch;
 
+    document.getElementById('chordText').innerHTML = "Detected " + chord;
+
+    //xperimusDynamicTimeWarping(m.toFixed(0));
+
+    var detection = onsetdetector.next(input.monoinput);
+    if (detection) {
+
     var k = freq;
     var l = midipitch;
     var m = sones;
     console.log("chord", chord, "sones", m.toFixed(0), "dissonance ", dissonance[0], "freq", k.toFixed(0), "midipitch", l.toFixed(0));
-    document.getElementById('chordText').innerHTML = "Detected " + chord;
-
-    var detection = onsetdetector.next(input.monoinput);
-    if (detection) {
         console.log("Onset now! ---------------------------");
         var randomcolor = "rgb(" +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ ")";
         context.fillStyle = randomcolor;
@@ -152,7 +170,8 @@ var callback = function CallBack(input, output, n){
     matcher._chords = chord;
     matcher._sones = sones;
     matcher._onsets = detection;
-    //console.log("RT Description ", chord, sones, detection, dissonance[0]);
+
+    rapidlibSoundData(soundState, chord, m, dissonance, k, l);
 
     /* Qitch also */ 
 
@@ -368,31 +387,302 @@ function searchFeaturesClass() {
     // Go through the value
     // const found = newCorrelatedSones.some(r => _newCorrelatedSones.indexOf(r) >= 0);
     console.log(e, "Highest Sones in Sample");
-    //Array.prototype.diff 
 
 }
 
-/* Transfer Learning Example */
+//Array.prototype.diff = function()
+var new_scale = []; // new
+var static_arr = [5, 10, 20]; // old
 
-/*
-let recognizer;
-
-function predictWord() {
- // Array of words that the recognizer is trained to recognize.
- const words = recognizer.wordLabels();
- recognizer.listen(({scores}) => {
-   // Turn scores into a list of (score,word) pairs.
-   scores = Array.from(scores).map((s, i) => ({score: s, word: words[i]}));
-   // Find the most probable word.
-   scores.sort((s1, s2) => s2.score - s1.score);
-   document.querySelector('#console').textContent = scores[0].word;
- }, {probabilityThreshold: 0.75});
+function xperimusDynamicTimeWarping(v) {
+    
+    var searchMatrix = function() {
+        /* if (search !== undefined) {
+            return search;
+        } */
+    }
+    this.searchMatrix = searchMatrix;
 }
 
-async function app() { 
- recognizer = speechCommands.create('BROWSER_FFT');
- await recognizer.ensureModelLoaded();
- predictWord();
+console.log("write in the div if 20 come");
+
+// -----------------------------------------------------------------------------
+var soundMLTrain = 1;
+
+var trainingEx1 = { 
+    input: {
+        x1: [],
+        x2: [],
+        x3: [],
+        x4: [],
+        x5: []
+    }, 
+    label: "sound1"
+};
+var trainingEx2 = { 
+    input: {
+        x1: [],
+        x2: [],
+        x3: [],
+        x4: [],
+        x5: []
+    }, 
+    label: "sound2"
+};
+
+
+function rapidlibSoundData(soundState, chord, m, dissonance, k, l) {
+    //console.log("data for training ", chord, m, dissonance[0], k, l);
+
+    switch(soundMLTrain) {
+        case 1: 
+            if (soundState == "rec1") {
+                trainingEx1.input.x1.push(chord);
+                trainingEx1.input.x2.push(m);
+                trainingEx1.input.x3.push(dissonance[0]);
+                trainingEx1.input.x4.push(k);
+                trainingEx1.input.x5.push(l);
+                console.log("EX 1 ", trainingEx1);
+            }
+            break;
+        case 2:
+            break;
+        case 3:
+            break;
+        case 4:
+            break; 
+    }
 }
 
-app();*/
+
+
+// -----------------------------------------------------------------------------
+
+
+
+
+var myDTW = new rapidLib.SeriesClassification();
+console.log("dtw ", myDTW);
+// arrays para hold two training examples and one to test against
+var trainingExample1 = { input: [], label: "shape 1"};
+var trainingExample2 = { input: [], label: "shape 2"};
+var testSeries = [];
+
+var recordState = 0;
+var match = -1;
+var costs = [-1, -1];
+
+//this pushes the mouse postition into the correct set
+//Called from mouse listener
+function recorder(mouseID, rapidInput) {
+    switch (recordState) {
+        case 1:
+            if (mouseID == "shape1") {
+                trainingExample1.input.push(rapidInput);
+            }
+            break;
+        case 2:
+            if (mouseID == "shape2") {
+                trainingExample2.input.push(rapidInput);
+            }
+            break;
+        case 3:
+            if (mouseID == "shapeTest") {
+                console.log("pushTest");
+                testSeries.push(rapidInput);
+            }
+            break;
+    }
+}
+
+//Train and classify! Called on mouse up in the test set
+function rapidLib_train_run() {
+
+    //clear out the model
+    myDTW.reset();
+    //train it on an array of training examples
+    var seriesSet = [trainingExample1, trainingExample2];
+    myDTW.train(seriesSet);
+    //run on a test series
+    match = myDTW.run(testSeries);
+    //get the costs of all matches
+    costs = myDTW.getCosts();
+
+    console.log("testSet ", testSeries);
+    console.log("match ", match);
+    console.log("costs ", costs);
+}
+
+///////////////////////////////////////////////////////////////////////// INPUT
+
+var mouseX;
+var mouseY;
+var mouseID;
+
+
+
+var shape1 = document.getElementById("shape1");
+var context1 = shape1.getContext("2d");
+shape1.addEventListener('mousemove', getMouse, false);
+shape1.onmousedown = function() {
+    trainingExample1.input = [];
+    testSeries = [];
+    match = -1;
+    recordState = 1;
+};
+shape1.onmouseup = function() {
+    recordState = 0;
+    console.log("ts1 length: ", trainingExample1.input.length);
+};
+
+var shape2 = document.getElementById("shape2");
+var context2 = shape2.getContext("2d");
+shape2.addEventListener('mousemove', getMouse, false);
+shape2.onmousedown = function() {
+    trainingExample2.input = [];
+    testSeries = [];
+    match = -1;
+    recordState = 2;
+};
+shape2.onmouseup = function() {
+    recordState = 0;
+    console.log("ts2 length: ", trainingExample2.input.length);
+};
+
+var shapeTest = document.getElementById("shapeTest");
+var contextTest = shapeTest.getContext("2d");
+shapeTest.addEventListener('mousemove', getMouse, false);
+shapeTest.onmousedown = function() {
+    testSeries = [];
+    recordState = 3;
+};
+shapeTest.onmouseup = function() {
+    recordState = 0;
+    console.log("s1t ", trainingExample1);
+
+    //Machine Learning functions (above)
+    rapidLib_train_run();
+};
+
+function getMouse(mousePosition) {
+    if (mousePosition.offsetX || mousePosition.offsetX === 0) { 
+        mouseID = mousePosition.path[0].id;
+        mouseX = mousePosition.offsetX; 
+        mouseY = mousePosition.offsetY;
+    } else if (mousePosition.layerX || mousePosition.layerX === 0) {
+        mouseX = mousePosition.layerX;
+        mouseY = mousePosition.layerY;
+    }
+    
+    //This records the mouse position into the proper training or test set
+    var rapidInput = [mouseX, mouseY];
+    recorder(mouseID, rapidInput);
+}
+
+/////////////////////////////////////////////////////////////// DRAWING
+
+var fonts = "Lato, sans-serif";
+var rapidGreen = "#18db5c";
+var rapidOrange = "#FF9D75";
+
+function drawInContext(context, tSet) {
+    context.clearRect(0,0, 400, 400);
+        
+    //mouse coordinates
+    context.font = "16px " + fonts;
+    context.fillStyle = rapidGreen;
+    context.fillText('mouse position: (' + mouseX + ', ' + mouseY + ')' , 20, 390);
+    
+    context.strokeStyle = rapidGreen;
+    context.lineWidth = 2;
+    if ((context === context1 && match === "shape 1") || (context === context2 && match === "shape 2")) {
+        context.lineWidth=10;
+        context.strokeStyle = rapidOrange;
+    } 
+    var x = 0;
+    var y = 0;
+    if (tSet[0]) {
+        x = tSet[0][0];
+        y = tSet[0][1];
+        context.beginPath();
+        context.moveTo(x, y);
+        for (var i = 1; i < tSet.length; ++i) {
+            x = tSet[i][0];
+            y = tSet[i][1];
+            context.lineTo(x,y);
+        }
+        context.stroke();
+        context.closePath();
+    }
+}
+
+function draw() {
+    //Draw the recorded paths
+    drawInContext(context1, trainingExample1.input);
+    drawInContext(context2, trainingExample2.input);
+    drawInContext(contextTest, testSeries);
+    
+    //Draw the data
+    contextTest.font = "16px " + fonts;
+    contextTest.fillStyle = rapidOrange;
+    var matchText = "no match yet";
+    switch (match) {
+        case -1:
+            matchText = "no match yet";
+            break;
+        case "shape 1":
+            matchText = "matches left shape";
+            break;
+        case "shape 2":
+            matchText = "matches right shape";
+            break;
+    }
+    
+    contextTest.fillText(matchText , 20, 20);
+    if (costs[0] > 0) {
+    contextTest.fillText("match costs:", 20, 40);
+    contextTest.fillText("left " + costs[0], 25, 60);
+    contextTest.fillText("right " + costs[1], 25, 80);
+
+    }
+    window.requestAnimationFrame(draw);
+}
+window.requestAnimationFrame(draw);
+
+
+/* Speech Model - need the require walkthrough 
+https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/audio
+*/
+
+const URL = 'file://model/'
+
+async function createModel() {
+    const checkpointURL = URL + 'model.json';
+    const metadataURL = URL + 'metadata.json';
+    const recognizer = speechCommands.create('BROWSER_FFT', undefined, checkpointURL, metadataURL);
+
+    await recognizer.ensureModelLoaded();
+
+    return recognizer;
+}
+
+async function init() {
+    const recognizer = await createModel();
+    const classLabels = recognizer.wordLabels();
+    const labelContainer = document.getElementById('label-container');
+    for (let i = 0; i < classLabels.length; i++) {
+        labelContainer.appendChild(document.createElement('div'));
+    }
+    recognizer.listen(result => {
+        const scores = result.scores;
+        for (let i = 0; i < classLabels.length; i++) {
+            const classPrediction = classLabels[i] + ': ' + result.scores[i].toFixed(2);
+            labelContainer.childNodes[i].innerHTML = classPrediction;
+        }
+    }, {
+        includeSpectrogram: true,
+        probabilityThreshold: 0.75,
+        invokeCallbackOnNoiseAndUnknown: true,
+        overlapFactor: 0.50
+    });
+}
