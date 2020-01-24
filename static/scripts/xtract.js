@@ -153,25 +153,26 @@ var callback = function CallBack(input, output, n){
     document.getElementById('chordText').innerHTML = "Detected " + chord;
 
     //xperimusDynamicTimeWarping(m.toFixed(0));
+    var k = freq;
+    var l = midipitch;
+    var m = sones;
 
     var detection = onsetdetector.next(input.monoinput);
     if (detection) {
 
-    var k = freq;
-    var l = midipitch;
-    var m = sones;
+    rapidlibSoundData(soundState, chord, sones, dissonance, freq, midipitch);
+
     console.log("chord", chord, "sones", m.toFixed(0), "dissonance ", dissonance[0], "freq", k.toFixed(0), "midipitch", l.toFixed(0));
-        console.log("Onset now! ---------------------------");
-        var randomcolor = "rgb(" +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ ")";
-        context.fillStyle = randomcolor;
-        context.fillRect(0,0,canvas.width,canvas.height);
+    console.log("Onset now! ---------------------------");
+    var randomcolor = "rgb(" +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ ")";
+    context.fillStyle = randomcolor;
+    context.fillRect(0,0,canvas.width,canvas.height);
     }
 
     matcher._chords = chord;
     matcher._sones = sones;
     matcher._onsets = detection;
 
-    rapidlibSoundData(soundState, chord, m, dissonance, k, l);
 
     /* Qitch also */ 
 
@@ -407,58 +408,123 @@ function xperimusDynamicTimeWarping(v) {
 console.log("write in the div if 20 come");
 
 // -----------------------------------------------------------------------------
-var soundMLTrain = 1;
+var soundMLTrain = null;
+var _match = -1;
+var _costs = [-1, -1];
 
 var trainingEx1 = { 
     input: {
-        x1: [],
-        x2: [],
-        x3: [],
-        x4: [],
-        x5: []
+        x1: []
+        //x3: [],
+        //x4: [],
+        //x5: []
     }, 
     label: "sound1"
 };
 var trainingEx2 = { 
     input: {
-        x1: [],
-        x2: [],
-        x3: [],
-        x4: [],
-        x5: []
+        x1: []        
+        //x3: [],
+        //x4: [],
+        //x5: []
     }, 
     label: "sound2"
+};
+var trainingEx3 = { 
+    input: {
+        x1: []
+        //x3: [],
+        //x4: [],
+        //x5: []
+    }, 
+    label: "final"
 };
 
 
 function rapidlibSoundData(soundState, chord, m, dissonance, k, l) {
     //console.log("data for training ", chord, m, dissonance[0], k, l);
-
+    var v = parseInt(m);
     switch(soundMLTrain) {
         case 1: 
-            if (soundState == "rec1") {
-                trainingEx1.input.x1.push(chord);
-                trainingEx1.input.x2.push(m);
-                trainingEx1.input.x3.push(dissonance[0]);
-                trainingEx1.input.x4.push(k);
-                trainingEx1.input.x5.push(l);
-                console.log("EX 1 ", trainingEx1);
-            }
+            trainingEx1.input.x1.push(chord[0], v);
+            /*trainingEx1.input.x3.push(dissonance[0]);
+            trainingEx1.input.x4.push(k);
+            trainingEx1.input.x5.push(l);*/
+            console.log("EX 1 ", trainingEx1);
             break;
         case 2:
+            console.log("stopped 1");
             break;
         case 3:
+            trainingEx2.input.x1.push(chord[0], v);
+            /*trainingEx2.input.x3.push(dissonance[0]);
+            trainingEx2.input.x4.push(k);
+            trainingEx2.input.x5.push(l);*/
+            console.log("EX 2 ", trainingEx2);
             break;
         case 4:
+            console.log("stopped 2");
             break; 
+        case 5:
+            trainingEx3.input.x1.push(chord[0], v);
+            /*trainingEx3.input.x3.push(dissonance[0]);
+            trainingEx3.input.x4.push(k);
+            trainingEx3.input.x5.push(l);*/
+            console.log("EX 3 ", trainingEx3);
+            break;
+        case 6:
+            console.log("stopped 3");
+            break;
+        case 7:
+            trainAndRunRapid();
+            soundMLTrain = null;
+            break;
     }
 }
 
+function recordSound(v){
+    if (v == 1) {
+        soundMLTrain = 1;
+    }
+    if (v == 2) {
+        soundMLTrain = 2;
+    }
+    if (v == 3) {
+        soundMLTrain = 3;
+    }
+    if (v == 4) {
+        soundMLTrain = 4;
+    }
+    if (v == 5) {
+        soundMLTrain = 5;
+    }
+    if (v == 6) {
+        soundMLTrain = 6;
+    }
+    if (v == 7) {
+        soundMLTrain = 7;
+    }
+}
+function trainAndRunRapid(){
+    console.log("train and test against");
+
+    descriptorClassifier.reset();
+
+    var seriesSet = [trainingEx1, trainingEx2];
+
+    descriptorClassifier.train(seriesSet);
+
+    _match = descriptorClassifier.run(trainingEx3);
+    
+    _costs = descriptorClassifier.getCosts();
+    
+    console.log("testSet ", trainingEx3);
+    console.log("match ", _match);
+    console.log("costs ", _costs);
+}
 
 
 // -----------------------------------------------------------------------------
-
-
 
 
 var myDTW = new rapidLib.SeriesClassification();

@@ -127,11 +127,13 @@
     <h1>audio test series</h1>
     <br>_____ ________ ___________ ________________ ____________________________
     <br><br>
-    <button onclick="record1()">Record 1</button>
-    <button onclick="stop1()">Stop 1</button>
-    <button onclick="record2()">Record 2</button>
-    <button onclick="stop2()">Stop 2</button>
-
+    <button onclick="recordSound('1')">Record 1</button>
+    <button onclick="recordSound('2')">Stop 1</button>
+    <button onclick="recordSound('3')">Record 2</button>
+    <button onclick="recordSound('4')">Stop 2</button>
+    <button onclick="recordSound('5')">Record Final</button>
+    <button onclick="recordSound('6')">Stop Final</button>
+    <button onclick="recordSound('7')">Train and Test</button>
     <br><br>
 
     <h1>rapidLib</h1>
@@ -147,7 +149,6 @@
     <button onclick="document.getElementById('file-input').click();">Choose Audio File</button>
     <input id="file-input" type="file" name="name" style="display: none;" />
     <button onclick="searchFeaturesClass()">Search and Correlate</button>
-    <button onclick="matchClassifier()">LIB_matchClassifier</button>
 
     <!-- Meyda && MMLL -->
     <script src="/static/scripts/libs/polyfill.js"></script>
