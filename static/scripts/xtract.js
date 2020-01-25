@@ -12,6 +12,8 @@
 // const ; async and await ; http://asmjs.org/ ; https://medium.com/@kelin2025/so-you-wanna-use-es6-modules-714f48b3a953
 // https://blog.acolyer.org/2016/05/11/searching-and-mining-trillions-of-time-series-subsequences-under-dynamic-time-warping/
 // https://www.audiolabs-erlangen.de/fau/professor/mueller/demos
+// https://github.com/0xfe/vexflow
+// https://github.com/borismus/spectrogram
 
 class xperimusFeatureCollector {
 
@@ -446,7 +448,8 @@ function rapidlibSoundData(soundState, chord, m, dissonance, k, l) {
     var v = parseInt(m);
     switch(soundMLTrain) {
         case 1: 
-            trainingEx1.input.x1.push(chord[0], v);
+            var e = chord[0, v]
+            trainingEx1.input.x1.push(e);
             /*trainingEx1.input.x3.push(dissonance[0]);
             trainingEx1.input.x4.push(k);
             trainingEx1.input.x5.push(l);*/
@@ -456,7 +459,8 @@ function rapidlibSoundData(soundState, chord, m, dissonance, k, l) {
             console.log("stopped 1");
             break;
         case 3:
-            trainingEx2.input.x1.push(chord[0], v);
+            var e = chord[0, v]
+            trainingEx2.input.x1.push(e);
             /*trainingEx2.input.x3.push(dissonance[0]);
             trainingEx2.input.x4.push(k);
             trainingEx2.input.x5.push(l);*/
@@ -466,7 +470,8 @@ function rapidlibSoundData(soundState, chord, m, dissonance, k, l) {
             console.log("stopped 2");
             break; 
         case 5:
-            trainingEx3.input.x1.push(chord[0], v);
+            var e = chord[0, v]
+            trainingEx3.input.x1.push(e);
             /*trainingEx3.input.x3.push(dissonance[0]);
             trainingEx3.input.x4.push(k);
             trainingEx3.input.x5.push(l);*/
@@ -716,39 +721,30 @@ function draw() {
 window.requestAnimationFrame(draw);
 
 
-/* Speech Model - need the require walkthrough 
+/* also -> Speech Model - need the require walkthrough 
 https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/audio
 */
 
-const URL = 'file://model/'
+let recognizer;
 
-async function createModel() {
-    const checkpointURL = URL + 'model.json';
-    const metadataURL = URL + 'metadata.json';
-    const recognizer = speechCommands.create('BROWSER_FFT', undefined, checkpointURL, metadataURL);
 
-    await recognizer.ensureModelLoaded();
-
-    return recognizer;
+function predictWord() {
+ // Array of words that the recognizer is trained to recognize.
+ const words = recognizer.wordLabels();
+ console.log(recognizer);
+ recognizer.listen(({scores}) => {
+   // Turn scores into a list of (score,word) pairs.
+   scores = Array.from(scores).map((s, i) => ({score: s, word: words[i]}));
+   // Find the most probable word.
+   scores.sort((s1, s2) => s2.score - s1.score);
+   document.querySelector('#console').textContent = scores[0].word;
+ }, {probabilityThreshold: 0.75});
 }
 
-async function init() {
-    const recognizer = await createModel();
-    const classLabels = recognizer.wordLabels();
-    const labelContainer = document.getElementById('label-container');
-    for (let i = 0; i < classLabels.length; i++) {
-        labelContainer.appendChild(document.createElement('div'));
-    }
-    recognizer.listen(result => {
-        const scores = result.scores;
-        for (let i = 0; i < classLabels.length; i++) {
-            const classPrediction = classLabels[i] + ': ' + result.scores[i].toFixed(2);
-            labelContainer.childNodes[i].innerHTML = classPrediction;
-        }
-    }, {
-        includeSpectrogram: true,
-        probabilityThreshold: 0.75,
-        invokeCallbackOnNoiseAndUnknown: true,
-        overlapFactor: 0.50
-    });
+async function app() {
+ recognizer = speechCommands.create('BROWSER_FFT');
+ await recognizer.ensureModelLoaded();
+ predictWord();
 }
+
+app();
