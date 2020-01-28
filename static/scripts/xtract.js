@@ -743,6 +743,7 @@ let recognizer;
 }*/
 
 async function app() {
+    // can use also SOFT_FFTfor other implementation of FFT
  recognizer = speechCommands.create('BROWSER_FFT');
  await recognizer.ensureModelLoaded();
  // predictWord();
@@ -763,8 +764,13 @@ function collect(label) {
         return;
     }
     recognizer.listen(async ({spectrogram: {frameSize, data}}) => {
+        // Since we want to use short sounds instead of words to control the slider, we are taking into consideration only the last 3 frames (~70ms):
         let vals = normalize(data.subarray(-frameSize * NUM_FRAMES));
         examples.push({vals, label});
+
+        console.log("vals ", vals);
+        console.log("examples ", examples);
+        
         document.querySelector('#console').textContent =
             `${examples.length} examples collected`;
     }, {
@@ -773,6 +779,7 @@ function collect(label) {
         invokeCallbackOnNoiseAndUnknown: true
     });
 }
+
 function normalize(x) {
     const mean = -100;
     const std = 10;
@@ -805,7 +812,7 @@ async function train() {
     tf.dispose([xs, ys]);
     toggleButtons(true);
 }
-
+//The model has 4 layers: a convolutional layer that processes the audio data (represented as a spectrogram), a max pool layer, a flatten layer, and a dense layer that maps to the 3 actions:
 function buildModel() {
     model = tf.sequential();
     model.add(tf.layers.depthwiseConv2d({
@@ -837,3 +844,50 @@ function flatten(tensors) {
 }
 // should end this
 // https://codelabs.developers.google.com/codelabs/tensorflowjs-audio-codelab/index.html#7
+// At this point if you refresh the app you'll see a new "Train" button. You can test training by re-collecting data and clicking "Train", or you can wait until step 10 to test training along with prediction.
+
+async function moveSlider(labelTensor) {
+    const label = (await labelTensor.data())[0];
+    document.getElementById('console').textContent = label;
+    if (label == 2) {
+      return;
+    }
+    let delta = 0.1;
+    const prevValue = +document.getElementById('output').value;
+    document.getElementById('output').value =
+        prevValue + (label === 0 ? -delta : delta);
+}
+   
+function listen() {
+    if (recognizer.isListening()) {
+      recognizer.stopListening();
+      toggleButtons(true);
+      document.getElementById('listen').textContent = 'Listen';
+      return;
+    }
+    toggleButtons(false);
+    document.getElementById('listen').textContent = 'Stop';
+    document.getElementById('listen').disabled = false;
+   
+    recognizer.listen(async ({spectrogram: {frameSize, data}}) => {
+      const vals = normalize(data.subarray(-frameSize * NUM_FRAMES));
+      const input = tf.tensor(vals, [1, ...INPUT_SHAPE]);
+      const probs = model.predict(input);
+      const predLabel = probs.argMax(1);
+      await moveSlider(predLabel);
+      tf.dispose([input, probs, predLabel]);
+    }, {
+      overlapFactor: 0.999,
+      includeSpectrogram: true,
+      invokeCallbackOnNoiseAndUnknown: true
+    });
+}
+
+console.log(recognizer);
+const merger = recognizer.audioDataExtractor;
+
+function ctx(){
+    if (navigator.getUserMedia != null) {
+        console.log("merge with MMLL ", merger);
+    }
+}

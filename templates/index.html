@@ -158,8 +158,13 @@
     <button id="right" onmousedown="collect(1)" onmouseup="collect(null)">whistle</button>
     <button id="noise" onmousedown="collect(2)" onmouseup="collect(null)">silence</button>
     <button id="train" onclick="train()">Train</button>
+    <br><br>
+    <button id="listen" onclick="listen()">Listen</button>
+    <input type="range" id="output" min="0" max="10" step="0.01">
     <div id="console"></div>
     
+    <br><br>
+    <button id="listen" onclick="ctx()">Listen</button>
 
     <!-- Meyda && MMLL -->
     <script src="/static/scripts/libs/polyfill.js"></script>
