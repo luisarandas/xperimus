@@ -15,6 +15,7 @@
 // https://github.com/0xfe/vexflow
 // https://github.com/borismus/spectrogram
 // https://codelabs.developers.google.com/codelabs/tensorflowjs-audio-codelab/index.html#5
+// https://github.com/miguelmota/spectrogram connect analyser directly
 
 class xperimusFeatureCollector {
 
@@ -124,9 +125,6 @@ var freq=440, midipitch=69;
 
 var soundState = "rec1";
 
-var canvas = document.getElementById("canvas");
-var context = canvas.getContext("2d");
-
 var setup = function SetUp(sampleRate){
     console.log("Setting Up!");
 
@@ -145,6 +143,8 @@ var setup = function SetUp(sampleRate){
 
 var callback = function CallBack(input, output, n){
 
+    console.log("input ", input.monoinput);
+
     sones = mmllloudness.next(input.monoinput);
     chord = chorddetector.next(input.monoinput);
     dissonance = sensorydissonance.next(input.monoinput);
@@ -152,8 +152,6 @@ var callback = function CallBack(input, output, n){
     freq = qitch.next(input.monoinput);
     
     midipitch = qitch.m_midipitch;
-
-    document.getElementById('chordText').innerHTML = "Detected " + chord;
 
     //xperimusDynamicTimeWarping(m.toFixed(0));
     var k = freq;
@@ -185,20 +183,8 @@ var callback = function CallBack(input, output, n){
     }
 };
 
-function setThreshold(newValue){
-    var threshold = parseFloat(newValue)*0.01;
-    onsetdetector.threshold = threshold;
-}
-
 var gui = new MMLLBasicGUISetup(callback,setup,audioblocksize,true,true);
 
-function setKeyDecay(newValue) {
-    chorddetector.keydecay = parseFloat(newValue)*0.1;
-}
-
-function setChromaLeak(newValue) {
-    chorddetector.chromaleak = parseFloat(newValue)*0.01;
-}
 
 //---------------------------------
 
@@ -743,7 +729,7 @@ let recognizer;
 }*/
 
 async function app() {
-    // can use also SOFT_FFTfor other implementation of FFT
+// can use also SOFT_FFTfor other implementation of FFT
  recognizer = speechCommands.create('BROWSER_FFT');
  await recognizer.ensureModelLoaded();
  // predictWord();
@@ -755,6 +741,14 @@ app();
 // One frame is ~23ms of audio.
 const NUM_FRAMES = 3;
 let examples = [];
+var a = [];
+//var bufferLength = recognizer.audioDataExtractor.analyser.frequencyBinCount;
+//var dataArray = new Uint32Array(bufferLength);
+//recognizer.audioDataExtractor.analyser.getByteTimeDomainData(dataArray);
+
+
+var cdetect = new MMLLChordDetector(44100,2,0.5);
+
 
 function collect(label) {
     if (recognizer.isListening()) {
@@ -768,9 +762,18 @@ function collect(label) {
         let vals = normalize(data.subarray(-frameSize * NUM_FRAMES));
         examples.push({vals, label});
 
-        console.log("vals ", vals);
-        console.log("examples ", examples);
-        
+        array = new Uint8Array(recognizer.audioDataExtractor.analyser.frequencyBinCount);
+        recognizer.audioDataExtractor.analyser.getByteFrequencyData(array);
+        // add fft data from tensorflow do MMLL
+        console.log(array);
+        console.log(recognizer);
+
+        var _callback = function CallBack(input, output, n) {
+            var b = cdetect.next(input.monoinput);
+            console.log(b);
+        }
+        _callback();
+
         document.querySelector('#console').textContent =
             `${examples.length} examples collected`;
     }, {
@@ -881,13 +884,4 @@ function listen() {
       includeSpectrogram: true,
       invokeCallbackOnNoiseAndUnknown: true
     });
-}
-
-console.log(recognizer);
-const merger = recognizer.audioDataExtractor;
-
-function ctx(){
-    if (navigator.getUserMedia != null) {
-        console.log("merge with MMLL ", merger);
-    }
 }

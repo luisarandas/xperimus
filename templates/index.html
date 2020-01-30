@@ -67,77 +67,14 @@
         {{ form.csrf_token }}
     </form>
 
-    <h3>Start AudioCtx</h3>
-    <button type="button" id="startAudioCtx">startAudioCtx</button>
     <br><br>
     <h3>Testing Sound File Load</h3>
     <audio controls="controls" loop id="player1" autoplay="autoplay" src="/static/sound/tst.wav"></audio>
     <br>
-    <button type="button" id="1">JS Function Call</button>
     <a id=backgroundprocess><button>HTTP Request for Python Backend - Backside Process</button></a>
-    <br>
-    <button type="button" id="2">Microphone Test</button>
-    <br>
-    <!--
-    <audio controls="controls" loop id="audio" src="/static/sound/gminor.wav"></audio>
-    <br>
-    <label for="level">RMS</label>
-    <input type="range" id="levelRange" class="slider" name="level" min="0.0" max="1.0" step="0.001"/>
-    <br><br>
-    <label for="level">Chroma</label>
-    <br>
-    <input type="range" id="chroma1" class="slider" name="chroma1" min="0.0" max="1.0" step="0.001"/>C
-    <br>
-    <input type="range" id="chroma2" class="slider" name="chroma2" min="0.0" max="1.0" step="0.001"/>C#
-    <br>
-    <input type="range" id="chroma3" class="slider" name="chroma3" min="0.0" max="1.0" step="0.001"/>D
-    <br>
-    <input type="range" id="chroma4" class="slider" name="chroma4" min="0.0" max="1.0" step="0.001"/>D#
-    <br>
-    <input type="range" id="chroma5" class="slider" name="chroma5" min="0.0" max="1.0" step="0.001"/>E
-    <br>
-    <input type="range" id="chroma6" class="slider" name="chroma6" min="0.0" max="1.0" step="0.001"/>F
-    <br>
-    <input type="range" id="chroma7" class="slider" name="chroma7" min="0.0" max="1.0" step="0.001"/>F#
-    <br>
-    <input type="range" id="chroma8" class="slider" name="chroma8" min="0.0" max="1.0" step="0.001"/>G
-    <br>
-    <input type="range" id="chroma9" class="slider" name="chroma9" min="0.0" max="1.0" step="0.001"/>G#
-    <br>
-    <input type="range" id="chroma10" class="slider" name="chroma10" min="0.0" max="1.0" step="0.001"/>A
-    <br>
-    <input type="range" id="chroma11" class="slider" name="chroma11" min="0.0" max="1.0" step="0.001"/>A#
-    <br>
-    <input type="range" id="chroma12" class="slider" name="chroma11" min="0.0" max="1.0" step="0.001"/>B
-    <br>
-    -->
+
     <br>________________________________________________________________________
-    <h1>machine listening test</h1>
-    <p>Recent browsers supporting Web Audio API only.</p>
-    <input type="range" min="0" max="100" value="20" step="1" oninput="setKeyDecay(this.value)" /> Set key decay<br><br>
-    <input type="range" min="0" max="100" value="50" step="1" oninput="setChromaLeak(this.value)" /> Set chroma leak<br><br>
-
-    {# Comment #}
-    <p id="chordText">Chord Detected</p>
-
-    <br>
-    <canvas id="canvas" width="400" height="200">
-        This text is displayed if your browser does not support HTML5 Canvas.
-    </canvas><br><br>
-    <h1>audio test series</h1>
-    <br>_____ ________ ___________ ________________ ____________________________
     <br><br>
-    <button onclick="recordSound('1')">Record 1</button>
-    <button onclick="recordSound('2')">Stop 1</button>
-    <button onclick="recordSound('3')">Record 2</button>
-    <button onclick="recordSound('4')">Stop 2</button>
-    <button onclick="recordSound('5')">Record Final</button>
-    <button onclick="recordSound('6')">Stop Final</button>
-    <button onclick="recordSound('7')">Train and Test</button>
-    <button onclick="recordSound('8')">lets see</button>
-
-    <br><br>
-
     <h1>rapidLib</h1>
     <h1>Shape identification using Series Classification</h1>
     <br>
@@ -164,7 +101,7 @@
     <div id="console"></div>
     
     <br><br>
-    <button id="listen" onclick="ctx()">Listen</button>
+    <button id="listen" onclick="ctx()">ctx()</button>
 
     <!-- Meyda && MMLL -->
     <script src="/static/scripts/libs/polyfill.js"></script>

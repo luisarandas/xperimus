@@ -32,18 +32,5 @@ document.addEventListener("DOMContentLoaded", () => {
     //var audioCtx = new AudioContext();
     // Check properties of the context.
 
-    sniffNetwork();
-
-    document.getElementById("1").addEventListener("click", function () {
-        console.log("Listener on Button!");
-    });
-
-    document.getElementById("2").addEventListener("click", function () {
-        console.log(audioCtx);
-    });
-
-    function sniffNetwork(){
-        console.log("Print here network properties.");
-    }
 });
 
