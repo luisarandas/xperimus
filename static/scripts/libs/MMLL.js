@@ -810,6 +810,8 @@ self.setup = function(sampleRate) {
 
 //must pass in fft data (power spectrum)
 self.next = function(input) {
+  console.log("ok ", this);
+  console.log("INPT ", input);
 
     var i,j;
  

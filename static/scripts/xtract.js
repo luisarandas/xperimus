@@ -136,7 +136,6 @@ var setup = function SetUp(sampleRate){
 
     sensorydissonance = new MMLLSensoryDissonance(sampleRate); //accept defaults otherwise
 
-    sr = sampleRate;
     qitch = new MMLLQitch(sampleRate,4096); //accept defaults otherwise
 
 };
@@ -153,7 +152,6 @@ var callback = function CallBack(input, output, n){
     
     midipitch = qitch.m_midipitch;
 
-    //xperimusDynamicTimeWarping(m.toFixed(0));
     var k = freq;
     var l = midipitch;
     var m = sones;
@@ -162,20 +160,12 @@ var callback = function CallBack(input, output, n){
     if (detection) {
 
     rapidlibSoundData(soundState, chord, sones, dissonance, freq, midipitch);
-
     console.log("chord", chord, "sones", m.toFixed(0), "dissonance ", dissonance[0], "freq", k.toFixed(0), "midipitch", l.toFixed(0));
-    console.log("Onset now! ---------------------------");
-    var randomcolor = "rgb(" +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ "," +(Math.floor(Math.random()*255.9999))+ ")";
-    context.fillStyle = randomcolor;
-    context.fillRect(0,0,canvas.width,canvas.height);
     }
 
     matcher._chords = chord;
     matcher._sones = sones;
     matcher._onsets = detection;
-
-
-    /* Qitch also */ 
 
     for (i=0; i<n; i++){
         output.outputL[i] = input.inputL[i];
@@ -748,7 +738,8 @@ var a = [];
 
 
 var cdetect = new MMLLChordDetector(44100,2,0.5);
-
+var b = new Float32Array(256);
+var new_node = 0;
 
 function collect(label) {
     if (recognizer.isListening()) {
@@ -768,12 +759,19 @@ function collect(label) {
         console.log(array);
         console.log(recognizer);
 
-        var _callback = function CallBack(input, output, n) {
-            var b = cdetect.next(input.monoinput);
-            console.log(b);
+        new_node = recognizer.audioDataExtractor.audioContext.createScriptProcessor(256, 1, 2);
+        new_node.onaudioprocess = function(audioProcessingEvent) {
+            console.log(audioProcessingEvent); //THIS
         }
-        _callback();
+        new_node.connect(recognizer.audioDataExtractor.audioContext.destination);
 
+        // self.node = self.audiocontext.createscriptprocessor
+
+        array1 = new Uint8Array(recognizer.audioDataExtractor.analyser.frequencyBinCount);
+        recognizer.audioDataExtractor.analyser.getByteTimeDomainData(array1);
+        
+        console.log(cdetect);
+       
         document.querySelector('#console').textContent =
             `${examples.length} examples collected`;
     }, {
@@ -815,7 +813,7 @@ async function train() {
     tf.dispose([xs, ys]);
     toggleButtons(true);
 }
-//The model has 4 layers: a convolutional layer that processes the audio data (represented as a spectrogram), a max pool layer, a flatten layer, and a dense layer that maps to the 3 actions:
+//o modelo tem 4 layers: uma Conv para processar audio data como espectrograma, uma max pool layer, uma flatten layer, e uma dense layer that maps to the 3 actions:
 function buildModel() {
     model = tf.sequential();
     model.add(tf.layers.depthwiseConv2d({
@@ -847,7 +845,6 @@ function flatten(tensors) {
 }
 // should end this
 // https://codelabs.developers.google.com/codelabs/tensorflowjs-audio-codelab/index.html#7
-// At this point if you refresh the app you'll see a new "Train" button. You can test training by re-collecting data and clicking "Train", or you can wait until step 10 to test training along with prediction.
 
 async function moveSlider(labelTensor) {
     const label = (await labelTensor.data())[0];
