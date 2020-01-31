@@ -142,14 +142,14 @@ var setup = function SetUp(sampleRate){
 
 var callback = function CallBack(input, output, n){
 
-    console.log("input ", input.monoinput);
-
     sones = mmllloudness.next(input.monoinput);
     chord = chorddetector.next(input.monoinput);
     dissonance = sensorydissonance.next(input.monoinput);
 
     freq = qitch.next(input.monoinput);
-    
+
+    document.getElementById('_2').innerHTML = chord[0];
+
     midipitch = qitch.m_midipitch;
 
     var k = freq;
@@ -159,8 +159,8 @@ var callback = function CallBack(input, output, n){
     var detection = onsetdetector.next(input.monoinput);
     if (detection) {
 
-    rapidlibSoundData(soundState, chord, sones, dissonance, freq, midipitch);
-    console.log("chord", chord, "sones", m.toFixed(0), "dissonance ", dissonance[0], "freq", k.toFixed(0), "midipitch", l.toFixed(0));
+    //rapidlibSoundData(soundState, chord, sones, dissonance, freq, midipitch);
+    //console.log("chord", chord, "sones", m.toFixed(0), "dissonance ", dissonance[0], "freq", k.toFixed(0), "midipitch", l.toFixed(0));
     }
 
     matcher._chords = chord;
@@ -738,8 +738,11 @@ var a = [];
 
 
 var cdetect = new MMLLChordDetector(44100,2,0.5);
-var b = new Float32Array(256);
 var new_node = 0;
+
+const normalizeBetweenTwoRanges = (val, minVal, maxVal, newMin, newMax) => {
+    return newMin + (val - minVal) * (newMax - newMin) / (maxVal - minVal);
+  };
 
 function collect(label) {
     if (recognizer.isListening()) {
@@ -755,23 +758,57 @@ function collect(label) {
 
         array = new Uint8Array(recognizer.audioDataExtractor.analyser.frequencyBinCount);
         recognizer.audioDataExtractor.analyser.getByteFrequencyData(array);
-        // add fft data from tensorflow do MMLL
-        console.log(array);
-        console.log(recognizer);
+        
+        var newFFTSize = recognizer;
+        newFFTSize.audioDataExtractor.analyser.fftSize = 512;
+        _array = new Float32Array(newFFTSize.audioDataExtractor.analyser.frequencyBinCount);  
+        recognizer.audioDataExtractor.analyser.getFloatTimeDomainData(_array); 
 
-        new_node = recognizer.audioDataExtractor.audioContext.createScriptProcessor(256, 1, 2);
+            
+        /*for (var i = 0; i < _array.length; ++i) {
+                _x = _array[i];
+                
+                //clip input deliberately to avoid blowing filters later
+                if(_x>1.0) _x = 1.0;
+                if(_x<-1.0) _x = -1.0;
+                
+                //subnormal floating point protection on input
+                absx = Math.abs(_x);
+                _array[i] = (absx > 1e-15 && absx < 1e15) ? _x : 0.;
+    
+                //console.log("test ", inputL[i]);
+                let p = _array.pop();
+                _array.unshift(_x);
+                // THIS
+        }*/
+        
+        console.log("CORRELATE ", _array);
+
+        var o = cdetect.next(_array);
+        document.getElementById('_1').innerHTML = o[0];
+
+        //console.log(cdetect.next(_array));
+
+        new_node = recognizer.audioDataExtractor.audioContext.createScriptProcessor(256, 1, 1);
         new_node.onaudioprocess = function(audioProcessingEvent) {
-            console.log(audioProcessingEvent); //THIS
+            var inputBuffer = audioProcessingEvent.inputBuffer;
+            var outputBuffer = audioProcessingEvent.outputBuffer;
+            for (var channel = 0; channel < outputBuffer.numberOfChannels; channel++) {
+                var inputData = inputBuffer.getChannelData(channel);
+                var outputData = inputBuffer.getChannelData(channel);
+
+                for (var sample = 0; sample < inputBuffer.length; sample++) {
+                    
+                }
+            }
         }
         new_node.connect(recognizer.audioDataExtractor.audioContext.destination);
 
-        // self.node = self.audiocontext.createscriptprocessor
-
         array1 = new Uint8Array(recognizer.audioDataExtractor.analyser.frequencyBinCount);
         recognizer.audioDataExtractor.analyser.getByteTimeDomainData(array1);
-        
-        console.log(cdetect);
-       
+
+        console.log(recognizer);
+               
         document.querySelector('#console').textContent =
             `${examples.length} examples collected`;
     }, {
@@ -786,10 +823,6 @@ function normalize(x) {
     const std = 10;
     return x.map(x => (x - mean) / std);
 }
-
-// The model has 4 layers: a convolutional layer that processes the audio data 
-// (represented as a spectrogram), a max pool layer, a flatten layer, and a dense 
-// layer that maps to the 3 actions
 
 const INPUT_SHAPE = [NUM_FRAMES, 232, 1]; // where each frame is 23ms of audio containing 232 numbers (buckets to capture human voice -> frequencies -> change for piano)
 let model;
@@ -843,8 +876,6 @@ function flatten(tensors) {
     tensors.forEach((arr, i) => result.set(arr, i * size));
     return result;
 }
-// should end this
-// https://codelabs.developers.google.com/codelabs/tensorflowjs-audio-codelab/index.html#7
 
 async function moveSlider(labelTensor) {
     const label = (await labelTensor.data())[0];

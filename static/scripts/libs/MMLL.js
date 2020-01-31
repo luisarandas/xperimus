@@ -810,10 +810,8 @@ self.setup = function(sampleRate) {
 
 //must pass in fft data (power spectrum)
 self.next = function(input) {
-  console.log("ok ", this);
-  console.log("INPT ", input);
 
-    var i,j;
+  var i,j;
  
     var ready = self.stft.next(input);
     
@@ -12569,6 +12567,8 @@ function MMLLWebAudioSetup(blocksize, inputtype, callback, setup) {
             //subnormal floating point protection on input
             absx = Math.abs(inputnow);
             inputL[i] = (absx > 1e-15 && absx < 1e15) ? inputnow : 0.;
+
+            //console.log("test ", inputL[i]);
             
         }
         
