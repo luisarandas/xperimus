@@ -782,12 +782,8 @@ function collect(label) {
                 // THIS
         }*/
         
-        console.log("CORRELATE ", _array);
-
         var o = cdetect.next(_array);
         document.getElementById('_1').innerHTML = o[0];
-
-        //console.log(cdetect.next(_array));
 
         new_node = recognizer.audioDataExtractor.audioContext.createScriptProcessor(256, 1, 1);
         new_node.onaudioprocess = function(audioProcessingEvent) {
@@ -807,7 +803,6 @@ function collect(label) {
         array1 = new Uint8Array(recognizer.audioDataExtractor.analyser.frequencyBinCount);
         recognizer.audioDataExtractor.analyser.getByteTimeDomainData(array1);
 
-        console.log(recognizer);
                
         document.querySelector('#console').textContent =
             `${examples.length} examples collected`;
@@ -870,11 +865,16 @@ function toggleButtons(enable) {
     document.querySelectorAll('button').forEach(b => b.disabled = !enable);
 }
 
+// https://storage.googleapis.com/tfjs-speech-model-test/2019-01-03a/dist/index.html
+
 function flatten(tensors) {
     const size = tensors[0].length;
     const result = new Float32Array(tensors.length * size);
     tensors.forEach((arr, i) => result.set(arr, i * size));
+
     return result;
+
+
 }
 
 async function moveSlider(labelTensor) {
@@ -888,7 +888,9 @@ async function moveSlider(labelTensor) {
     document.getElementById('output').value =
         prevValue + (label === 0 ? -delta : delta);
 }
-   
+
+// testar a confiança - confiança - 
+
 function listen() {
     if (recognizer.isListening()) {
       recognizer.stopListening();
@@ -904,12 +906,20 @@ function listen() {
       const vals = normalize(data.subarray(-frameSize * NUM_FRAMES));
       const input = tf.tensor(vals, [1, ...INPUT_SHAPE]);
       const probs = model.predict(input);
+
+      //const test = model.classify(input);
+      //console.log("classify ", test);
+      console.log(probs);
+
       const predLabel = probs.argMax(1);
       await moveSlider(predLabel);
       tf.dispose([input, probs, predLabel]);
+
+
     }, {
       overlapFactor: 0.999,
       includeSpectrogram: true,
-      invokeCallbackOnNoiseAndUnknown: true
+      invokeCallbackOnNoiseAndUnknown: true,
+      //probabilityThreshold: 0.75
     });
 }
