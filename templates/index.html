@@ -5,6 +5,9 @@
     <title>Xperimus Project</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+    
+
+    
     <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 
@@ -12,13 +15,16 @@
     <script src="https://unpkg.com/@tensorflow/tfjs"></script>
     <script src="https://unpkg.com/@tensorflow-models/speech-commands"></script>
 
-    <!-- RapidLib for Series Classification using Dynamic Time Warping -->
-    <script src="https://www.doc.gold.ac.uk/eavi/rapidmix/RapidLib.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
 
     <!-- WEBRTC Polyfill -->
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    
+    <script src="/static/scripts/libs/plotly-latest.min.js"></script>
 
-    <script src="/static/scripts/xperimus.js"></script>
+    <script src="/static/scripts/spectrogram.js"></script>
+    <script src="/static/scripts/libs/Chart.min.js"></script>
+
     <!-- Change Parts from other Page - Chat 
         <script src="{{ url_for('static', filename='scripts/socketio.js')}}"></script>
     <script src="{{ url_for('static', filename='scripts/chat_page.js') }}"></script>-->
@@ -37,9 +43,33 @@
     </script>
 
     <link rel="shortcut icon" href="">
+    <style>
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+        </style>
 </head>
 
 <body>    
+    <h1>tl xperimus_model</h1>
+    <!--<button id="enter-learn-words">Enter Transfer Sounds</button>-->
+
+    <button id="left" onmousedown="collect(0)" onmouseup="collect(null)">Sound 1</button>
+    <button id="right" onmousedown="collect(1)" onmouseup="collect(null)">Sound 2</button>
+    <button id="noise" onmousedown="collect(2)" onmouseup="collect(null)">Silence</button>
+    <button id="train" onclick="train()">Train</button>
+    <button id="download-dataset">Download Dataset</button>
+    <br>
+    <button id="listen" onclick="listen()">Listen</button>
+    <input type="range" id="output" min="0" max="10" step="0.01">
+    <div id="console"></div>
+    <br><br>
+    <canvas id="myChart" width="400" height="200"></canvas>
+    <div id="myDiv"></div>
+    
+
+    <canvas id="canvas"></canvas>
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
     <h1>Xperimus Research Server Running</h1>
     <form action="{{ url_for('index') }}" , method="POST">
         <div>
@@ -74,13 +104,6 @@
     <a id=backgroundprocess><button>HTTP Request for Python Backend - Backside Process</button></a>
 
     <br>________________________________________________________________________
-    <br><br>
-    <h1>rapidLib</h1>
-    <h1>Shape identification using Series Classification</h1>
-    <br>
-    <canvas id="shape1" width="400" height="400"></canvas>
-    <canvas id="shape2" width="400" height="400"></canvas>
-    <canvas id="shapeTest" width="400" height="400"></canvas>
 
     <br><br>
     <h1>feature extractor by hand - no OT w polyfill</h1>
@@ -90,24 +113,12 @@
     <button onclick="searchFeaturesClass()">Search and Correlate</button>
 
     <br><br><br>
-    tl new model
-    <button id="left" onmousedown="collect(0)" onmouseup="collect(null)">clap</button>
-    <button id="right" onmousedown="collect(1)" onmouseup="collect(null)">whistle</button>
-    <button id="noise" onmousedown="collect(2)" onmouseup="collect(null)">silence</button>
-    <button id="train" onclick="train()">Train</button>
-    <br><br>
-    <button id="listen" onclick="listen()">Listen</button>
-    <input type="range" id="output" min="0" max="10" step="0.01">
-    <div id="console"></div>
-    <div id="_1"></div>
-    <div id="_2"></div>
-    <br><br>
+    
 
-    <!-- Meyda && MMLL -->
     <script src="/static/scripts/libs/polyfill.js"></script>
     <script src="/static/scripts/libs/MMLL.js"></script>
-    <script src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
     <script src="/static/scripts/xtract.js"></script>
+
 </body>
 
 </html>

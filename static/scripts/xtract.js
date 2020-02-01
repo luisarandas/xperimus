@@ -16,6 +16,9 @@
 // https://github.com/borismus/spectrogram
 // https://codelabs.developers.google.com/codelabs/tensorflowjs-audio-codelab/index.html#5
 // https://github.com/miguelmota/spectrogram connect analyser directly
+// https://github.com/a-vis/spectrum
+
+// pre build android apps
 
 class xperimusFeatureCollector {
 
@@ -108,9 +111,6 @@ class realTimeFeatureMatcher extends xperimusFeatureCollector {
 var collector = new xperimusFeatureCollector();
 var matcher = new realTimeFeatureMatcher();
 
-var rapidLib = window.RapidLib();
-var descriptorClassifier = new rapidLib.SeriesClassification();
-
 var i;
 var audioblocksize = 256;
 var chorddetector;
@@ -147,8 +147,6 @@ var callback = function CallBack(input, output, n){
     dissonance = sensorydissonance.next(input.monoinput);
 
     freq = qitch.next(input.monoinput);
-
-    document.getElementById('_2').innerHTML = chord[0];
 
     midipitch = qitch.m_midipitch;
 
@@ -384,358 +382,55 @@ function xperimusDynamicTimeWarping(v) {
     this.searchMatrix = searchMatrix;
 }
 
-console.log("write in the div if 20 come");
 
-// -----------------------------------------------------------------------------
-var soundMLTrain = null;
-var _match = -1;
-var _costs = [-1, -1];
-
-var trainingEx1 = { 
-    input: {
-        x1: []
-        //x3: [],
-        //x4: [],
-        //x5: []
-    }, 
-    label: "sound1"
-};
-var trainingEx2 = { 
-    input: {
-        x1: []        
-        //x3: [],
-        //x4: [],
-        //x5: []
-    }, 
-    label: "sound2"
-};
-var trainingEx3 = { 
-    input: {
-        x1: []
-        //x3: [],
-        //x4: [],
-        //x5: []
-    }, 
-    label: "final"
-};
-
-
-function rapidlibSoundData(soundState, chord, m, dissonance, k, l) {
-    //console.log("data for training ", chord, m, dissonance[0], k, l);
-    var v = parseInt(m);
-    switch(soundMLTrain) {
-        case 1: 
-            var e = chord[0, v]
-            trainingEx1.input.x1.push(e);
-            /*trainingEx1.input.x3.push(dissonance[0]);
-            trainingEx1.input.x4.push(k);
-            trainingEx1.input.x5.push(l);*/
-            console.log("EX 1 ", trainingEx1);
-            break;
-        case 2:
-            console.log("stopped 1");
-            break;
-        case 3:
-            var e = chord[0, v]
-            trainingEx2.input.x1.push(e);
-            /*trainingEx2.input.x3.push(dissonance[0]);
-            trainingEx2.input.x4.push(k);
-            trainingEx2.input.x5.push(l);*/
-            console.log("EX 2 ", trainingEx2);
-            break;
-        case 4:
-            console.log("stopped 2");
-            break; 
-        case 5:
-            var e = chord[0, v]
-            trainingEx3.input.x1.push(e);
-            /*trainingEx3.input.x3.push(dissonance[0]);
-            trainingEx3.input.x4.push(k);
-            trainingEx3.input.x5.push(l);*/
-            console.log("EX 3 ", trainingEx3);
-            break;
-        case 6:
-            console.log("stopped 3");
-            break;
-        case 7:
-            trainAndRunRapid();
-            soundMLTrain = null;
-            break;
-    }
-}
-
-function recordSound(v){
-    if (v == 1) {
-        soundMLTrain = 1;
-    }
-    if (v == 2) {
-        soundMLTrain = 2;
-    }
-    if (v == 3) {
-        soundMLTrain = 3;
-    }
-    if (v == 4) {
-        soundMLTrain = 4;
-    }
-    if (v == 5) {
-        soundMLTrain = 5;
-    }
-    if (v == 6) {
-        soundMLTrain = 6;
-    }
-    if (v == 7) {
-        soundMLTrain = 7;
-    }
-}
-function trainAndRunRapid(){
-    console.log("train and test against");
-
-    descriptorClassifier.reset();
-
-    var seriesSet = [trainingEx1, trainingEx2];
-
-    descriptorClassifier.train(seriesSet);
-
-    _match = descriptorClassifier.run(trainingEx3);
-    
-    _costs = descriptorClassifier.getCosts();
-    
-    console.log("testSet ", trainingEx3);
-    console.log("match ", _match);
-    console.log("costs ", _costs);
-}
 
 
 // -----------------------------------------------------------------------------
-
-
-var myDTW = new rapidLib.SeriesClassification();
-console.log("dtw ", myDTW);
-// arrays para hold two training examples and one to test against
-var trainingExample1 = { input: [], label: "shape 1"};
-var trainingExample2 = { input: [], label: "shape 2"};
-var testSeries = [];
-
-var recordState = 0;
-var match = -1;
-var costs = [-1, -1];
-
-//this pushes the mouse postition into the correct set
-//Called from mouse listener
-function recorder(mouseID, rapidInput) {
-    switch (recordState) {
-        case 1:
-            if (mouseID == "shape1") {
-                trainingExample1.input.push(rapidInput);
-            }
-            break;
-        case 2:
-            if (mouseID == "shape2") {
-                trainingExample2.input.push(rapidInput);
-            }
-            break;
-        case 3:
-            if (mouseID == "shapeTest") {
-                console.log("pushTest");
-                testSeries.push(rapidInput);
-            }
-            break;
-    }
-}
-
-//Train and classify! Called on mouse up in the test set
-function rapidLib_train_run() {
-
-    //clear out the model
-    myDTW.reset();
-    //train it on an array of training examples
-    var seriesSet = [trainingExample1, trainingExample2];
-    myDTW.train(seriesSet);
-    //run on a test series
-    match = myDTW.run(testSeries);
-    //get the costs of all matches
-    costs = myDTW.getCosts();
-
-    console.log("testSet ", testSeries);
-    console.log("match ", match);
-    console.log("costs ", costs);
-}
-
-///////////////////////////////////////////////////////////////////////// INPUT
-
-var mouseX;
-var mouseY;
-var mouseID;
-
-
-
-var shape1 = document.getElementById("shape1");
-var context1 = shape1.getContext("2d");
-shape1.addEventListener('mousemove', getMouse, false);
-shape1.onmousedown = function() {
-    trainingExample1.input = [];
-    testSeries = [];
-    match = -1;
-    recordState = 1;
-};
-shape1.onmouseup = function() {
-    recordState = 0;
-    console.log("ts1 length: ", trainingExample1.input.length);
-};
-
-var shape2 = document.getElementById("shape2");
-var context2 = shape2.getContext("2d");
-shape2.addEventListener('mousemove', getMouse, false);
-shape2.onmousedown = function() {
-    trainingExample2.input = [];
-    testSeries = [];
-    match = -1;
-    recordState = 2;
-};
-shape2.onmouseup = function() {
-    recordState = 0;
-    console.log("ts2 length: ", trainingExample2.input.length);
-};
-
-var shapeTest = document.getElementById("shapeTest");
-var contextTest = shapeTest.getContext("2d");
-shapeTest.addEventListener('mousemove', getMouse, false);
-shapeTest.onmousedown = function() {
-    testSeries = [];
-    recordState = 3;
-};
-shapeTest.onmouseup = function() {
-    recordState = 0;
-    console.log("s1t ", trainingExample1);
-
-    //Machine Learning functions (above)
-    rapidLib_train_run();
-};
-
-function getMouse(mousePosition) {
-    if (mousePosition.offsetX || mousePosition.offsetX === 0) { 
-        mouseID = mousePosition.path[0].id;
-        mouseX = mousePosition.offsetX; 
-        mouseY = mousePosition.offsetY;
-    } else if (mousePosition.layerX || mousePosition.layerX === 0) {
-        mouseX = mousePosition.layerX;
-        mouseY = mousePosition.layerY;
-    }
-    
-    //This records the mouse position into the proper training or test set
-    var rapidInput = [mouseX, mouseY];
-    recorder(mouseID, rapidInput);
-}
-
-/////////////////////////////////////////////////////////////// DRAWING
-
-var fonts = "Lato, sans-serif";
-var rapidGreen = "#18db5c";
-var rapidOrange = "#FF9D75";
-
-function drawInContext(context, tSet) {
-    context.clearRect(0,0, 400, 400);
-        
-    //mouse coordinates
-    context.font = "16px " + fonts;
-    context.fillStyle = rapidGreen;
-    context.fillText('mouse position: (' + mouseX + ', ' + mouseY + ')' , 20, 390);
-    
-    context.strokeStyle = rapidGreen;
-    context.lineWidth = 2;
-    if ((context === context1 && match === "shape 1") || (context === context2 && match === "shape 2")) {
-        context.lineWidth=10;
-        context.strokeStyle = rapidOrange;
-    } 
-    var x = 0;
-    var y = 0;
-    if (tSet[0]) {
-        x = tSet[0][0];
-        y = tSet[0][1];
-        context.beginPath();
-        context.moveTo(x, y);
-        for (var i = 1; i < tSet.length; ++i) {
-            x = tSet[i][0];
-            y = tSet[i][1];
-            context.lineTo(x,y);
-        }
-        context.stroke();
-        context.closePath();
-    }
-}
-
-function draw() {
-    //Draw the recorded paths
-    drawInContext(context1, trainingExample1.input);
-    drawInContext(context2, trainingExample2.input);
-    drawInContext(contextTest, testSeries);
-    
-    //Draw the data
-    contextTest.font = "16px " + fonts;
-    contextTest.fillStyle = rapidOrange;
-    var matchText = "no match yet";
-    switch (match) {
-        case -1:
-            matchText = "no match yet";
-            break;
-        case "shape 1":
-            matchText = "matches left shape";
-            break;
-        case "shape 2":
-            matchText = "matches right shape";
-            break;
-    }
-    
-    contextTest.fillText(matchText , 20, 20);
-    if (costs[0] > 0) {
-    contextTest.fillText("match costs:", 20, 40);
-    contextTest.fillText("left " + costs[0], 25, 60);
-    contextTest.fillText("right " + costs[1], 25, 80);
-
-    }
-    window.requestAnimationFrame(draw);
-}
-window.requestAnimationFrame(draw);
-
-
 /* also -> Speech Model - need the require walkthrough 
 https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/audio
 */
+Plotly.plot('myDiv',[{
+    y:[getData()],
+    type:'line'
+}]);
+var cnt = 0;
+
+
 
 let recognizer;
+let transferWords;
+let transferDurationMultiplier; 
+let transferModelNameInput;
 
+const XFER_MODEL_NAME = 'xfer-model';
+const MIN_EXAMPLES_PER_CLASS = 8;
 
-/*function predictWord() {
- // Array of words that the recognizer is trained to recognize.
- const words = recognizer.wordLabels();
- console.log(recognizer);
- recognizer.listen(({scores}) => {
-   // Turn scores into a list of (score,word) pairs.
-   scores = Array.from(scores).map((s, i) => ({score: s, word: words[i]}));
-   // Find the most probable word.
-   scores.sort((s1, s2) => s2.score - s1.score);
-   document.querySelector('#console').textContent = scores[0].word;
- }, {probabilityThreshold: 0.75}); // when the model fires if thinks +75%
-}*/
+const downloadAsFileButton = document.getElementById('download-dataset');
+const enterLearnWordsButton = document.getElementById('enter-learn-words');
 
 async function app() {
-// can use also SOFT_FFTfor other implementation of FFT
+
  recognizer = speechCommands.create('BROWSER_FFT');
- await recognizer.ensureModelLoaded();
- // predictWord();
+ //await recognizer.populateSavedTransferModelsSelect();
+
+ await recognizer.ensureModelLoaded().then(() => {
+    transferModelNameInput = `model-${getDateString()}`;
+    console.log(transferModelNameInput);
+
+    const transferRecognizer = recognizer.createTransfer('colors');
+ }).catch(err => {});
  buildModel();
 }
 
+const BACKGROUND_NOISE_TAG = speechCommands.BACKGROUND_NOISE_TAG;
+
+
 app();
 
-// One frame is ~23ms of audio.
-const NUM_FRAMES = 3;
+// 1F = ~23ms of audio we use 5 for 100ms
+const NUM_FRAMES = 3; 
 let examples = [];
 var a = [];
-//var bufferLength = recognizer.audioDataExtractor.analyser.frequencyBinCount;
-//var dataArray = new Uint32Array(bufferLength);
-//recognizer.audioDataExtractor.analyser.getByteTimeDomainData(dataArray);
-
 
 var cdetect = new MMLLChordDetector(44100,2,0.5);
 var new_node = 0;
@@ -744,6 +439,9 @@ const normalizeBetweenTwoRanges = (val, minVal, maxVal, newMin, newMax) => {
     return newMin + (val - minVal) * (newMax - newMin) / (maxVal - minVal);
   };
 
+let collecWordButtons = {};
+let datasetViz;
+
 function collect(label) {
     if (recognizer.isListening()) {
         return recognizer.stopListening();
@@ -751,8 +449,15 @@ function collect(label) {
     if (label == null) {
         return;
     }
+    if (label == 0) {
+        console.log("add labels");
+        // https://github.com/tensorflow/tfjs-models/blob/master/speech-commands/README.md
+    }
+        // await transferRecognizer.collectExample('red');
+    
     recognizer.listen(async ({spectrogram: {frameSize, data}}) => {
         // Since we want to use short sounds instead of words to control the slider, we are taking into consideration only the last 3 frames (~70ms):
+                
         let vals = normalize(data.subarray(-frameSize * NUM_FRAMES));
         examples.push({vals, label});
 
@@ -763,28 +468,15 @@ function collect(label) {
         newFFTSize.audioDataExtractor.analyser.fftSize = 512;
         _array = new Float32Array(newFFTSize.audioDataExtractor.analyser.frequencyBinCount);  
         recognizer.audioDataExtractor.analyser.getFloatTimeDomainData(_array); 
-
             
         /*for (var i = 0; i < _array.length; ++i) {
                 _x = _array[i];
-                
-                //clip input deliberately to avoid blowing filters later
                 if(_x>1.0) _x = 1.0;
                 if(_x<-1.0) _x = -1.0;
-                
-                //subnormal floating point protection on input
                 absx = Math.abs(_x);
                 _array[i] = (absx > 1e-15 && absx < 1e15) ? _x : 0.;
-    
-                //console.log("test ", inputL[i]);
-                let p = _array.pop();
-                _array.unshift(_x);
-                // THIS
         }*/
         
-        var o = cdetect.next(_array);
-        document.getElementById('_1').innerHTML = o[0];
-
         new_node = recognizer.audioDataExtractor.audioContext.createScriptProcessor(256, 1, 1);
         new_node.onaudioprocess = function(audioProcessingEvent) {
             var inputBuffer = audioProcessingEvent.inputBuffer;
@@ -802,14 +494,17 @@ function collect(label) {
 
         array1 = new Uint8Array(recognizer.audioDataExtractor.analyser.frequencyBinCount);
         recognizer.audioDataExtractor.analyser.getByteTimeDomainData(array1);
-
                
         document.querySelector('#console').textContent =
             `${examples.length} examples collected`;
     }, {
         overlapFactor: 0.999,
         includeSpectrogram: true,
-        invokeCallbackOnNoiseAndUnknown: true
+        //overlapFactor - 0-1 => each soectrogram is 1000ms this is 0.25 
+        //prediction will happen every 250ms
+        invokeCallbackOnNoiseAndUnknown: true,
+        probabilityThreshold: 0.75
+        //include embedding - internal activation from the model
     });
 }
 
@@ -819,7 +514,8 @@ function normalize(x) {
     return x.map(x => (x - mean) / std);
 }
 
-const INPUT_SHAPE = [NUM_FRAMES, 232, 1]; // where each frame is 23ms of audio containing 232 numbers (buckets to capture human voice -> frequencies -> change for piano)
+const INPUT_SHAPE = [NUM_FRAMES, 232, 1]; 
+// where each frame is 23ms of audio containing 232 numbers (buckets to capture human voice -> frequencies -> change for piano)
 let model;
 
 async function train() {
@@ -830,7 +526,7 @@ async function train() {
 
     await model.fit(xs, ys, {
         batchSize: 16,
-        epochs: 10,
+        epochs: 15,
         callbacks: {
             onEpochEnd: (epoch, logs) => {
                 document.querySelector('#console').textContent = 
@@ -865,16 +561,11 @@ function toggleButtons(enable) {
     document.querySelectorAll('button').forEach(b => b.disabled = !enable);
 }
 
-// https://storage.googleapis.com/tfjs-speech-model-test/2019-01-03a/dist/index.html
-
 function flatten(tensors) {
     const size = tensors[0].length;
     const result = new Float32Array(tensors.length * size);
     tensors.forEach((arr, i) => result.set(arr, i * size));
-
     return result;
-
-
 }
 
 async function moveSlider(labelTensor) {
@@ -889,8 +580,10 @@ async function moveSlider(labelTensor) {
         prevValue + (label === 0 ? -delta : delta);
 }
 
-// testar a confiança - confiança - 
-
+function getData() {
+    return Math.random();
+}
+var _e;
 function listen() {
     if (recognizer.isListening()) {
       recognizer.stopListening();
@@ -907,19 +600,143 @@ function listen() {
       const input = tf.tensor(vals, [1, ...INPUT_SHAPE]);
       const probs = model.predict(input);
 
-      //const test = model.classify(input);
-      //console.log("classify ", test);
-      console.log(probs);
+      probs.array().then(array => {
+        var _v = array[0][0];
+        var __v = array[0][1];
+        var ___v = array[0][2];
+        console.log("1 ", _v.toFixed(2)/1 *100 + "%");
+        console.log("2 ", __v.toFixed(2)/1 * 100 + "%");
+        console.log("3 ", ___v.toFixed(2)/1 * 100 + "%");
+        console.log("1 ", _v.toFixed(2) + "%");
+        console.log("2 ", __v.toFixed(2) + "%");
+        console.log("3 ", ___v.toFixed(2) + "%");
+
+        addData(myChart, _v, __v, ___v);
+
+        Plotly.extendTraces('myDiv', { y: [[_v]] }, [0]);
+        cnt++;
+        if (cnt > 500) {
+            Plotly.relayout('chart',{
+                xaxis: {
+                    range: [cnt-500,cnt]
+                }
+            });
+        }
+        
+      }); 
+    
+      //console.log(probs.print());
 
       const predLabel = probs.argMax(1);
       await moveSlider(predLabel);
       tf.dispose([input, probs, predLabel]);
 
-
     }, {
       overlapFactor: 0.999,
       includeSpectrogram: true,
       invokeCallbackOnNoiseAndUnknown: true,
-      //probabilityThreshold: 0.75
+      probabilityThreshold: 0.75
     });
 }
+
+function getDateString() {
+    const d = new Date();
+    const year = `${d.getFullYear()}`;
+    let month = `${d.getMonth() + 1}`;
+    let day = `${d.getDate()}`;
+    if (month.length < 2) {
+      month = `0${month}`;
+    }
+    if (day.length < 2) {
+      day = `0${day}`;
+    }
+    let hour = `${d.getHours()}`;
+    if (hour.length < 2) {
+      hour = `0${hour}`;
+    }
+    let minute = `${d.getMinutes()}`;
+    if (minute.length < 2) {
+      minute = `0${minute}`;
+    }
+    let second = `${d.getSeconds()}`;
+    if (second.length < 2) {
+      second = `0${second}`;
+    }
+    return `${year}-${month}-${day}T${hour}.${minute}.${second}`;
+}
+
+downloadAsFileButton.addEventListener('click', () => {
+    const basename = getDateString();
+    const artifacts = recognizer.serializeExamples();
+  
+    // Trigger downloading of the data .bin file.
+    const anchor = document.createElement('a');
+    anchor.download = `${basename}.bin`;
+    anchor.href = window.URL.createObjectURL(
+        new Blob([artifacts], {type: 'application/octet-stream'}));
+    anchor.click();
+});
+
+
+/* var spectro = Spectrogram(document.getElementById('canvas'), {
+    audio: {
+      enable: false
+    }
+});
+navigator.getUserMedia({
+    video: false,
+    audio: true
+  },
+function spectro(stream) {
+    var input = recognizer.audioDataExtractor.audioContext.createMediaStreamSource(stream);
+    var analyser = recognizer.audioDataExtractor.analyser;
+
+    analyser.smoothingTimeConstant = 0;
+    analyser.fftSize = 2048;
+
+    input.connect(analyser);
+    spectro.connectSource(analyser, input);
+    spectro.start();
+}); */
+// -------------------------------------------------------------------------
+
+var ctx = document.getElementById('myChart').getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Red', 'Blue', 'Yellow'],
+        datasets: [{
+            label: 'prediction',
+            data: [55, 25, 92],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+
+function addData(chart, v1, v2, v3) {
+    chart.data.datasets[0].data[0] = v1;
+    chart.data.datasets[0].data[1] = v2;
+    chart.data.datasets[0].data[2] = v3;
+    chart.update(0);
+}
+
+
