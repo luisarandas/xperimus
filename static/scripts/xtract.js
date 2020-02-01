@@ -17,6 +17,7 @@
 // https://codelabs.developers.google.com/codelabs/tensorflowjs-audio-codelab/index.html#5
 // https://github.com/miguelmota/spectrogram connect analyser directly
 // https://github.com/a-vis/spectrum
+// https://github.com/mattdesl/spectrum
 
 // pre build android apps
 
@@ -389,12 +390,11 @@ function xperimusDynamicTimeWarping(v) {
 /* also -> Speech Model - need the require walkthrough 
 https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/audio
 */
-Plotly.plot('myDiv',[{
+/*Plotly.plot('myDiv',[{
     y:[getData()],
     type:'line'
 }]);
-var cnt = 0;
-
+var cnt = 0;*/
 
 
 let recognizer;
@@ -424,7 +424,6 @@ async function app() {
 
 const BACKGROUND_NOISE_TAG = speechCommands.BACKGROUND_NOISE_TAG;
 
-
 app();
 
 // 1F = ~23ms of audio we use 5 for 100ms
@@ -437,10 +436,32 @@ var new_node = 0;
 
 const normalizeBetweenTwoRanges = (val, minVal, maxVal, newMin, newMax) => {
     return newMin + (val - minVal) * (newMax - newMin) / (maxVal - minVal);
-  };
+};
 
 let collecWordButtons = {};
 let datasetViz;
+
+var spectro = Spectrogram(document.getElementById('canvas'), {
+    audio: {
+      enable: false
+    },
+    colors: function(steps) {
+        var baseColors = [[0,0,255,1], [0,255,255,1], [0,255,0,1], [255,255,0,1], [ 255,0,0,1]];
+        var positions = [0, 0.15, 0.30, 0.50, 0.75];
+    
+        var scale = new chroma.scale(baseColors, positions)
+        .domain([0, steps]);
+    
+        var colors = [];
+    
+        for (var i = 0; i < steps; ++i) {
+          var color = scale(i);
+          colors.push(color.hex());
+        }
+    
+        return colors;
+    }
+});
 
 function collect(label) {
     if (recognizer.isListening()) {
@@ -461,7 +482,7 @@ function collect(label) {
         let vals = normalize(data.subarray(-frameSize * NUM_FRAMES));
         examples.push({vals, label});
 
-        array = new Uint8Array(recognizer.audioDataExtractor.analyser.frequencyBinCount);
+        /*array = new Uint8Array(recognizer.audioDataExtractor.analyser.frequencyBinCount);
         recognizer.audioDataExtractor.analyser.getByteFrequencyData(array);
         
         var newFFTSize = recognizer;
@@ -469,7 +490,7 @@ function collect(label) {
         _array = new Float32Array(newFFTSize.audioDataExtractor.analyser.frequencyBinCount);  
         recognizer.audioDataExtractor.analyser.getFloatTimeDomainData(_array); 
             
-        /*for (var i = 0; i < _array.length; ++i) {
+        for (var i = 0; i < _array.length; ++i) {
                 _x = _array[i];
                 if(_x>1.0) _x = 1.0;
                 if(_x<-1.0) _x = -1.0;
@@ -477,7 +498,7 @@ function collect(label) {
                 _array[i] = (absx > 1e-15 && absx < 1e15) ? _x : 0.;
         }*/
         
-        new_node = recognizer.audioDataExtractor.audioContext.createScriptProcessor(256, 1, 1);
+        /*new_node = recognizer.audioDataExtractor.audioContext.createScriptProcessor(256, 1, 1);
         new_node.onaudioprocess = function(audioProcessingEvent) {
             var inputBuffer = audioProcessingEvent.inputBuffer;
             var outputBuffer = audioProcessingEvent.outputBuffer;
@@ -490,10 +511,17 @@ function collect(label) {
                 }
             }
         }
-        new_node.connect(recognizer.audioDataExtractor.audioContext.destination);
+        new_node.connect(recognizer.audioDataExtractor.audioContext.destination);*/
 
-        array1 = new Uint8Array(recognizer.audioDataExtractor.analyser.frequencyBinCount);
-        recognizer.audioDataExtractor.analyser.getByteTimeDomainData(array1);
+        /*var spectAnalyser = recognizer;
+        spectAnalyser.audioDataExtractor.analyser.smoothingTimeConstant = 0;
+        spectAnalyser.audioDataExtractor.analyser.fftSize = 2048;
+        spectro.connectSource(spectAnalyser.audioDataExtractor.analyser, recognizer.audioDataExtractor.audioContext)
+        spectro.start();*/
+
+
+        /*array1 = new Uint8Array(recognizer.audioDataExtractor.analyser.frequencyBinCount);
+        recognizer.audioDataExtractor.analyser.getByteTimeDomainData(array1);*/
                
         document.querySelector('#console').textContent =
             `${examples.length} examples collected`;
@@ -526,7 +554,7 @@ async function train() {
 
     await model.fit(xs, ys, {
         batchSize: 16,
-        epochs: 15,
+        epochs: 10,
         callbacks: {
             onEpochEnd: (epoch, logs) => {
                 document.querySelector('#console').textContent = 
@@ -583,7 +611,6 @@ async function moveSlider(labelTensor) {
 function getData() {
     return Math.random();
 }
-var _e;
 function listen() {
     if (recognizer.isListening()) {
       recognizer.stopListening();
@@ -613,7 +640,7 @@ function listen() {
 
         addData(myChart, _v, __v, ___v);
 
-        Plotly.extendTraces('myDiv', { y: [[_v]] }, [0]);
+        /*Plotly.extendTraces('myDiv', { y: [[_v]] }, [0]);
         cnt++;
         if (cnt > 500) {
             Plotly.relayout('chart',{
@@ -621,7 +648,7 @@ function listen() {
                     range: [cnt-500,cnt]
                 }
             });
-        }
+        }*/
         
       }); 
     
@@ -677,27 +704,6 @@ downloadAsFileButton.addEventListener('click', () => {
     anchor.click();
 });
 
-
-/* var spectro = Spectrogram(document.getElementById('canvas'), {
-    audio: {
-      enable: false
-    }
-});
-navigator.getUserMedia({
-    video: false,
-    audio: true
-  },
-function spectro(stream) {
-    var input = recognizer.audioDataExtractor.audioContext.createMediaStreamSource(stream);
-    var analyser = recognizer.audioDataExtractor.analyser;
-
-    analyser.smoothingTimeConstant = 0;
-    analyser.fftSize = 2048;
-
-    input.connect(analyser);
-    spectro.connectSource(analyser, input);
-    spectro.start();
-}); */
 // -------------------------------------------------------------------------
 
 var ctx = document.getElementById('myChart').getContext('2d');
