@@ -59,8 +59,14 @@
     <button id="left" onmousedown="collect(0)" onmouseup="collect(null)">Sound 1</button>
     <button id="right" onmousedown="collect(1)" onmouseup="collect(null)">Sound 2</button>
     <button id="noise" onmousedown="collect(2)" onmouseup="collect(null)">Silence</button>
-    <button id="train" onclick="train()">Train</button>
-    <button id="download-dataset">Download Dataset</button>
+    <button id="train" onclick="train()">Train</button> 
+    <br>
+    <button id="tr_0" onmousedown="transferModel()" ">init</button>
+    <button id="tr_1" onmousedown="newModel(1)" onmouseup="newModel(null)">Transfer Recognizer__1</button>
+    <button id="tr_2" onmousedown="newModel(2)" onmouseup="newModel(null)">Transfer Recognizer__2</button>
+    <button id="tr_3" onmousedown="newModel('_back_')" onmouseup="newModel(null)">Transfer Recognizer__3</button>
+
+    <button id="download-dataset">Download Dataset</button> 
     <br>
     <button id="listen" onclick="listen()">Listen</button>
     <input type="range" id="output" min="0" max="10" step="0.01">

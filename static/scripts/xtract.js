@@ -9,6 +9,7 @@
 // Add any addresses you want to ignore the secure origin policy for. Remember to include the port number too (if required).
 // Save and restart Chrome.
 
+// DISTRIBUTION
 // const ; async and await ; http://asmjs.org/ ; https://medium.com/@kelin2025/so-you-wanna-use-es6-modules-714f48b3a953
 // https://blog.acolyer.org/2016/05/11/searching-and-mining-trillions-of-time-series-subsequences-under-dynamic-time-warping/
 // https://www.audiolabs-erlangen.de/fau/professor/mueller/demos
@@ -402,6 +403,8 @@ let transferWords;
 let transferDurationMultiplier; 
 let transferModelNameInput;
 
+var transferRecognizer;
+
 const XFER_MODEL_NAME = 'xfer-model';
 const MIN_EXAMPLES_PER_CLASS = 8;
 
@@ -416,8 +419,6 @@ async function app() {
  await recognizer.ensureModelLoaded().then(() => {
     transferModelNameInput = `model-${getDateString()}`;
     console.log(transferModelNameInput);
-
-    const transferRecognizer = recognizer.createTransfer('colors');
  }).catch(err => {});
  buildModel();
 }
@@ -432,15 +433,12 @@ let examples = [];
 var a = [];
 
 var cdetect = new MMLLChordDetector(44100,2,0.5);
+var sdetect = new MMLLSensoryDissonance(44100); //accept defaults otherwise
+
 var new_node = 0;
-
-const normalizeBetweenTwoRanges = (val, minVal, maxVal, newMin, newMax) => {
-    return newMin + (val - minVal) * (newMax - newMin) / (maxVal - minVal);
-};
-
 let collecWordButtons = {};
 let datasetViz;
-
+/*
 var spectro = Spectrogram(document.getElementById('canvas'), {
     audio: {
       enable: false
@@ -461,20 +459,22 @@ var spectro = Spectrogram(document.getElementById('canvas'), {
     
         return colors;
     }
-});
+});*/
 
-function collect(label) {
+
+function transferModel() {
+    const transferRecognizer = recognizer.createTransfer('colors');
+    console.log(transferRecognizer);
+}
+
+
+async function collect(label) {
     if (recognizer.isListening()) {
         return recognizer.stopListening();
     }
     if (label == null) {
         return;
     }
-    if (label == 0) {
-        console.log("add labels");
-        // https://github.com/tensorflow/tfjs-models/blob/master/speech-commands/README.md
-    }
-        // await transferRecognizer.collectExample('red');
     
     recognizer.listen(async ({spectrogram: {frameSize, data}}) => {
         // Since we want to use short sounds instead of words to control the slider, we are taking into consideration only the last 3 frames (~70ms):
@@ -483,25 +483,23 @@ function collect(label) {
         examples.push({vals, label});
 
         /*array = new Uint8Array(recognizer.audioDataExtractor.analyser.frequencyBinCount);
-        recognizer.audioDataExtractor.analyser.getByteFrequencyData(array);
+        recognizer.audioDataExtractor.analyser.getByteFrequencyData(array);*/
         
         var newFFTSize = recognizer;
-        newFFTSize.audioDataExtractor.analyser.fftSize = 512;
-        _array = new Float32Array(newFFTSize.audioDataExtractor.analyser.frequencyBinCount);  
-        recognizer.audioDataExtractor.analyser.getFloatTimeDomainData(_array); 
-            
-        for (var i = 0; i < _array.length; ++i) {
-                _x = _array[i];
-                if(_x>1.0) _x = 1.0;
-                if(_x<-1.0) _x = -1.0;
-                absx = Math.abs(_x);
-                _array[i] = (absx > 1e-15 && absx < 1e15) ? _x : 0.;
-        }*/
-        
+        //newFFTSize.audioDataExtractor.analyser.fftSize = 512;
+        _array = new Uint8Array(newFFTSize.audioDataExtractor.analyser.fftSize);  
+        recognizer.audioDataExtractor.analyser.getByteTimeDomainData(_array); 
+        var _e = cdetect.next(_array);
+        var __e = sdetect.next(_array);
+
+        console.log(_e);
+        console.log(__e);
         /*new_node = recognizer.audioDataExtractor.audioContext.createScriptProcessor(256, 1, 1);
         new_node.onaudioprocess = function(audioProcessingEvent) {
+        
             var inputBuffer = audioProcessingEvent.inputBuffer;
             var outputBuffer = audioProcessingEvent.outputBuffer;
+
             for (var channel = 0; channel < outputBuffer.numberOfChannels; channel++) {
                 var inputData = inputBuffer.getChannelData(channel);
                 var outputData = inputBuffer.getChannelData(channel);
@@ -519,7 +517,6 @@ function collect(label) {
         spectro.connectSource(spectAnalyser.audioDataExtractor.analyser, recognizer.audioDataExtractor.audioContext)
         spectro.start();*/
 
-
         /*array1 = new Uint8Array(recognizer.audioDataExtractor.analyser.frequencyBinCount);
         recognizer.audioDataExtractor.analyser.getByteTimeDomainData(array1);*/
                
@@ -528,11 +525,7 @@ function collect(label) {
     }, {
         overlapFactor: 0.999,
         includeSpectrogram: true,
-        //overlapFactor - 0-1 => each soectrogram is 1000ms this is 0.25 
-        //prediction will happen every 250ms
         invokeCallbackOnNoiseAndUnknown: true,
-        probabilityThreshold: 0.75
-        //include embedding - internal activation from the model
     });
 }
 
@@ -611,7 +604,7 @@ async function moveSlider(labelTensor) {
 function getData() {
     return Math.random();
 }
-function listen() {
+async function listen() {
     if (recognizer.isListening()) {
       recognizer.stopListening();
       toggleButtons(true);
@@ -662,7 +655,7 @@ function listen() {
       overlapFactor: 0.999,
       includeSpectrogram: true,
       invokeCallbackOnNoiseAndUnknown: true,
-      probabilityThreshold: 0.75
+      //probabilityThreshold: 0.75
     });
 }
 
@@ -746,3 +739,10 @@ function addData(chart, v1, v2, v3) {
 }
 
 
+
+async function newModel(x) {
+    await transferRecognizer.collectExample('1');
+    await transferRecognizer.collectExample('2');
+    await transferRecognizer.collectExample('_back_');
+    console.log(transferRecognizer.countExamples());
+}
