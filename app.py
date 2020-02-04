@@ -15,7 +15,7 @@ from wtform_fields import *
 from models import *
 from main import *
 
-from flask_yarn import Yarn 
+# from flask_yarn import Yarn 
 
 # python3 -m venv local_python_environment
 # source local_py_env/bin/activate
@@ -55,7 +55,7 @@ db = SQLAlchemy(app)
 # Initialize Flask-SocketIO
 socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
 ROOMS = ["lounge", "news", "games", "coding"]
-Yarn(app)
+# Yarn(app)
 
 # Configure flask login
 login = LoginManager(app)
