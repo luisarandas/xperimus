@@ -2,132 +2,13 @@
 <html lang="en">
 
 <head>
-    <title>Xperimus Project</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
-    
-
-    
-    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-
-    <!-- Tensorflow Transfer Learning Test-->
     <script src="https://unpkg.com/@tensorflow/tfjs"></script>
     <script src="https://unpkg.com/@tensorflow-models/speech-commands"></script>
-
-    <script src="https://d3js.org/d3.v3.min.js"></script>
-
-    <!-- WEBRTC Polyfill -->
-    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-    
-    <script src="/static/scripts/libs/plotly-latest.min.js"></script>
-
-    <script src="/static/scripts/spectrogram.js"></script>
-    <script src="/static/scripts/libs/Chart.min.js"></script>
-    <script src="/static/scripts/libs/chroma.js"></script>
-
-
-    <!-- Change Parts from other Page - Chat 
-        <script src="{{ url_for('static', filename='scripts/socketio.js')}}"></script>
-    <script src="{{ url_for('static', filename='scripts/chat_page.js') }}"></script>-->
-
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script type=text/javascript>
-            $(function() {
-              $('a#backgroundprocess').bind('click', function() {
-                $.getJSON('/background_process',
-                 function(data) {
-                 //do nothing
-                });
-             return false;
-             });
-            });
-    </script>
-
-    <link rel="shortcut icon" href="">
-    <style>
-        body {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        }
-        </style>
 </head>
 
-<body>    
-    <h1>tl xperimus_model</h1>
-    <!--<button id="enter-learn-words">Enter Transfer Sounds</button>-->
-
-    <button id="left" onmousedown="collect(0)" onmouseup="collect(null)">Sound 1</button>
-    <button id="right" onmousedown="collect(1)" onmouseup="collect(null)">Sound 2</button>
-    <button id="noise" onmousedown="collect(2)" onmouseup="collect(null)">Silence</button>
-    <button id="train" onclick="train()">Train</button> 
-    <br>
-    <button id="tr_0" onmousedown="transferModel()" ">init</button>
-    <button id="tr_1" onmousedown="newModel(1)" onmouseup="newModel(null)">Transfer Recognizer__1</button>
-    <button id="tr_2" onmousedown="newModel(2)" onmouseup="newModel(null)">Transfer Recognizer__2</button>
-    <button id="tr_3" onmousedown="newModel('_back_')" onmouseup="newModel(null)">Transfer Recognizer__3</button>
-
-    <button id="download-dataset">Download Dataset</button> 
-    <br>
-    <button id="listen" onclick="listen()">Listen</button>
-    <input type="range" id="output" min="0" max="10" step="0.01">
-    <div id="console"></div>
-    <br><br>
-    <canvas id="myChart" width="400" height="200"></canvas>
-    <canvas id="canvas" width="850" height="200"></canvas>
-    <!--<div id="myDiv"></div>-->
-    
-
-    <canvas id="canvas"></canvas>
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <h1>Xperimus Research Server Running</h1>
-    <form action="{{ url_for('index') }}" , method="POST">
-        <div>
-            {{ form.username(class_='form-control', 
-        placeholder='Username', autocomplete='off',
-        autofocus=true)}}
-
-        </div>
-        <div>
-            {{ form.password(class_='form-control', 
-            placeholder='Password')}}
-
-        </div>
-        <div>
-            {{ form.confirm_pswd(class_='form-control', 
-                placeholder='Retype Password')}}
-
-        </div>
-
-        <div>
-            {{ form.submit_button }}
-        </div>
-
-
-        {{ form.csrf_token }}
-    </form>
-
-    <br><br>
-    <h3>Testing Sound File Load</h3>
-    <audio controls="controls" loop id="player1" autoplay="autoplay" src="/static/sound/tst.wav"></audio>
-    <br>
-    <a id=backgroundprocess><button>HTTP Request for Python Backend - Backside Process</button></a>
-
-    <br>________________________________________________________________________
-
-    <br><br>
-    <h1>feature extractor by hand - no OT w polyfill</h1>
-    <br><br><br><br>
-    <button onclick="document.getElementById('file-input').click();">Choose Audio File</button>
-    <input id="file-input" type="file" name="name" style="display: none;" />
-    <button onclick="searchFeaturesClass()">Search and Correlate</button>
-
-    <br><br><br>
-    
-
-    <script src="/static/scripts/libs/polyfill.js"></script>
-    <script src="/static/scripts/libs/MMLL.js"></script>
-    <script src="/static/scripts/xtract.js"></script>
-
+<body>
+    <h1>object</h1>
+    <script src="/static/scripts/w.js"></script>
+    <script src="/static/scripts/xperimus.js"></script>
 </body>
-
 </html>

@@ -66,7 +66,6 @@ login.init_app(app)
 def load_user(id):
     return User.query.get(int(id))
 
-
 @app.route("/", methods=["GET", "POST"])
 def index():
 
@@ -176,7 +175,7 @@ def leave(data):
     )
 
 
-print("Xperimus Server Console Print.")
+print("---------------------- Xperimus Server Console Print ---------------------- ")
 
 if __name__ == "__main__":
     # Will always execute
