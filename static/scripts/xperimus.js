@@ -12,7 +12,42 @@ const SpeechCommands = speechCommands;
 const startButton = document.getElementById('start');
 const stopButton = document.getElementById('stop');
 
+const predictionCanvas = document.getElementById('prediction-canvas');
+
+const probaThresholdInput = document.getElementById('proba-threshold');
+const epochsInput = document.getElementById('epochs');
+const fineTuningEpochsInput = document.getElementById('fine-tuning-epochs');
+
+const datasetIOButton = document.getElementById('dataset-io');
+const datasetIOInnerDiv = document.getElementById('dataset-io-inner');
+const downloadAsFileButton = document.getElementById('download-dataset');
+const datasetFileInput = document.getElementById('dataset-file-input');
+const uploadFilesButton = document.getElementById('upload-dataset');
+
+const evalModelOnDatasetButton = document.getElementById('eval-model-on-dataset');
+const evalResultsSpan = document.getElementById('eval-results');
+
+const modelIOButton = document.getElementById('model-io');
+const transferModelSaveLoadInnerDiv = document.getElementById('transfer-model-save-load-inner');
+const loadTransferModelButton = document.getElementById('load-transfer-model');
+const saveTransferModelButton = document.getElementById('save-transfer-model');
+const savedTransferModelsSelect = document.getElementById('saved-transfer-models');
+const deleteTransferModelButton = document.getElementById('delete-transfer-model');
+
+const statusDisplay = document.getElementById('status-display');
+const candidateWordsContainer = document.getElementById('candidate-words');
+
+/**
+ * Transfer learning-related UI componenets.
+ */
 const transferModelNameInput = document.getElementById('transfer-model-name');
+const learnWordsInput = document.getElementById('learn-words');
+const durationMultiplierSelect = document.getElementById('duration-multiplier');
+const enterLearnWordsButton = document.getElementById('enter-learn-words');
+const includeTimeDomainWaveformCheckbox = document.getElementById('include-audio-waveform');
+const collectButtonsDiv = document.getElementById('collect-words');
+const startTransferLearnButton = document.getElementById('start-transfer-learn');
+
 
 const XFER_MODEL_NAME = 'xfer-model';
 const MIN_EXAMPLES_PER_CLASS = 8;
@@ -21,6 +56,278 @@ let recognizer;
 let transferWords;
 let transferRecognizer;
 let transferDurationMultiplier;
+
+
+/**
+ * Dataset visualizer that supports
+ *
+ * - Display of words and spectrograms
+ * - Navigation through examples
+ * - Deletion of examples
+ */
+class DatasetViz {
+    /**
+     * Constructor of DatasetViz
+     *
+     * @param {Object} transferRecognizer An instance of
+     *   `speechCommands.TransferSpeechCommandRecognizer`.
+     * @param {HTMLDivElement} topLevelContainer The div element that
+     *   holds the div elements for the individual words. It is assumed
+     *   that each element has its "word" attribute set to the word.
+     * @param {number} minExamplesPerClass Minimum number of examples
+     *   per word class required for the start-transfer-learning button
+     *   to be enabled.
+     * @param {HTMLButtonElement} startTransferLearnButton The button
+     *   which starts the transfer learning when clicked.
+     * @param {HTMLBUttonElement} downloadAsFileButton The button
+     *   that triggers downloading of the dataset as a file when clicked.
+     * @param {number} transferDurationMultiplier Optional duration
+     *   multiplier (the ratio between the length of the example
+     *   and the length expected by the model.) Defaults to 1.
+     */
+    constructor(
+        transferRecognizer, topLevelContainer, minExamplesPerClass,
+        startTransferLearnButton, downloadAsFileButton,
+        transferDurationMultiplier = 1) {
+      this.transferRecognizer = transferRecognizer;
+      this.container = topLevelContainer;
+      this.minExamplesPerClass = minExamplesPerClass;
+      this.startTransferLearnButton = startTransferLearnButton;
+      this.downloadAsFileButton = downloadAsFileButton;
+      this.transferDurationMultiplier = transferDurationMultiplier;
+  
+      // Navigation indices for the words.
+      this.navIndices = {};
+    }
+  
+    /** Get the set of words in the dataset visualizer. */
+    words_() {
+      const words = [];
+      for (const element of this.container.children) {
+        words.push(element.getAttribute('word'));
+      }
+      return words;
+    }
+  
+    /**
+     * Draw an example.
+     *
+     * @param {HTMLDivElement} wordDiv The div element for the word. It is assumed
+     *   that it contains the word button as the first child and the canvas as the
+     *   second.
+     * @param {string} word The word of the example being added.
+     * @param {SpectrogramData} spectrogram Optional spectrogram data.
+     *   If provided, will use it as is. If not provided, will use WebAudio
+     *   to collect an example.
+     * @param {RawAudio} rawAudio Raw audio waveform. Optional
+     * @param {string} uid UID of the example being drawn. Must match the UID
+     *   of the example from `this.transferRecognizer`.
+     */
+    async drawExample(wordDiv, word, spectrogram, rawAudio, uid) {
+      if (uid == null) {
+        throw new Error('Error: UID is not provided for pre-existing example.');
+      }
+  
+      removeNonFixedChildrenFromWordDiv(wordDiv);
+  
+      // Create the left and right nav buttons.
+      const leftButton = document.createElement('button');
+      leftButton.textContent = '←';
+      wordDiv.appendChild(leftButton);
+  
+      const rightButton = document.createElement('button');
+      rightButton.textContent = '→';
+      wordDiv.appendChild(rightButton);
+  
+      // Determine the position of the example in the word of the dataset.
+      const exampleUIDs =
+          this.transferRecognizer.getExamples(word).map(ex => ex.uid);
+      const position = exampleUIDs.indexOf(uid);
+      this.navIndices[word] = exampleUIDs.indexOf(uid);
+  
+      if (position > 0) {
+        leftButton.addEventListener('click', () => {
+          this.redraw(word, exampleUIDs[position - 1]);
+        });
+      } else {
+        leftButton.disabled = true;
+      }
+  
+      if (position < exampleUIDs.length - 1) {
+        rightButton.addEventListener('click', () => {
+          this.redraw(word, exampleUIDs[position + 1]);
+        });
+      } else {
+        rightButton.disabled = true;
+      }
+  
+      // Spectrogram canvas.
+      const exampleCanvas = document.createElement('canvas');
+      exampleCanvas.style['display'] = 'inline-block';
+      exampleCanvas.style['vertical-align'] = 'middle';
+      exampleCanvas.height = 60;
+      exampleCanvas.width = 80;
+      exampleCanvas.style['padding'] = '3px';
+  
+      // Set up the click callback for the spectrogram canvas. When clicked,
+      // the keyFrameIndex will be set.
+      if (word !== speechCommands.BACKGROUND_NOISE_TAG) {
+        exampleCanvas.addEventListener('click', event => {
+          const relativeX =
+              getCanvasClickRelativeXCoordinate(exampleCanvas, event);
+          const numFrames = spectrogram.data.length / spectrogram.frameSize;
+          const keyFrameIndex = Math.floor(numFrames * relativeX);
+          console.log(
+              `relativeX=${relativeX}; ` +
+              `changed keyFrameIndex to ${keyFrameIndex}`);
+          this.transferRecognizer.setExampleKeyFrameIndex(uid, keyFrameIndex);
+          this.redraw(word, uid);
+        });
+      }
+  
+      wordDiv.appendChild(exampleCanvas);
+  
+      const modelNumFrames = this.transferRecognizer.modelInputShape()[1];
+      await plotSpectrogram(
+          exampleCanvas, spectrogram.data, spectrogram.frameSize,
+          spectrogram.frameSize, {
+            pixelsPerFrame: exampleCanvas.width / modelNumFrames,
+            maxPixelWidth: Math.round(0.4 * window.innerWidth),
+            markKeyFrame: this.transferDurationMultiplier > 1 &&
+                word !== speechCommands.BACKGROUND_NOISE_TAG,
+            keyFrameIndex: spectrogram.keyFrameIndex
+          });
+  
+      if (rawAudio != null) {
+        const playButton = document.createElement('button');
+        playButton.textContent = '▶️';
+        playButton.addEventListener('click', () => {
+          playButton.disabled = true;
+          speechCommands.utils.playRawAudio(
+              rawAudio, () => playButton.disabled = false);
+        });
+        wordDiv.appendChild(playButton);
+      }
+  
+      // Create Delete button.
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'X';
+      wordDiv.appendChild(deleteButton);
+  
+      // Callback for delete button.
+      deleteButton.addEventListener('click', () => {
+        this.transferRecognizer.removeExample(uid);
+        // TODO(cais): Smarter logic for which example to draw after deletion.
+        // Right now it always redraws the last available one.
+        this.redraw(word);
+      });
+  
+      this.updateButtons_();
+    }
+  
+    /**
+     * Redraw the spectrogram and buttons for a word.
+     *
+     * @param {string} word The word being redrawn. This must belong to the
+     *   vocabulary currently held by the transferRecognizer.
+     * @param {string} uid Optional UID for the example to render. If not
+     *   specified, the last available example of the dataset will be drawn.
+     */
+    async redraw(word, uid) {
+      if (word == null) {
+        throw new Error('word is not specified');
+      }
+      let divIndex;
+      for (divIndex = 0; divIndex < this.container.children.length; ++divIndex) {
+        if (this.container.children[divIndex].getAttribute('word') === word) {
+          break;
+        }
+      }
+      if (divIndex === this.container.children.length) {
+        throw new Error(`Cannot find div corresponding to word ${word}`);
+      }
+      const wordDiv = this.container.children[divIndex];
+      const exampleCounts = this.transferRecognizer.isDatasetEmpty() ?
+          {} :
+          this.transferRecognizer.countExamples();
+  
+      if (word in exampleCounts) {
+        const examples = this.transferRecognizer.getExamples(word);
+        let example;
+        if (uid == null) {
+          // Example UID is not specified. Draw the last one available.
+          example = examples[examples.length - 1];
+        } else {
+          // Example UID is specified. Find the example and update navigation
+          // indices.
+          for (let index = 0; index < examples.length; ++index) {
+            if (examples[index].uid === uid) {
+              example = examples[index];
+            }
+          }
+        }
+  
+        const spectrogram = example.example.spectrogram;
+        await this.drawExample(
+            wordDiv, word, spectrogram, example.example.rawAudio, example.uid);
+      } else {
+        removeNonFixedChildrenFromWordDiv(wordDiv);
+      }
+  
+      this.updateButtons_();
+    }
+  
+    /**
+     * Redraw the spectrograms and buttons for all words.
+     *
+     * For each word, the last available example is rendered.
+     **/
+    redrawAll() {
+      for (const word of this.words_()) {
+        this.redraw(word);
+      }
+    }
+  
+    /** Update the button states according to the state of transferRecognizer. */
+    updateButtons_() {
+      const exampleCounts = this.transferRecognizer.isDatasetEmpty() ?
+          {} :
+          this.transferRecognizer.countExamples();
+      const minCountByClass =
+          this.words_()
+              .map(word => exampleCounts[word] || 0)
+              .reduce((prev, current) => current < prev ? current : prev);
+  
+      for (const element of this.container.children) {
+        const word = element.getAttribute('word');
+        const button = element.children[0];
+        const displayWord =
+            word === speechCommands.BACKGROUND_NOISE_TAG ? 'noise' : word;
+        const exampleCount = exampleCounts[word] || 0;
+        if (exampleCount === 0) {
+          button.textContent = `${displayWord} (${exampleCount})`;
+        } else {
+          const pos = this.navIndices[word] + 1;
+          button.textContent = `${displayWord} (${pos}/${exampleCount})`;
+        }
+      }
+  
+      const requiredMinCountPerClass =
+          Math.ceil(this.minExamplesPerClass / this.transferDurationMultiplier);
+      if (minCountByClass >= requiredMinCountPerClass) {
+        this.startTransferLearnButton.textContent = 'Start transfer learning';
+        this.startTransferLearnButton.disabled = false;
+      } else {
+        this.startTransferLearnButton.textContent =
+            `Need at least ${requiredMinCountPerClass} examples per word`;
+        this.startTransferLearnButton.disabled = true;
+      }
+  
+      this.downloadAsFileButton.disabled =
+          this.transferRecognizer.isDatasetEmpty();
+    }
+}
+
 
 (async function() {
     console.log("Creating Recognizer");
@@ -48,9 +355,12 @@ let transferDurationMultiplier;
 console.log(tensorflow);
 console.log(SpeechCommands);
 
+var BACKGROUND_NOISE_TAG = SpeechCommands.BACKGROUND_NOISE_TAG;
+var UNKNOWN_TAG = SpeechCommands.UNKNOWN_TAG;
+
 startButton.addEventListener('click', () => {
     const activeRecognizer = transferRecognizer == null ? recognizer : transferRecognizer;
-    //populateCandidateWords(activeRecognizer.wordLabels());
+    populateCandidateWords(activeRecognizer.wordLabels());
 
     const suppressionTimeMillis = 1000;
     activeRecognizer.listen( result => {
@@ -87,7 +397,7 @@ stopButton.addEventListener('click', () => {
 
 /** Transfer Learning Logic */
 
-funcion scrollToPageBottom() {
+function scrollToPageBottom() {
     const scrollingElement = (document.scrollingElement || document.body);
     scrollingElement.scrollTop = scrollingElement.scrollHeight;
 }
@@ -103,7 +413,7 @@ function createProgressBarAndIntervalJob(parentElement, durationSec) {
         progressBar.value += 0.05;
     }, durationSec * 1e3 / 20);
     parentElement.appendChild(progressBar);
-    //return {progressBar, intervalJob};
+    return {progressBar, intervalJob};
 }
 
 
@@ -119,7 +429,7 @@ function createWordDivs(transferWords) {
     while (collectButtonsDiv.firstChild) {
         collectButtonsDiv.removeChild(collectButtonsDiv.firstChild);
     }
-    datasetViz = new datasetViz(
+    datasetViz = new DatasetViz(
         transferRecognizer, collectButtonsDiv, MIN_EXAMPLES_PER_CLASS,
         startTransferLearnButton, downloadAsFileButton,
         transferDurationMultiplier);
@@ -161,7 +471,7 @@ function createWordDivs(transferWords) {
         }
 
         button.addEventListener('click', async () => {
-            disableAllCollectWordButtons();
+            //disableAllCollectWordButtons();
             removeNonFixedChildrenFromWordDiv(wordDiv);
 
             const collectExampleOptions = {};
@@ -198,7 +508,7 @@ function createWordDivs(transferWords) {
                         tempSpectrogramData = spectrogram.data;
                     } else {
                         tempSpectrogramData = SpeechCommands.utils.concatenateFloat32Arrays(
-                            [tempSpectrogramDatam, spectrogram.data]);
+                            [tempSpectrogramData, spectrogram.data]);
                     }
                     plotSpectrogram(
                         tempCanvas, tempSpectrogramData, spectrogram.frameSize,
@@ -218,7 +528,7 @@ function createWordDivs(transferWords) {
             const example = examples[examples.length - 1];
             await datasetViz.drawExample(
                 wordDiv, word, spectrogram, example.example.rawAudio, example.uid);
-            enableAllCollectWordButtons();
+            //enableAllCollectWordButtons();
         });
     }    
     return wordDivs;
@@ -237,7 +547,7 @@ enterLearnWordsButton.addEventListener('click', () => {
     // once the "Enter transfer words" button has been clicked.
     // However, the user can still load an existing dataset from
     // files first and keep appending examples to it.
-    disableFileUploadControls();
+    //disableFileUploadControls();
     enterLearnWordsButton.disabled = true;
 
     transferDurationMultiplier = durationMultiplierSelect.value;
@@ -256,7 +566,7 @@ enterLearnWordsButton.addEventListener('click', () => {
 
     scrollToPageBottom();
 });
-
+/*
 function disableAllCollectWordButtons() {
     for (const word in collectWordButtons) {
         collectWordButtons[word].disabled = true;
@@ -272,7 +582,7 @@ function enableAllCollectWordButtons() {
 function disableFileUploadControls() {
     datasetFileInput.disabled = true;
     uploadFilesButton.disabled = true;
-}
+}*/
 
 startTransferLearnButton.addEventListener('click', async () => {
     startTransferLearnButton.disabled = true;
@@ -368,7 +678,7 @@ startTransferLearnButton.addEventListener('click', async () => {
         scrollToPageBottom();
     }
 
-    disableAllCollectWordButtons();
+    //disableAllCollectWordButtons();
     const augmentByMixingNoiseRatio = document.getElementById('augment-by-mixing-noise').checked ? 0.5 : null;
     console.log(`augmentByMixingNoiseRatio = ${augmentByMixingNoiseRatio}`);
     await transferRecognizer.train({
@@ -565,7 +875,6 @@ async function populateSavedTransferModelsSelect() {
         option.id = key;
         savedTransferModelsSelect.appendChild(option);
       }
-      loadTransferModelButton.disabled = false;
     }
 }
   
@@ -573,22 +882,25 @@ saveTransferModelButton.addEventListener('click', async () => {
     await transferRecognizer.save();
     await populateSavedTransferModelsSelect();
     saveTransferModelButton.textContent = 'Model saved!';
-    saveTransferModelButton.disabled = true;
+    
+    // topology and weights of a model on x.save();
+    // await model.save('localstorage://my-model'); is saved across browser sessions
+    // este faz download do json + bin com weights
+    await transferRecognizer.save('downloads://my-model');
+    await transferRecognizer.model.save('downloads://my-model1');
+    // este faz um HTTP request para um server
+    //await model.save('http://model-server.domain/upload')
+
 });
   
 loadTransferModelButton.addEventListener('click', async () => {
+    //'./models/my-model.json'
     const transferModelName = savedTransferModelsSelect.value;
     await recognizer.ensureModelLoaded();
     transferRecognizer = recognizer.createTransfer(transferModelName);
     await transferRecognizer.load();
     transferModelNameInput.value = transferModelName;
-    transferModelNameInput.disabled = true;
     learnWordsInput.value = transferRecognizer.wordLabels().join(',');
-    learnWordsInput.disabled = true;
-    durationMultiplierSelect.disabled = true;
-    enterLearnWordsButton.disabled = true;
-    saveTransferModelButton.disabled = true;
-    loadTransferModelButton.disabled = true;
     loadTransferModelButton.textContent = 'Model loaded!';
 });
   
@@ -624,3 +936,210 @@ datasetIOButton.addEventListener('click', () => {
     }
 });
 // other files
+
+function removeNonFixedChildrenFromWordDiv(wordDiv) {
+    for (let i = wordDiv.children.length - 1; i >= 0; --i) {
+      if (wordDiv.children[i].getAttribute('isFixed') == null) {
+        wordDiv.removeChild(wordDiv.children[i]);
+      } else {
+        break;
+      }
+    }
+}
+
+
+
+
+/**
+ * Log a message to a textarea.
+ *
+ * @param {string} message Message to be logged.
+ */
+function logToStatusDisplay(message) {
+    const date = new Date();
+    statusDisplay.value += `[${date.toISOString()}] ` + message + '\n';
+    statusDisplay.scrollTop = statusDisplay.scrollHeight;
+}
+
+let candidateWordSpans;
+
+/**
+ * Display candidate words in the UI.
+ *
+ * The background-noise "word" will be omitted.
+ *
+ * @param {*} words Candidate words.
+ */
+
+function populateCandidateWords(words) {
+    candidateWordSpans = {};
+    while (candidateWordsContainer.firstChild) {
+      candidateWordsContainer.removeChild(candidateWordsContainer.firstChild);
+    }
+  
+    for (const word of words) {
+      if (word === BACKGROUND_NOISE_TAG || word === UNKNOWN_TAG) {
+        continue;
+      }
+      const wordSpan = document.createElement('span');
+      wordSpan.textContent = word;
+      wordSpan.classList.add('candidate-word');
+      candidateWordsContainer.appendChild(wordSpan);
+      candidateWordSpans[word] = wordSpan;
+    }
+}
+
+function showCandidateWords() {
+    candidateWordsContainer.classList.remove('candidate-words-hidden');
+}
+  
+function hideCandidateWords() {
+    candidateWordsContainer.classList.add('candidate-words-hidden');
+}
+
+
+/**
+ * Show an audio spectrogram in a canvas.
+ *
+ * @param {HTMLCanvasElement} canvas The canvas element to draw the
+ *   spectrogram in.
+ * @param {Float32Array} frequencyData The flat array for the spectrogram
+ *   data.
+ * @param {number} fftSize Number of frequency points per frame.
+ * @param {number} fftDisplaySize Number of frequency points to show. Must be
+ * @param {Object} config Optional configuration object, with the following
+ *   supported fields:
+ *   - pixelsPerFrame {number} Number of pixels along the width dimension of
+ *     the canvas for each frame of spectrogram.
+ *   - maxPixelWidth {number} Maximum width in pixels.
+ *   - markKeyFrame {bool} Whether to mark the index of the frame
+ *     with the maximum intensity or a predetermined key frame.
+ *   - keyFrameIndex {index?} Predetermined key frame index.
+ *
+ *   <= fftSize.
+ */
+async function plotSpectrogram(
+    canvas, frequencyData, fftSize, fftDisplaySize, config) {
+  if (fftDisplaySize == null) {
+    fftDisplaySize = fftSize;
+  }
+  if (config == null) {
+    config = {};
+  }
+
+  // Get the maximum and minimum.
+  let min = Infinity;
+  let max = -Infinity;
+  for (let i = 0; i < frequencyData.length; ++i) {
+    const x = frequencyData[i];
+    if (x !== -Infinity) {
+      if (x < min) {
+        min = x;
+      }
+      if (x > max) {
+        max = x;
+      }
+    }
+  }
+  if (min >= max) {
+    return;
+  }
+
+  const context = canvas.getContext('2d');
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  const numFrames = frequencyData.length / fftSize;
+  if (config.pixelsPerFrame != null) {
+    let realWidth = Math.round(config.pixelsPerFrame * numFrames);
+    if (config.maxPixelWidth != null && realWidth > config.maxPixelWidth) {
+      realWidth = config.maxPixelWidth;
+    }
+    canvas.width = realWidth;
+  }
+
+  const pixelWidth = canvas.width / numFrames;
+  const pixelHeight = canvas.height / fftDisplaySize;
+  for (let i = 0; i < numFrames; ++i) {
+    const x = pixelWidth * i;
+    const spectrum = frequencyData.subarray(i * fftSize, (i + 1) * fftSize);
+    if (spectrum[0] === -Infinity) {
+      break;
+    }
+    for (let j = 0; j < fftDisplaySize; ++j) {
+      const y = canvas.height - (j + 1) * pixelHeight;
+
+      let colorValue = (spectrum[j] - min) / (max - min);
+      colorValue = Math.pow(colorValue, 3);
+      colorValue = Math.round(255 * colorValue);
+      const fillStyle =
+          `rgb(${colorValue},${255 - colorValue},${255 - colorValue})`;
+      context.fillStyle = fillStyle;
+      context.fillRect(x, y, pixelWidth, pixelHeight);
+    }
+  }
+
+  if (config.markKeyFrame) {
+    const keyFrameIndex = config.keyFrameIndex == null ?
+        await SpeechCommands
+            .getMaxIntensityFrameIndex(
+                {data: frequencyData, frameSize: fftSize})
+            .data() :
+        config.keyFrameIndex;
+    // Draw lines to mark the maximum-intensity frame.
+    context.strokeStyle = 'black';
+    context.beginPath();
+    context.moveTo(pixelWidth * keyFrameIndex, 0);
+    context.lineTo(pixelWidth * keyFrameIndex, canvas.height * 0.1);
+    context.stroke();
+    context.beginPath();
+    context.moveTo(pixelWidth * keyFrameIndex, canvas.height * 0.9);
+    context.lineTo(pixelWidth * keyFrameIndex, canvas.height);
+    context.stroke();
+  }
+}
+
+/**
+ * Plot top-K predictions from a speech command recognizer.
+ *
+ * @param {HTMLCanvasElement} canvas The canvas to render the predictions in.
+ * @param {string[]} candidateWords Candidate word array.
+ * @param {Float32Array | number[]} probabilities Probability scores from the
+ *   speech command recognizer. Must be of the same length as `candidateWords`.
+ * @param {number} timeToLiveMillis Optional time to live for the active label
+ *   highlighting. If not provided, will the highlighting will live
+ *   indefinitely till the next highlighting.
+ * @param {number} topK Top _ scores to render.
+ */
+function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiveMillis) {
+  if (topK != null) {
+    let wordsAndProbs = [];
+    for (let i = 0; i < candidateWords.length; ++i) {
+      wordsAndProbs.push([candidateWords[i], probabilities[i]]);
+    }
+    wordsAndProbs.sort((a, b) => (b[1] - a[1]));
+    wordsAndProbs = wordsAndProbs.slice(0, topK);
+    candidateWords = wordsAndProbs.map(item => item[0]);
+    probabilities = wordsAndProbs.map(item => item[1]);
+
+    // Highlight the top word.
+    const topWord = wordsAndProbs[0][0];
+    console.log( `"${topWord}" (p=${wordsAndProbs[0][1].toFixed(6)}) @ ` + new Date().toTimeString());
+    for (const word in candidateWordSpans) {
+      if (word === topWord) {
+        candidateWordSpans[word].classList.add('candidate-word-active');
+        if (timeToLiveMillis != null) {
+          setTimeout(() => {
+            if (candidateWordSpans[word]) {
+              candidateWordSpans[word].classList.remove(
+                  'candidate-word-active');
+            }
+          }, timeToLiveMillis);
+        }
+      } else {
+        candidateWordSpans[word].classList.remove('candidate-word-active');
+      }
+    }
+  }
+}
+
+console.log("IF LOADED DATASET THEN MATCH INP OUTP WORDS");

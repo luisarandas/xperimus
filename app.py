@@ -184,3 +184,6 @@ if __name__ == "__main__":
 
 # WSGI interface for backend
 # check short polling
+
+# server handler for HTTP requests
+# https://gist.github.com/dsmilkov/1b6046fd6132d7408d5257b0976f7864
