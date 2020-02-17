@@ -6,6 +6,10 @@
 // controlar o numero dos outros samples que não o background noise
 // jorge coelho -- plotly
 
+window.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB,
+    IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction,
+    dbVersion = 1;
+
 const tensorflow = tf; // check later
 const SpeechCommands = speechCommands;
 
@@ -710,8 +714,11 @@ startTransferLearnButton.addEventListener('click', async () => {
     evalModelOnDatasetButton.disabled = false;
 });
 
+var modelname;
+
 downloadAsFileButton.addEventListener('click', () => {
     const basename = getDateString();
+    modelname = basename;
     const artifacts = transferRecognizer.serializeExamples();
 
     //trigger downloading of the data .bin file.
@@ -884,10 +891,10 @@ saveTransferModelButton.addEventListener('click', async () => {
     saveTransferModelButton.textContent = 'Model saved!';
     
     // topology and weights of a model on x.save();
-    // await model.save('localstorage://my-model'); is saved across browser sessions
+    await transferRecognizer.save('localstorage://my-model'); 
+
     // este faz download do json + bin com weights
     await transferRecognizer.save('downloads://my-model');
-    await transferRecognizer.model.save('downloads://my-model1');
     // este faz um HTTP request para um server
     //await model.save('http://model-server.domain/upload')
 
@@ -1143,3 +1150,64 @@ function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiv
 }
 
 console.log("IF LOADED DATASET THEN MATCH INP OUTP WORDS");
+
+/**
+ * AMAZON
+ */
+
+(function() {
+  document.getElementById("file_input").onchange = function(){
+
+    var files = document.getElementById("file_input").files;
+    var file = files[0];
+    if(!file){
+      return alert("No file selected.");
+    }
+    getSignedRequest(file);
+    console.log("tst");
+  };
+})();
+
+function getSignedRequest(file){
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "/sign_s3?file_name="+file.name+"&file_type="+file.type, true);
+  xhr.onreadystatechange = function(){
+    console.log(this);
+    if(xhr.readyState === 4){
+      console.log(this);
+      if(xhr.status === 200){
+        var response = JSON.parse(xhr.responseText);
+        uploadFile(file, response.data, response.url);
+      }
+      else {
+        alert("Could not get signed URL.");
+      }
+    }
+  };
+  xhr.send();
+}
+
+function uploadFile(file, s3Data, url){
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", s3Data.url);
+
+  var postData = new FormData();
+  for(key in s3Data.fields){
+    postData.append(key, s3Data.fields[key]);
+  }
+  postData.append('file', file);
+
+  xhr.onreadystatechange = function() {
+    if(xhr.readyState === 4){
+      if(xhr.status === 200 || xhr.status === 204){
+        document.getElementById("preview").src = url;
+      }
+      else{
+        alert("Could not upload file.");
+      }
+   }
+  };
+  xhr.send(postData);
+}
+
+// https://devcenter.heroku.com/articles/s3-upload-python

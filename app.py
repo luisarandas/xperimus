@@ -175,8 +175,6 @@ def leave(data):
     )
 
 
-print("---------------------- Xperimus Server Console Print ---------------------- ")
-
 if __name__ == "__main__":
     # Will always execute
     app.run()
