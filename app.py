@@ -1,6 +1,10 @@
-import os
+import os, json, boto3
+from botocore.client import Config 
+from botocore.exceptions import ClientError
+from boto3.s3.transfer import S3Transfer
+
 from time import localtime, strftime
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import (
     LoginManager,
     login_user,
@@ -138,8 +142,29 @@ def background_process_test():
 # Open Microphone with other func
 
 
-################################ Testing
+### testing amazon
+################################ boto3 is working
+ 
 
+ACCESS_KEY_ID = 'AKIAVJNWHORUZ4MGR3WE'
+ACCESS_SECRET_KEY = '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'
+BUCKET_NAME = 'xperimusmodels'
+
+data = open('teste.jpg', 'rb')
+s3 = boto3.resource(
+    's3',
+    aws_access_key_id=ACCESS_KEY_ID,
+    aws_secret_access_key=ACCESS_SECRET_KEY,
+    config=Config(signature_version='s3v4')
+)
+#s3.Bucket(BUCKET_NAME).put_object(Key='teste.png', Body=data)
+
+#s3.Bucket(BUCKET_NAME).put_object(Key='novapasta/test.png', Body=data)
+
+for my_bucket_contents in s3.Bucket(BUCKET_NAME).objects.all():
+    print(my_bucket_contents)
+
+print ("Done")
 
 @socketio.on("message")
 def message(data):
