@@ -146,8 +146,8 @@ def background_process_test():
 ################################ boto3 is working
  
 
-ACCESS_KEY_ID = 'AKIAVJNWHORUZ4MGR3WE'
-ACCESS_SECRET_KEY = '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'
+ACCESS_KEY_ID = ''
+ACCESS_SECRET_KEY = ''
 BUCKET_NAME = 'xperimusmodels'
 
 data = open('teste.jpg', 'rb')
@@ -164,7 +164,7 @@ s3 = boto3.resource(
 for my_bucket_contents in s3.Bucket(BUCKET_NAME).objects.all():
     print(my_bucket_contents)
 
-print ("Done")
+print ("Done and change secret key")
 
 @socketio.on("message")
 def message(data):
