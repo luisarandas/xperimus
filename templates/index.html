@@ -13,22 +13,25 @@
 
   <br><br><br>
 
+  <!--<canvas id="viewport" height="512" width="700"></canvas>-->
+
   <div id="firstContainer">
   <div class="start-stop">
-    <button id="start">Start</button>
+    <button id="start">Listen</button>
     <button id="stop">Stop</button>
   </div>
   <div class='main-model'>
     <div class="settings">
       <!--<span style="display:block">Prob. threshold:</span>-->
       <input style="display:block" class="settings" size="5" id="proba-threshold" value="0.75">
+      <div id="probabil">--%</div>
     </div>
     <div id="candidate-words" class="candidate-words"></div>
   </div>
   </div>
 
-
-
+  <br>
+  <div id="secondContainer">
   <!--<div class="footer" style="display: block;">
     <textarea id="status-display" style="display: block" cols="80" readonly="true"></textarea>
   </div>-->
@@ -37,7 +40,9 @@
     <input id="learn-words" size="36" value="_background_noise_,red,green">
     <select id="duration-multiplier">
       <option value="1">Duration x1</option>
-      <option value="2" selected="true">Duration x2</option>
+      <option value="2">Duration x2</option>
+      <option value="3" selected="true">Duration x3</option>
+
     </select>
 
     <input type="checkbox" id="include-audio-waveform">
@@ -99,12 +104,15 @@
       </div>
     </div>
   </div>
+  </div>
+
 
   <script src="https://unpkg.com/@tensorflow/tfjs"></script>
   <script src="https://unpkg.com/@tensorflow-models/speech-commands"></script>
 
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
+  <script src="/static/scripts/libs/spectrogram.js"></script>
   <script src="/static/scripts/xperimus.js"></script>
 </body>
 </html>
