@@ -377,7 +377,6 @@ startButton.addEventListener('click', () => {
     .then(() => {
         startButton.disabled = true;
         stopButton.disabled = false;
-        //showCandidateWords();
         console.log("Streaming recognition started.");
     })
     .catch(err => {
@@ -391,7 +390,6 @@ stopButton.addEventListener('click', () => {
     .then(() => {
         startButton.disabled = false;
         stopButton.disabled = true;
-        //hideCandidateWords();
         console.log("Streaming recognition stopped.");
     })
     .catch(err => {
@@ -979,10 +977,8 @@ let candidateWordSpans;
  */
 
 function populateCandidateWords(words) {
+
     candidateWordSpans = {};
-    while (candidateWordsContainer.firstChild) {
-      candidateWordsContainer.removeChild(candidateWordsContainer.firstChild);
-    }
   
     for (const word of words) {
       if (word === BACKGROUND_NOISE_TAG || word === UNKNOWN_TAG) {
@@ -994,14 +990,6 @@ function populateCandidateWords(words) {
       candidateWordsContainer.appendChild(wordSpan);
       candidateWordSpans[word] = wordSpan;
     }
-}
-
-function showCandidateWords() {
-    candidateWordsContainer.classList.remove('candidate-words-hidden');
-}
-  
-function hideCandidateWords() {
-    candidateWordsContainer.classList.add('candidate-words-hidden');
 }
 
 

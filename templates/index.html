@@ -9,24 +9,29 @@
 
 <body>
   <div id="topmenu"></div>
-  <div id="spectogramdisplay"></div>
+  <!--<div id="spectogramdisplay"></div>-->
 
+  <br><br><br>
 
-
+  <div id="firstContainer">
   <div class="start-stop">
     <button id="start">Start</button>
     <button id="stop">Stop</button>
   </div>
   <div class='main-model'>
     <div class="settings">
-      <span style="display:none">Prob. threshold:</span>
-      <input style="display:none" class="settings" size="5" id="proba-threshold" value="0.75">
+      <!--<span style="display:block">Prob. threshold:</span>-->
+      <input style="display:block" class="settings" size="5" id="proba-threshold" value="0.75">
     </div>
     <div id="candidate-words" class="candidate-words"></div>
   </div>
-  <div class="footer" style="display: none;">
-    <textarea id="status-display" style="display: none" cols="80" readonly="true"></textarea>
   </div>
+
+
+
+  <!--<div class="footer" style="display: block;">
+    <textarea id="status-display" style="display: block" cols="80" readonly="true"></textarea>
+  </div>-->
   <div class="transfer-learn-section">
     <input id="transfer-model-name" size="20" placeholder="model name">
     <input id="learn-words" size="36" value="_background_noise_,red,green">
@@ -95,30 +100,11 @@
     </div>
   </div>
 
+  <script src="https://unpkg.com/@tensorflow/tfjs"></script>
+  <script src="https://unpkg.com/@tensorflow-models/speech-commands"></script>
 
-  <br><br><br><br><br><br><br><br><br><br><br>
-  <br><br><br><br><br><br><br><br><br><br><br>
-  <br><br><br><br><br><br><br><br><br><br><br>
-  <br><br><br><br><br><br><br><br><br><br><br>
-  <br><br><br><br><br><br><br><br><br><br><br>
-  <br><br><br><br><br><br><br><br><br><br><br>
-  <br><br><br><br><br><br><br><br><br><br><br>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-  
-
-
-    <script src="https://unpkg.com/@tensorflow/tfjs"></script>
-    <script src="https://unpkg.com/@tensorflow-models/speech-commands"></script>
-
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
-    <script src="/static/scripts/xperimus.js"></script>
-
-    <script>
-      function getHtml(template) {
-         return template.join('\n');
-      }
-      listAlbums();
-   </script>
+  <script src="/static/scripts/xperimus.js"></script>
 </body>
 </html>
