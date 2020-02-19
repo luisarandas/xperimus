@@ -10,6 +10,12 @@ window.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndex
     IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction,
     dbVersion = 1;
 
+var isIndexDbTransactionPossible = window.IDBTransaction || window.webkitIDBTransaction;
+if (isIndexDbTransactionPossible) {
+        isIndexDbTransactionPossible.READ_WRITE = isIndexDbTransactionPossible.READ_WRITE || 'readwrite';
+        isIndexDbTransactionPossible.READ_ONLY = isIndexDbTransactionPossible.READ_ONLY || 'readonly';
+}    
+
 const tensorflow = tf; // check later
 const SpeechCommands = speechCommands;
 
@@ -356,9 +362,6 @@ class DatasetViz {
         console.log("Failed: ", err.message);
     });
 })();
-
-console.log(tensorflow);
-console.log(SpeechCommands);
 
 var BACKGROUND_NOISE_TAG = SpeechCommands.BACKGROUND_NOISE_TAG;
 var UNKNOWN_TAG = SpeechCommands.UNKNOWN_TAG;
@@ -880,26 +883,61 @@ async function populateSavedTransferModelsSelect() {
       }
     }
 }
-  
+
 saveTransferModelButton.addEventListener('click', async () => {
     //await transferRecognizer.save();
-    await populateSavedTransferModelsSelect();
+
+    await populateSavedTransferModelsSelect(); //await
     saveTransferModelButton.textContent = 'Model saved!';
     
-    // topology and weights of a model on x.save();
-    //await transferRecognizer.save('localstorage://my-model'); 
-
-    // este faz download do json + bin com weights
-    
-    await transferRecognizer.save('downloads://my-model');
-
-    // este faz um HTTP request para um server
-    //await model.save('http://model-server.domain/upload')
-
+    await transferRecognizer.save('indexeddb://my-model'); //await
 });
-  
+
+function indexddb() {
+
+  var DBOpenRequest = window.indexedDB.open("tensorflowjs", dbVersion);
+
+    DBOpenRequest.onsuccess = function(event) {
+
+      db = DBOpenRequest.result;
+      console.log(db);
+
+      function getData() {
+
+
+
+        var transaction = db.transaction(["models_store"], "readwrite");
+
+        transaction.oncomplete = function(event) {
+        console.log(this);
+        //works
+        };
+
+
+        // create an object store on the transaction
+      // Make a request to get a record by key from the object store
+      var objectStore = transaction.objectStore("models_store");
+      var objectStoreRequest = objectStore.get("my_model");
+
+      objectStoreRequest.onsuccess = function(event) {
+      // report the success of our request
+        console.log(this);
+       var myRecord = objectStoreRequest.result;
+       console.log(myRecord);
+      };
+      }
+
+      getData();
+    }
+}
+
+
+
 loadTransferModelButton.addEventListener('click', async () => {
     //'./models/my-model.json'
+    //const saveResult = await model.save(tf.io.http(
+    //     'http://model-server:5000/upload', {requestInit: {method: 'PUT'}}));
+    // console.log(saveResult);
     const transferModelName = savedTransferModelsSelect.value;
     await recognizer.ensureModelLoaded();
     transferRecognizer = recognizer.createTransfer(transferModelName);
@@ -1152,9 +1190,41 @@ console.log("IF LOADED DATASET THEN MATCH INP OUTP WORDS");
 /**
  * AMAZON
  */
-// https://devcenter.heroku.com/articles/s3-upload-python
 
-var s3 = new AWS.S3({params: {Bucket: 'xperimusmodels'}, region: 'us-west-2'});
-console.log(s3);
+var albumBucketName = "xperimusmodels";
+var bucketRegion = "eu-west-2";
+var IdentityPoolId = "eu-west-2:52abaf84-383f-4377-8e8f-3bc8ca05c8fd";
+
+AWS.config.region = 'eu-west-2'; 
+AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+    IdentityPoolId: IdentityPoolId,
+});
+
+var s3 = new AWS.S3({
+  apiVersion: "2006-03-01",
+  params: { Bucket: albumBucketName }
+});
+
+s3.listObjects(function (err, data) {
+  if(err)throw err;
+  console.log(data);
+});
+
+const uploadFile = (fileName) => {
+
+  const params = {
+      Bucket: 'xperimusmodels',
+      Key: 'cat', 
+      Body: fileName
+  };
+
+  s3.upload(params, function(err, data) {
+      if (err) {
+          throw err;
+      }
+      console.log(`File uploaded successfully. ${data.Location}`);
+  });
+};
+
 
 console.log("popup to download the folder to the server");

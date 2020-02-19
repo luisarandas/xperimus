@@ -9,6 +9,7 @@
 
 <body>
   <div id="topmenu"></div>
+  <div id="bottommenu"></div>
   <!--<div id="spectogramdisplay"></div>-->
 
   <br><br><br>
@@ -16,22 +17,27 @@
   <!--<canvas id="viewport" height="512" width="700"></canvas>-->
 
   <div id="firstContainer">
+
   <div class="start-stop">
     <button id="start">Listen</button>
     <button id="stop">Stop</button>
+    <div id="probabil">--%</div>
+
+
   </div>
   <div class='main-model'>
     <div class="settings">
       <!--<span style="display:block">Prob. threshold:</span>-->
       <input style="display:block" class="settings" size="5" id="proba-threshold" value="0.75">
-      <div id="probabil">--%</div>
     </div>
     <div id="candidate-words" class="candidate-words"></div>
   </div>
   </div>
 
   <br>
-  <div id="secondContainer">
+  <div id="secondContainer">descriptors and useful things</div>
+
+  <div id="thirdContainer">
   <!--<div class="footer" style="display: block;">
     <textarea id="status-display" style="display: block" cols="80" readonly="true"></textarea>
   </div>-->
@@ -69,7 +75,7 @@
 
     <div class="settings">
       <span>Epochs:</span>
-      <input class="settings" size="5" id="epochs" value="100">
+      <input class="settings" size="5" id="epochs" value="15">
       <span>Fine-tuning (FT) epochs:</span>
       <input class="settings" size="5" id="fine-tuning-epochs" value="0">
       <span>Augment by mixing noise:</span>
@@ -100,6 +106,8 @@
         </div>
         <div>
           <button id="save-transfer-model">Save model</button>
+          <button id="indexddb" onclick="indexddb()">indexddb</button>
+
         </div>
       </div>
     </div>
