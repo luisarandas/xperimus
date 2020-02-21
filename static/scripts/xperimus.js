@@ -16,6 +16,43 @@ if (isIndexDbTransactionPossible) {
         isIndexDbTransactionPossible.READ_ONLY = isIndexDbTransactionPossible.READ_ONLY || 'readonly';
 }    
 
+
+var albumBucketName = "xperimusmodels";
+var bucketRegion = "eu-west-2";
+var IdentityPoolId = "eu-west-2:52abaf84-383f-4377-8e8f-3bc8ca05c8fd";
+
+AWS.config.region = 'eu-west-2'; 
+AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+    IdentityPoolId: IdentityPoolId,
+});
+
+var s3 = new AWS.S3({
+  apiVersion: "2006-03-01",
+  params: { Bucket: albumBucketName }
+});
+
+s3.listObjects(function (err, data) {
+  if(err)throw err;
+  //var e = data.Contents[0].Key;
+  var e = data.Contents
+  var _e = JSON.stringify(e);
+
+  Object.keys(e).forEach((key, index) => {
+    //for (i = 0; i < e.length; i++) {}
+
+    var button = document.createElement("button");
+    button.innerHTML = e[key].Key;
+    document.getElementById('database').appendChild(button);
+    document.getElementById('database').appendChild(document.createElement("br"));
+    
+    console.log(key, e[key]);
+  });
+
+  console.log(e);
+  //document.getElementById('database').innerHTML = _e;
+  console.log(data);
+});
+
 const tensorflow = tf; // check later
 const SpeechCommands = speechCommands;
 
@@ -548,17 +585,11 @@ enterLearnWordsButton.addEventListener('click', () => {
         }, 2000);
         return;
     }
-    // We disable the option to upload an existing dataset from files
-    // once the "Enter transfer words" button has been clicked.
-    // However, the user can still load an existing dataset from
-    // files first and keep appending examples to it.
-    //disableFileUploadControls();
-    enterLearnWordsButton.disabled = true;
+   
 
     transferDurationMultiplier = durationMultiplierSelect.value;
 
     learnWordsInput.disabled = true;
-    enterLearnWordsButton.disabled = true;
     transferWords = learnWordsInput.value.trim().split(',').map(w => w.trim());
     transferWords.sort();
     if (transferWords == null || transferWords.length <= 1) {
@@ -870,6 +901,9 @@ evalModelOnDatasetButton.addEventListener('click', async () => {
 });
   
 async function populateSavedTransferModelsSelect() {
+
+    //aqui
+
     const savedModelKeys = await SpeechCommands.listSavedTransferModels();
     while (savedTransferModelsSelect.firstChild) {
       savedTransferModelsSelect.removeChild(savedTransferModelsSelect.firstChild);
@@ -885,81 +919,142 @@ async function populateSavedTransferModelsSelect() {
 }
 
 saveTransferModelButton.addEventListener('click', async () => {
+    
     //await transferRecognizer.save();
 
     await populateSavedTransferModelsSelect(); //await
     saveTransferModelButton.textContent = 'Model saved!';
-    
+    //await transferRecognizer.save('downloads://my-model'); //await
     await transferRecognizer.save('indexeddb://my-model'); //await
+    await indexddb();
 });
 
-function indexddb() {
+var transac = false;
+
+async function indexddb() {
 
   var DBOpenRequest = window.indexedDB.open("tensorflowjs", dbVersion);
 
     DBOpenRequest.onsuccess = function(event) {
 
       db = DBOpenRequest.result;
-      console.log(db);
 
       function getData() {
-
-
 
         var transaction = db.transaction(["models_store"], "readwrite");
 
         transaction.oncomplete = function(event) {
-        console.log(this);
-        //works
         };
 
-
         // create an object store on the transaction
-      // Make a request to get a record by key from the object store
-      var objectStore = transaction.objectStore("models_store");
-      var objectStoreRequest = objectStore.get("my_model");
+        // Make a request to get a record by key from the object store
+        var objectStore = transaction.objectStore("models_store");
+        
+        var objectStoreRequest = objectStore.get("my-model");
 
-      objectStoreRequest.onsuccess = function(event) {
-      // report the success of our request
-        console.log(this);
-       var myRecord = objectStoreRequest.result;
-       console.log(myRecord);
-      };
+        objectStoreRequest.onsuccess = function(event) {
+        // report the success of our request
+          var myRecord = objectStoreRequest.result;
+          console.log(myRecord);
+          var modelStringify = JSON.stringify(myRecord);
+          console.log(modelStringify);
+
+
+
+          const uploadFile = (fileName) => {
+
+            const params = {
+                Bucket: 'xperimusmodels/Models',
+                Key: `model-${getDateString()}`, 
+                Body: fileName
+            };
+
+            s3.upload(params, function(err, data) {
+                if (err) {
+                    throw err;
+                }
+                console.log(`File uploaded successfully. ${data.Location}`);
+            });
+          };
+          uploadFile(modelStringify);
+        };
       }
-
       getData();
+
     }
+
 }
 
+var __e;
+var _e;
+function well() {
+  var params = {
+    Bucket: "xperimusmodels", 
+    Key: "Models/model-2020-02-21T11.03.34", 
+    //Range: "bytes=0-9"
+   };
+  s3.getObject(params, function(err, data) {
+     if (err) console.log(err, err.stack); // an error occurred
+     else     console.log(data);           // successful response
+     //document.location = 'data:audio/midi;base64,' + btoa(file.toBytes());
+     __e = data.Body.toString();
+     console.log(__e);
+    
+    _e = JSON.parse(__e);
+    console.log(_e); 
 
+    transferRecognizer.save();
+
+     
+    //transferRecognizer = recognizer.createTransfer("olaz");
+    //console.log(transferRecognizer);
+
+    //const transferRecognizer = await recognizer.loadModel(tf.io.fromMemory(
+    //  modelTopology, weightSpecs, weightData));
+    //console.log(transferRecognizer);
+
+  });
+}
 
 loadTransferModelButton.addEventListener('click', async () => {
-    //'./models/my-model.json'
-    //const saveResult = await model.save(tf.io.http(
-    //     'http://model-server:5000/upload', {requestInit: {method: 'PUT'}}));
-    // console.log(saveResult);
-    const transferModelName = savedTransferModelsSelect.value;
+
+  var DBOpenRequest = window.indexedDB.open("tensorflowjs", dbVersion);
+    DBOpenRequest.onsuccess = function(event) {
+      db = DBOpenRequest.result;
+      function getData() {
+        var transaction = db.transaction(["models_store"], "readwrite");
+        transaction.oncomplete = function(event) {
+        };
+        // create an object store on the transaction
+        // Make a request to get a record by key from the object store
+        var objectStore = transaction.objectStore("models_store");
+        var objectStoreRequest = objectStore.get("my-model");
+        objectStoreRequest.onsuccess = function(event) {
+        // report the success of our request
+        var myRecord = objectStoreRequest.result;
+        console.log(myRecord);
+        // HERE GET PART OF IT AND LOAD FROM MEMORY
+        }}}
+
+  const model = await tf.loadModel(tf.io.fromMemory(
+    modelTopology, weightSpecs, weightData));
+  console.log(model);
+   
+  /* function handleSave(artifacts) {
+   // ... do something with the artifacts ...
+   return {modelArtifactsInfo: {...}, ...};
+   }
+
+   const saveResult = model.save(tf.io.withSaveHandler(handleSave));*/ 
+
+    const transferModelName = "my-model";//savedTransferModelsSelect.value;
     await recognizer.ensureModelLoaded();
     transferRecognizer = recognizer.createTransfer(transferModelName);
-    await transferRecognizer.load();
+    await transferRecognizer.load('indexeddb://my-model');
     transferModelNameInput.value = transferModelName;
     learnWordsInput.value = transferRecognizer.wordLabels().join(',');
     loadTransferModelButton.textContent = 'Model loaded!';
-    
-    //await transferRecognizer.load('download://my-model.json');
-    
-    console.log(transferRecognizer.load());
-
-});
-  
-modelIOButton.addEventListener('click', () => {
-    if (modelIOButton.textContent.endsWith(' >>')) {
-      transferModelSaveLoadInnerDiv.style.display = 'inline-block';
-      modelIOButton.textContent = modelIOButton.textContent.replace(' >>', ' <<');
-    } else {
-      transferModelSaveLoadInnerDiv.style.display = 'none';
-      modelIOButton.textContent = modelIOButton.textContent.replace(' <<', ' >>');
-    }
+        
 });
   
 deleteTransferModelButton.addEventListener('click', async () => {
@@ -971,18 +1066,7 @@ deleteTransferModelButton.addEventListener('click', async () => {
     deleteTransferModelButton.textContent = `Deleted "${transferModelName}"`;
     await populateSavedTransferModelsSelect();
 });
-  
-datasetIOButton.addEventListener('click', () => {
-    if (datasetIOButton.textContent.endsWith(' >>')) {
-      datasetIOInnerDiv.style.display = 'inline-block';
-      datasetIOButton.textContent =
-          datasetIOButton.textContent.replace(' >>', ' <<');
-    } else {
-      datasetIOInnerDiv.style.display = 'none';
-      datasetIOButton.textContent =
-          datasetIOButton.textContent.replace(' <<', ' >>');
-    }
-});
+
 // other files
 
 function removeNonFixedChildrenFromWordDiv(wordDiv) {
@@ -1184,47 +1268,3 @@ function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiv
     }
   }
 }
-
-console.log("IF LOADED DATASET THEN MATCH INP OUTP WORDS");
-
-/**
- * AMAZON
- */
-
-var albumBucketName = "xperimusmodels";
-var bucketRegion = "eu-west-2";
-var IdentityPoolId = "eu-west-2:52abaf84-383f-4377-8e8f-3bc8ca05c8fd";
-
-AWS.config.region = 'eu-west-2'; 
-AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: IdentityPoolId,
-});
-
-var s3 = new AWS.S3({
-  apiVersion: "2006-03-01",
-  params: { Bucket: albumBucketName }
-});
-
-s3.listObjects(function (err, data) {
-  if(err)throw err;
-  console.log(data);
-});
-
-const uploadFile = (fileName) => {
-
-  const params = {
-      Bucket: 'xperimusmodels',
-      Key: 'cat', 
-      Body: fileName
-  };
-
-  s3.upload(params, function(err, data) {
-      if (err) {
-          throw err;
-      }
-      console.log(`File uploaded successfully. ${data.Location}`);
-  });
-};
-
-
-console.log("popup to download the folder to the server");
