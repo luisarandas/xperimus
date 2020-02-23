@@ -926,10 +926,13 @@ saveTransferModelButton.addEventListener('click', async () => {
     saveTransferModelButton.textContent = 'Model saved!';
     //await transferRecognizer.save('downloads://my-model'); //await
     await transferRecognizer.save('indexeddb://my-model'); //await
+    //await transferRecognizer.save('localstorage://my-model'); //await
+
     await indexddb();
 });
 
 var transac = false;
+var loadedmodel;
 
 async function indexddb() {
 
@@ -955,7 +958,11 @@ async function indexddb() {
         objectStoreRequest.onsuccess = function(event) {
         // report the success of our request
           var myRecord = objectStoreRequest.result;
-          console.log(myRecord);
+          loadedmodel = myRecord;
+          console.log(loadedmodel);
+
+          localStorage.setItem('my-model', JSON.stringify(loadedmodel));
+
           var modelStringify = JSON.stringify(myRecord);
           console.log(modelStringify);
 
@@ -1018,42 +1025,12 @@ function well() {
 
 loadTransferModelButton.addEventListener('click', async () => {
 
-  var DBOpenRequest = window.indexedDB.open("tensorflowjs", dbVersion);
-    DBOpenRequest.onsuccess = function(event) {
-      db = DBOpenRequest.result;
-      function getData() {
-        var transaction = db.transaction(["models_store"], "readwrite");
-        transaction.oncomplete = function(event) {
-        };
-        // create an object store on the transaction
-        // Make a request to get a record by key from the object store
-        var objectStore = transaction.objectStore("models_store");
-        var objectStoreRequest = objectStore.get("my-model");
-        objectStoreRequest.onsuccess = function(event) {
-        // report the success of our request
-        var myRecord = objectStoreRequest.result;
-        console.log(myRecord);
-        // HERE GET PART OF IT AND LOAD FROM MEMORY
-        }}}
-
-  const model = await tf.loadModel(tf.io.fromMemory(
-    modelTopology, weightSpecs, weightData));
-  console.log(model);
-   
-  /* function handleSave(artifacts) {
-   // ... do something with the artifacts ...
-   return {modelArtifactsInfo: {...}, ...};
-   }
-
-   const saveResult = model.save(tf.io.withSaveHandler(handleSave));*/ 
-
-    const transferModelName = "my-model";//savedTransferModelsSelect.value;
-    await recognizer.ensureModelLoaded();
-    transferRecognizer = recognizer.createTransfer(transferModelName);
-    await transferRecognizer.load('indexeddb://my-model');
-    transferModelNameInput.value = transferModelName;
-    learnWordsInput.value = transferRecognizer.wordLabels().join(',');
-    loadTransferModelButton.textContent = 'Model loaded!';
+  await recognizer.ensureModelLoaded();
+  await tf.loadLayersModel('indexeddb://my-model');
+  await transferRecognizer.load('indexeddb://my-model');
+  transferModelNameInput.value = 'my-model';
+  learnWordsInput.value = transferRecognizer.wordLabels().join(',');
+  loadTransferModelButton.textContent = 'Model loaded!';
         
 });
   
