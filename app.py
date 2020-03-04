@@ -143,8 +143,6 @@ def background_process_test():
 
 ### testing amazon
 ################################ boto3 is working
- 
-
 
 
 #data = open('teste.jpg', 'rb')
@@ -162,7 +160,7 @@ def background_process_test():
 #for my_bucket_contents in s3.Bucket(BUCKET_NAME).objects.all():
 #    print(my_bucket_contents)
 
-print(desktop)
+#print(desktop)
 
 @socketio.on("message")
 def message(data):
@@ -200,8 +198,8 @@ def leave(data):
 
 if __name__ == "__main__":
     # Will always execute
-    app.run()
-    # socketio.run(app, debug=True) No need with heroku
+    #app.run()
+    socketio.run(app, debug=True) #No need with heroku
 
 # WSGI interface for backend
 # check short polling

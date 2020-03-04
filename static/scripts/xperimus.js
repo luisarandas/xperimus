@@ -6,6 +6,21 @@
 // controlar o numero dos outros samples que não o background noise
 // jorge coelho -- plotly
 
+document.addEventListener('DOMContentLoaded', () => {
+  var socket = io.connect('http://' + document.domain + ":" + location.port);
+  console.log(socket);
+
+  /*document.querySelector("#send_message").onclick = () => {
+      socket.send({ "msg": document.querySelector("#user_message").value, "username": username, "room": room });
+      // Clear
+      document.querySelector("#user_message").value = "";
+
+  }*/
+
+
+});
+
+
 window.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB,
     IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction,
     dbVersion = 1;
@@ -16,6 +31,10 @@ if (isIndexDbTransactionPossible) {
         isIndexDbTransactionPossible.READ_ONLY = isIndexDbTransactionPossible.READ_ONLY || 'readonly';
 }    
 
+var socket = io();
+    socket.on('connect', function() {
+        socket.emit('my event', {data: 'I\'m connected!'});
+    });
 
 var albumBucketName = "xperimusmodels";
 var bucketRegion = "eu-west-2";
@@ -411,14 +430,15 @@ startButton.addEventListener('click', () => {
     activeRecognizer.listen( result => {
 
       console.log(result);
+      console.log("aqui");
 
         plotPredictions(predictionCanvas, activeRecognizer.wordLabels(), result.scores, 3, suppressionTimeMillis);
-    }, {
+    }, {   
         includeSpectrogram: true,
         suppressionTimeMillis,
         probabilityThreshold: Number.parseFloat(probaThresholdInput.value)
     })
-    .then(() => {
+    .then(() => { 
         startButton.disabled = true;
         stopButton.disabled = false;
         console.log("Streaming recognition started.");
@@ -925,7 +945,7 @@ saveTransferModelButton.addEventListener('click', async () => {
     await populateSavedTransferModelsSelect(); //await
     saveTransferModelButton.textContent = 'Model saved!';
     //await transferRecognizer.save('downloads://my-model'); //await
-    await transferRecognizer.save('indexeddb://my-model'); //await
+    await transferRecognizer.save('indexeddb://my-model');//`indexeddb://${learnWordsInput.value}`); //await
     //await transferRecognizer.save('localstorage://my-model'); //await
 
     await indexddb();
@@ -966,13 +986,12 @@ async function indexddb() {
           var modelStringify = JSON.stringify(myRecord);
           console.log(modelStringify);
 
-
-
           const uploadFile = (fileName) => {
 
             const params = {
                 Bucket: 'xperimusmodels/Models',
-                Key: `model-${getDateString()}`, 
+                Key: 'my-model',//`model-${getDateString()}`, 
+                ACL: 'public-read',
                 Body: fileName
             };
 
@@ -994,10 +1013,12 @@ async function indexddb() {
 
 var __e;
 var _e;
-function well() {
+
+async function getmodels() {
+
   var params = {
     Bucket: "xperimusmodels", 
-    Key: "Models/model-2020-02-21T11.03.34", 
+    Key: "Models/my-model", 
     //Range: "bytes=0-9"
    };
   s3.getObject(params, function(err, data) {
@@ -1010,28 +1031,41 @@ function well() {
     _e = JSON.parse(__e);
     console.log(_e); 
 
-    transferRecognizer.save();
-
-     
-    //transferRecognizer = recognizer.createTransfer("olaz");
-    //console.log(transferRecognizer);
-
-    //const transferRecognizer = await recognizer.loadModel(tf.io.fromMemory(
-    //  modelTopology, weightSpecs, weightData));
-    //console.log(transferRecognizer);
-
+    _well();
+    
+    
+    
   });
 }
 
-loadTransferModelButton.addEventListener('click', async () => {
+async function _well() {
+
+  var DBOpenRequest = window.indexedDB.open("tensorflowjs", dbVersion);
+  DBOpenRequest.onupgradeneeded = function(event) {
+    var db = event.target.result;
+    var objectStore = db.createObjectStore("models_store", { keyPath: "modelPath" });
+    objectStore.add(_e);
+    __well();
+  }
+}
+
+async function __well() {
 
   await recognizer.ensureModelLoaded();
-  await tf.loadLayersModel('indexeddb://my-model');
-  await transferRecognizer.load('indexeddb://my-model');
+  //await tf.loadLayersModel('indexeddb//my-model');
+  transferRecognizer_ = recognizer.createTransfer("my-model");
+  transferRecognizer_.load(_e);
   transferModelNameInput.value = 'my-model';
-  learnWordsInput.value = transferRecognizer.wordLabels().join(',');
-  loadTransferModelButton.textContent = 'Model loaded!';
-        
+  console.log(transferRecognizer_);
+  console.log(learnWordsInput.value);
+  learnWordsInput.value = transferRecognizer_.wordLabels().join(',');
+  loadTransferModelButton.textContent = 'Model loaded!';  
+}
+
+loadTransferModelButton.addEventListener('click', async () => {
+  
+  getmodels();
+
 });
   
 deleteTransferModelButton.addEventListener('click', async () => {
@@ -1209,6 +1243,10 @@ async function plotSpectrogram(
  *   indefinitely till the next highlighting.
  * @param {number} topK Top _ scores to render.
  */
+
+var truthChain = new Array(3);
+for (var i = 0; i < truthChain.length; ++i) { truthChain[i] = false; } 
+
 function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiveMillis) {
   if (topK != null) {
     let wordsAndProbs = [];
@@ -1223,9 +1261,25 @@ function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiv
     // Highlight the top word.
     const topWord = wordsAndProbs[0][0];
     console.log( `"${topWord}" (p=${wordsAndProbs[0][1].toFixed(6)}) @ ` + new Date().toTimeString());
+    var prob_ = wordsAndProbs[0][1].toFixed(2);
+    document.getElementById('probabil').innerHTML = `"${topWord}" ${prob_}` //@ ` + new Date().toTimeString();
 
-    document.getElementById('probabil').innerHTML = `"${topWord}" (p=${wordsAndProbs[0][1].toFixed(6)}) @ ` + new Date().toTimeString();
 
+    if (prob_ > 0.9 && topWord == "one") {
+      document.getElementById("sequence1").style.backgroundColor = "green";
+      truthChain[0] = true;
+      console.log(truthChain);
+    }
+    if (prob_ > 0.9 && topWord == "two" && truthChain[0] == true) {
+      document.getElementById("sequence2").style.backgroundColor = "green";
+      truthChain[1] = true;
+      console.log(truthChain);
+    }
+    if (prob_ > 0.9 && topWord == "three" && truthChain[1] == true) {
+      document.getElementById("sequence3").style.backgroundColor = "green";
+      truthChain[2] = true;
+      console.log("found song!");
+    }
 
 
     for (const word in candidateWordSpans) {
