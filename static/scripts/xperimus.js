@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+console.log("change bk noise for automatic string trunc");
 
 window.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB,
     IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction,
@@ -72,6 +73,7 @@ s3.listObjects(function (err, data) {
   console.log(data);
 });
 
+console.log("search for batch size");
 const tensorflow = tf; // check later
 const SpeechCommands = speechCommands;
 
@@ -102,6 +104,10 @@ const deleteTransferModelButton = document.getElementById('delete-transfer-model
 
 const statusDisplay = document.getElementById('status-display');
 const candidateWordsContainer = document.getElementById('candidate-words');
+
+
+const _barprog = document.getElementById('barprog');
+
 
 /**
  * Transfer learning-related UI componenets.
@@ -446,7 +452,6 @@ startButton.addEventListener('click', () => {
     .catch(err => {
         console.log("Failed to start streaming: ", err.message);
     });
-    console.log(probaThresholdInput.value);
 });
 
 stopButton.addEventListener('click', () => {
@@ -467,10 +472,18 @@ stopButton.addEventListener('click', () => {
 let collectWordButtons = {};
 let datasetViz;
 
+var includeAudioWaveformSpec = false;
+var augmentNoise = false;
+
 function createProgressBarAndIntervalJob(parentElement, durationSec) {
     const progressBar = document.createElement('progress');
     progressBar.value = 0;
-    progressBar.style['width'] = `${Math.round(window.innerWidth * 0.25)}px`;
+    progressBar.style['width'] = "100%";//`${Math.round(window.innerWidth * 0.25)}px`;
+    progressBar.style['height'] = "100%";
+    progressBar.style['backgroundColor'] = 'rgba(32, 32, 32, 1)';
+
+    progressBar.style['border-radius'] = "3px";
+
     const intervalJob = setInterval(() => {
         progressBar.value += 0.05;
     }, durationSec * 1e3 / 20);
@@ -498,14 +511,56 @@ function createWordDivs(transferWords) {
     
     const wordDivs = {};
     for (const word of transferWords) {
+
+
         const wordDiv = document.createElement('div');
         wordDiv.classList.add('word-div');
+        wordDiv.style['backgroundColor'] = 'rgba(32, 32, 32, 1)';
+        wordDiv.style['border'] = '1px solid grey';
+        wordDiv.style['margin'] = '2px';
+        wordDiv.style['border-radius'] = '3px';
+
+        wordDiv.style['width'] = "99%";//'calc(100% - 2px)';
+
         wordDivs[word] = wordDiv;
         wordDiv.setAttribute('word', word);
+
+        /*const wordBack = document.createElement('div');
+        wordBack.setAttribute('isFixed', 'true');
+        wordBack.style['display'] = 'inline-clock';
+        wordBack.style['height'] = "65px";
+        wordBack.style['backgroundColor'] = "rgba(0,255,0,1)";
+        wordDiv.appendChild(wordBack);
+*/
+
         const button = document.createElement('button');
         button.setAttribute('isFixed', 'true');
         button.style['display'] = 'inline-clock';
         button.style['vertical-align'] = 'middle';
+        button.style['height'] = "60px";
+        //button.style['width'] = "45px";
+        console.log("minimo 40");
+        button.style['background-color'] = "rgba(53,53,53,1)";
+        button.style['color'] = "rgba(200,200,200,1)";
+        button.style['border-radius'] = "3px";
+        button.style['border-color'] = "black";
+
+
+
+
+        /*position: absolute;
+        color: ;
+        background-color: ;
+        border-style: solid;
+        border-width: 1px;
+        : black;
+        : ;
+        font-size: 10px;
+        position: relative;
+        height: 28px;
+        width: 30%;
+        top: 4%;
+        left: 18%;*/
 
         const displayWord = word === BACKGROUND_NOISE_TAG ? 'noise' : word;
 
@@ -521,14 +576,17 @@ function createWordDivs(transferWords) {
             durationInput = document.createElement('input');
             durationInput.setAttribute('isFixed', 'true');
             durationInput.value = '10';
-            durationInput.style['width'] = '100px';
+            durationInput.style['margin-top'] = '1%';
+            durationInput.style['text-align'] = 'center';
+            durationInput.style['width'] = '50px';
+            durationInput.style['height'] = '25px';
             wordDiv.appendChild(durationInput);
             //create time-unit span for noise duration
             const timeUnitSpan = document.createElement('span');
             timeUnitSpan.setAttribute('isFixed', 'true');
             timeUnitSpan.classList.add('settings');
             timeUnitSpan.style['vertical-align'] = 'middle';
-            timeUnitSpan.textContent = 'seconds';
+            //timeUnitSpan.textContent = 'seconds'; SHOW SECONDS
             wordDiv.appendChild(timeUnitSpan);
         }
 
@@ -550,7 +608,7 @@ function createWordDivs(transferWords) {
                 collectExampleOptions.durationSec = Number.parseFloat(durationInput.value);
                 durationSec = collectExampleOptions.durationSec;
 
-                const barAndJob = createProgressBarAndIntervalJob(wordDiv, durationSec);
+                const barAndJob = createProgressBarAndIntervalJob(_barprog, durationSec);
                 progressBar = barAndJob.progressBar;
                 intervalJob = barAndJob.intervalJob;
             } else {
@@ -577,14 +635,15 @@ function createWordDivs(transferWords) {
                         spectrogram.frameSize, {pixelsPerFrame: 2});
                 }
             }
-            collectExampleOptions.includeRawAudio = includeTimeDomainWaveformCheckbox.checked;
+            //collectExampleOptions.includeRawAudio = includeTimeDomainWaveformCheckbox.checked;
+            collectExampleOptions.includeRawAudio = includeAudioWaveformSpec;
             const spectrogram = await transferRecognizer.collectExample(word, collectExampleOptions);
 
             if (intervalJob != null) {
                 clearInterval(intervalJob);
             }
             if (progressBar != null) {
-                wordDiv.removeChild(progressBar);
+                _barprog.removeChild(progressBar);
             }
             const examples = transferRecognizer.getExamples(word);
             const example = examples[examples.length - 1];
@@ -599,9 +658,9 @@ function createWordDivs(transferWords) {
 enterLearnWordsButton.addEventListener('click', () => {
     const modelName = transferModelNameInput.value;
     if (modelName == null || modelName.length === 0) {
-        enterLearnWordsButton.textContent = 'Need model name!';
+        enterLearnWordsButton.textContent = 'Need Name!';
         setTimeout(() => {
-            enterLearnWordsButton.textContent = 'Enter transfer words';
+            enterLearnWordsButton.textContent = 'Start Transfer';
         }, 2000);
         return;
     }
@@ -733,7 +792,7 @@ startTransferLearnButton.addEventListener('click', async () => {
     }
 
     //disableAllCollectWordButtons();
-    const augmentByMixingNoiseRatio = document.getElementById('augment-by-mixing-noise').checked ? 0.5 : null;
+    const augmentByMixingNoiseRatio = augmentNoise == true ? 0.5 : null;
     console.log(`augmentByMixingNoiseRatio = ${augmentByMixingNoiseRatio}`);
     await transferRecognizer.train({
         epochs,
@@ -1038,6 +1097,7 @@ async function getmodels() {
   });
 }
 
+
 async function _well() {
 
   var DBOpenRequest = window.indexedDB.open("tensorflowjs", dbVersion);
@@ -1115,8 +1175,10 @@ let candidateWordSpans;
  */
 
 function populateCandidateWords(words) {
-
     candidateWordSpans = {};
+
+    var existingDirectChildrenDivCount = $('#cont4 > div').size();
+    console.log(existingDirectChildrenDivCount);
   
     for (const word of words) {
       if (word === BACKGROUND_NOISE_TAG || word === UNKNOWN_TAG) {
@@ -1125,7 +1187,8 @@ function populateCandidateWords(words) {
       const wordSpan = document.createElement('span');
       wordSpan.textContent = word;
       wordSpan.classList.add('candidate-word');
-      candidateWordsContainer.appendChild(wordSpan);
+      document.getElementById("cont4").appendChild(wordSpan);
+      //candidateWordsContainer.appendChild(wordSpan);
       candidateWordSpans[word] = wordSpan;
     }
 }
@@ -1299,3 +1362,73 @@ function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiv
     }
   }
 }
+
+function includewavform() {
+  if (includeAudioWaveformSpec == false) {
+    includeAudioWaveformSpec = true;
+    document.getElementById("includewav").style.borderColor = "red";
+    document.getElementById("includewav").style.backgroundColor = "red";
+  }
+  else if (includeAudioWaveformSpec == true) {
+    includeAudioWaveformSpec = false;
+    document.getElementById("includewav").style.borderColor = "green";
+    document.getElementById("includewav").style.backgroundColor = "green";
+  }
+}
+
+function augmentnoisemix() {
+  if (augmentNoise == false) {
+    augmentNoise = true;
+    document.getElementById("mixnoise").style.borderColor = "red";
+    document.getElementById("mixnoise").style.backgroundColor = "red";
+  }
+  else if (augmentNoise == true) {
+    augmentNoise = false;
+    document.getElementById("mixnoise").style.borderColor = "green";
+    document.getElementById("mixnoise").style.backgroundColor = "green";
+  }
+}
+
+//https://github.com/katspaugh/wavesurfer.js/blob/master/example/annotation/app.js
+
+var wavesurfer = WaveSurfer.create({
+  container: '#cont5',
+  waveColor: 'violet',
+  progressColor: 'purple',
+  loaderColor: 'purple',
+  cursorColor: 'navy',
+  height: 100,
+  pixelRatio: 1,
+  scrollParent: true,
+  normalize: true,
+  minimap: true,
+  backend: 'MediaElement',
+  plugins: [
+    WaveSurfer.regions.create(),
+    WaveSurfer.minimap.create({
+                height: 30,
+                waveColor: '#ddd',
+                progressColor: '#999',
+                cursorColor: '#999'
+    }),
+    WaveSurfer.timeline.create({
+                container: '#cont6'
+    }),
+    WaveSurfer.cursor.create({
+        showTime: true,
+        opacity: 1,
+        customShowTimeStyle: {
+            'background-color': '#000',
+            color: '#fff',
+            padding: '2px',
+            'font-size': '10px'
+        }
+    })
+]
+});
+
+wavesurfer.load('./static/scripts/audio/drum-loop.wav');
+
+wavesurfer.on('ready', function () {
+  wavesurfer.play();
+});

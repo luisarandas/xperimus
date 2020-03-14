@@ -5,6 +5,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.4.1.js"></script>
 
 </head>
 
@@ -29,26 +30,43 @@
   <!--<canvas id="viewport" height="512" width="700"></canvas>-->
 
   <div id="firstContainer">
-
-  <div class="start-stop">
-    <button id="start">Listen</button>
-    <button id="stop">Stop</button>
-    <div id="probabil">--%</div>
-
-
-  </div>
-  <div class='main-model'>
-    <div class="settings">
-      <!--<span style="display:block">Prob. threshold:</span>-->
-      <input style="display:block" class="settings" size="5" id="proba-threshold" value="0.75">
-      threshold for candidate words trigger
+  <div id="cont1">
+    <!--<div class="start-stop">-->
+      <!--<span>Listen</span><br>-->
+      <button id="start" class="startstop">Start</button>
+      <button id="stop" class="startstop">Stop</button>
+      <br><br><br><br>
     </div>
-    <div id="candidate-words" class="candidate-words"></div>
-  </div>
+    <div id="cont2">
+
+      <div id="probabil">Probability</div>
+    </div>
+
+    <div id="cont3">
+        <!--<span style="display:block">Prob. threshold:</span>-->
+        <span>Threshold</span>
+        <input style="display:block" class="thresh" size="5" id="proba-threshold" value="0.75">
+    </div>
   
+    <!--</div>-->
+    <div id="cont4">
+      <br>
+      <div id="candidate-words" class="candidate-words"></div>
+    </div>
+
+    <div id="cont5">
+      <br>
+    </div>
+    <div id="cont6">
+      <br>
+    </div>
+
+
+
+  <!--
   <div id="sequence1"></div><br>
   <div id="sequence2"></div><br>
-  <div id="sequence3"></div>
+  <div id="sequence3"></div>-->
   </div>
 
   <br>
@@ -85,33 +103,61 @@
     <textarea id="status-display" style="display: block" cols="80" readonly="true"></textarea>
   </div>-->
   <div class="transfer-learn-section">
-    
-    <input id="transfer-model-name" size="20" placeholder="model name">
-    <input id="learn-words" size="36" value="_background_noise_,red,green">
-    <select id="duration-multiplier">
-      <option value="1">Duration x1</option>
-      <option value="2">Duration x2</option>
-      <option value="3" selected="true">Duration x3</option>
-
-    </select>
-
-    <input type="checkbox" id="include-audio-waveform">
-    <span id="include-audio-waveform-label">Include audio waveform</span>
-
-    <button id="enter-learn-words">Enter transfer words</button>
-
-    <div id="transfer-learn-history"></div>
-    <div id="collect-words"></div>
-
-    <div class="settings">
-      <span>Epochs:</span>
-      <input class="settings" size="5" id="epochs" value="15">
-      <span>Fine-tuning (FT) epochs:</span>
-      <input class="settings" size="5" id="fine-tuning-epochs" value="0">
-      <span>Augment by mixing noise:</span>
-      <input type="checkbox" id="augment-by-mixing-noise">
-      <button id="start-transfer-learn" disabled="true">Start transfer learning</button>
+    <div id="modelname">
+      Model Name
+      <input id="transfer-model-name" size="20" placeholder="model name">
     </div>
+    <div id="_worddiv">
+      Sound Names
+      <input id="learn-words" size="36" value="_background_noise_,red,green">
+    </div>
+    <div id="attrs1">
+      Sound Properties <br>
+      <select id="duration-multiplier">
+        <option value="1">Duration x1</option>
+        <option value="2">Duration x2</option>
+        <option value="3" selected="true">Duration x3</option>
+      </select>
+      <button id="includewav" onclick="includewavform()">Include Waveform</button>
+
+      <!--<input type="checkbox" id="include-audio-waveform">
+      <span id="include-audio-waveform-label"></span>Include audio waveform</span>
+      Include audio waveform-->
+  
+      <button id="enter-learn-words">Start Transfer</button>
+    </div>
+
+    <div id="specplot">
+      <div id="transfer-learn-history"></div>
+      <div id="collect-words"></div>
+    </div>
+    <div id="barprog"></div>
+    </div>
+  </div>
+
+  <div id="fourthContainer">
+
+    <div id="fourthdiv1">
+      <span>Epochs</span><br>
+      <input class="settings" size="5" id="epochs" value="15">
+    </div>
+    <div id="fourthdiv2">
+      <span>Fine-Tuning Epochs</span>
+      <!--<span>Fine-Tuning (FT) Epochs</span>-->
+      <input class="settings" size="5" id="fine-tuning-epochs" value="0">
+    </div>
+    <div id="fourthdiv3">
+      <span>Mix Noise</span>
+      <button id="mixnoise" onclick="augmentnoisemix()">Augment</button>
+      <!--<input type="checkbox" id="augment-by-mixing-noise">-->
+    </div>
+    <div id="fourthdiv4">
+      <span>Train</span>
+      <button id="start-transfer-learn" disabled="true">Start Transfer</button>
+    </div>
+
+
+
 
     <div id="plots">
       <div id="loss-plot" class="plots"></div>
@@ -125,15 +171,23 @@
     </div>
 
   </div>
-  </div>
 
 
   <script src="https://unpkg.com/@tensorflow/tfjs"></script>
   <script src="https://unpkg.com/@tensorflow-models/speech-commands"></script>
 
+  <script src="https://unpkg.com/wavesurfer.js"></script>
+  <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.regions.min.js"></script>
+  <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js"></script>
+  <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.cursor.js"></script>
+  <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.timeline.js"></script>
+
+  
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
   <script src="/static/scripts/libs/spectrogram.js"></script>
+
   <script src="/static/scripts/xperimus.js"></script>
+
 </body>
 </html>
