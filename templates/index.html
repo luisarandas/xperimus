@@ -6,6 +6,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
     <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.4.1.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
 
@@ -62,8 +63,19 @@
     <div id="cont6">
     </div>
     <div id="cont7">
+      <button style="font-size:14px" onclick="playStopFile('play')" class="btnsFile"><i class="fa fa-play"></i></button>
+      <button style="font-size:14px" onclick="playStopFile('pause')" class="btnsFile"><i class="fa fa-pause"></i></button>
+      <button style="font-size:14px" onclick="playStopFile('stop')" class="btnsFile"><i class="fa fa-stop"></i></button>
+      <button style="font-size:14px" type="button" id="file-input" onclick="readSingleFile()" class="btnsFile"><i class="fa fa-bars"></i>
+      <input type="file" id="my_file">
     </div>
-
+    <div id="cont8">
+      <button style="font-size:14px" onclick="addAnnot('add')" class="btnsFile"><i style='font-size:14px' class='fas'>&#xf065;</i></button>
+    </div>
+    <div id="cont9">
+      divide song time
+    </div>
+    
   <!--
   <div id="sequence1"></div><br>
   <div id="sequence2"></div><br>
@@ -73,6 +85,21 @@
   <br>
   <div id="secondContainer">
 
+    <div id="cont10">
+      Amazon
+    </div>
+    <div id="cont11">
+      Trained Models<br>
+    </div>
+    <div id="cont12">
+      Recorded Datasets<br>
+    </div>
+
+    <div id="cont13">
+      IO Methods<br>
+    </div>
+
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
     <div>
       <button id="download-dataset" disabled="true">↓ Download dataset as file</button>
       <div>
@@ -92,10 +119,6 @@
       <button id="save-transfer-model">Save model</button>
     </div>
     <br><br>
-
-    <div id="database">
-      models<br>
-    </div>
 
   </div>
 

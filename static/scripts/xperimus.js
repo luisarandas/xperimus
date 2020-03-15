@@ -59,18 +59,31 @@ s3.listObjects(function (err, data) {
 
   Object.keys(e).forEach((key, index) => {
     //for (i = 0; i < e.length; i++) {}
+    console.log("wa ", e[key].Key);
 
-    var button = document.createElement("button");
-    button.innerHTML = e[key].Key;
-    document.getElementById('database').appendChild(button);
-    document.getElementById('database').appendChild(document.createElement("br"));
-    
-    console.log(key, e[key]);
+    if (e[key].Key.includes("Model") == true && e[key].Key.length > 7) {
+      var button = document.createElement("button");
+      button.className = "amazonClass"; 
+      button.innerHTML = e[key].Key;
+      document.getElementById('cont11').appendChild(document.createElement("br"));    
+      document.getElementById('cont11').appendChild(button);
+    } 
+    if (e[key].Key.includes("Dataset") == true && e[key].Key.length > 9) {
+      //console.log(e[key].Key);
+      //console.log("wa");
+      var _button = document.createElement("button");
+      _button.className = "amazonClass"; 
+      _button.innerHTML = e[key].Key;
+      document.getElementById('cont12').appendChild(document.createElement("br"));    
+      document.getElementById('cont12').appendChild(_button);
+    }
+
+
   });
 
-  console.log(e);
+  //console.log(e);
   //document.getElementById('database').innerHTML = _e;
-  console.log(data);
+  //console.log(data);
 });
 
 console.log("search for batch size");
@@ -108,7 +121,7 @@ const candidateWordsContainer = document.getElementById('candidate-words');
 
 const _barprog = document.getElementById('barprog');
 
-
+console.log("save with epochs");
 /**
  * Transfer learning-related UI componenets.
  */
@@ -411,7 +424,7 @@ class DatasetViz {
 
     recognizer.ensureModelLoaded().then(() => {
         startButton.disabled = false;
-        transferModelNameInput.value = `model-${getDateString()}`;
+        transferModelNameInput.value = `xperimus-${getDateString()}`;
 
         console.log("Loaded Model");
 
@@ -1049,7 +1062,7 @@ async function indexddb() {
 
             const params = {
                 Bucket: 'xperimusmodels/Models',
-                Key: 'my-model',//`model-${getDateString()}`, 
+                Key: 'my-model',//`xperimus-${getDateString()}`, 
                 ACL: 'public-read',
                 Body: fileName
             };
@@ -1404,7 +1417,7 @@ var wavesurfer = WaveSurfer.create({
   minimap: true,
   backend: 'MediaElement',
   plugins: [
-    WaveSurfer.regions.create({
+    WaveSurfer.regions.create(/*{
       regions: [
           {
               start: 1,
@@ -1421,7 +1434,7 @@ var wavesurfer = WaveSurfer.create({
       dragSelection: {
           slop: 5
       }
-  }),
+  }*/),
     /*WaveSurfer.minimap.create({
                 height: 30,
                 waveColor: '#ddd',
@@ -1458,6 +1471,90 @@ var wavesurfer = WaveSurfer.create({
 
 wavesurfer.load('./static/scripts/audio/drum-loop.wav');
 
+function playStopFile(v) {
+  if (v == 'play') {
+    wavesurfer.play();
+    //play([start[, end]])
+  }
+  if (v == 'pause') {
+    wavesurfer.pause();
+  }
+  if (v == 'stop') {
+    wavesurfer.stop();
+  }
+  if (v == 'load') {
+    wavesurfer.stop();
+  }
+}
+
 wavesurfer.on('ready', function () {
-  wavesurfer.play();
+  console.log('ready');
+});
+
+document.getElementById('file-input').onclick = function() {
+  document.getElementById('my_file').click();
+};
+
+document.getElementById("my_file").addEventListener('change', function(e){
+  var file = this.files[0];
+  if (file) {
+      var reader = new FileReader();
+      
+      reader.onload = function (evt) {
+          // Create a Blob providing as first argument a typed array with the file buffer
+          var blob = new window.Blob([new Uint8Array(evt.target.result)]);
+
+          // Load the blob into Wavesurfer
+          let audio = new Audio();
+          audio.src = URL.createObjectURL(blob);
+          wavesurfer.load(audio);
+
+          /*wavesurfer.loadBlob(blob);*/
+      };
+
+      reader.onerror = function (evt) {
+          console.error("An error ocurred reading the file: ", evt);
+      };
+
+      // Read File as an ArrayBuffer
+      reader.readAsArrayBuffer(file);
+  }
+}, false);
+
+console.log("abrir waveform noutra janela");
+
+document.body.onkeyup = function(e){
+  if(e.keyCode == 32){
+    //space bar
+    wavesurfer.play();
+  }
+}
+
+//https://github.com/katspaugh/wavesurfer.js/blob/master/example/annotation/app.js
+
+function addAnnot(v){
+  if (v == 'add') {
+    wavesurfer.addRegion({
+      start: 0,
+      end: 0.5,
+      color: 'hsla(400, 100%, 30%, 0.1)'
+    });
+  }
+}
+
+wavesurfer.on('region-click', function(region, e) {
+  e.stopPropagation();
+  // Play on click, loop on shift click
+  e.shiftKey ? region.playLoop() : region.play();
+});
+/*wavesurfer.on('region-click', editAnnotation);
+wavesurfer.on('region-updated', saveRegions);
+wavesurfer.on('region-removed', saveRegions);
+wavesurfer.on('region-in', showNote);*/
+
+wavesurfer.on('region-play', function(region) {
+  region.once('out', function() {
+      wavesurfer.play(region.start);
+      wavesurfer.pause();
+  });
 });
