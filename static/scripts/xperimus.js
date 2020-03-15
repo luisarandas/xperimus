@@ -1393,26 +1393,48 @@ function augmentnoisemix() {
 
 var wavesurfer = WaveSurfer.create({
   container: '#cont5',
-  waveColor: 'violet',
+  waveColor: 'white',
   progressColor: 'purple',
   loaderColor: 'purple',
   cursorColor: 'navy',
-  height: 100,
-  pixelRatio: 1,
-  scrollParent: true,
+
+  height: 70,
+
   normalize: true,
   minimap: true,
   backend: 'MediaElement',
   plugins: [
-    WaveSurfer.regions.create(),
-    WaveSurfer.minimap.create({
+    WaveSurfer.regions.create({
+      regions: [
+          {
+              start: 1,
+              end: 3,
+              loop: false,
+              color: 'hsla(400, 100%, 30%, 0.5)'
+          }, {
+              start: 5,
+              end: 7,
+              loop: false,
+              color: 'hsla(200, 50%, 70%, 0.4)'
+          }
+      ],
+      dragSelection: {
+          slop: 5
+      }
+  }),
+    /*WaveSurfer.minimap.create({
                 height: 30,
                 waveColor: '#ddd',
                 progressColor: '#999',
                 cursorColor: '#999'
-    }),
+    }),*/
     WaveSurfer.timeline.create({
-                container: '#cont6'
+                container: '#cont6',
+                primaryColor: 'blue',
+                secondaryColor: 'white',
+                primaryFontColor: 'blue',
+                secondaryFontColor: 'white'
+
     }),
     WaveSurfer.cursor.create({
         showTime: true,
@@ -1423,7 +1445,14 @@ var wavesurfer = WaveSurfer.create({
             padding: '2px',
             'font-size': '10px'
         }
-    })
+    }),
+    /*WaveSurfer.spectrogram.create({
+      wavesurfer: wavesurfer,
+      container: "#cont6",
+      labels: true,
+      //colorMap: need xxx.json
+      //fftSamples - number of FFT samples (512 by default)
+    })*/
 ]
 });
 

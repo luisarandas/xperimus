@@ -597,5 +597,34 @@ button:disabled {
   height: 17%;
   left: 1px;
   bottom: 1px;
+  overflow: hidden;
 }
 
+#cont5_ {
+  position: absolute;
+  width: 98%;
+  height: 16%;
+  bottom: 3px;
+  left: 4px;
+  z-index: 9999;
+  border-radius: 3px;
+}
+
+#cont6 {
+  position: absolute;
+  background-color: rgba(0,0,0,0);
+  color: white;
+  bottom: 0px;
+  width: calc(100% - 2px);
+  z-index: 9999;
+}
+
+#cont7 {
+  position: absolute;
+  background-color: aqua;
+  border-radius: 3px;
+  /*background-color: rgba(32, 32, 32, 1);*/
+  color: rgba(200,200,200,1);
+  width: 30%;
+  height: 15%;
+}
