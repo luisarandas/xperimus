@@ -8,17 +8,19 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   var socket = io.connect('http://' + document.domain + ":" + location.port);
-  console.log(socket);
 
-  /*document.querySelector("#send_message").onclick = () => {
-      socket.send({ "msg": document.querySelector("#user_message").value, "username": username, "room": room });
-      // Clear
-      document.querySelector("#user_message").value = "";
-
-  }*/
-
-
+  socket.on('data', function(msg){
+    console.log(msg);
+  });
 });
+
+function socketMusic() {
+  socket.emit('message', {data: 'ya'});
+}
+
+
+
+console.log("detection on bottom size");
 
 console.log("change bk noise for automatic string trunc");
 
@@ -1022,6 +1024,8 @@ async function populateSavedTransferModelsSelect() {
     }
 }
 
+console.log("supervizd metadata");
+
 saveTransferModelButton.addEventListener('click', async () => {
     
     //await transferRecognizer.save();
@@ -1031,7 +1035,6 @@ saveTransferModelButton.addEventListener('click', async () => {
     //await transferRecognizer.save('downloads://my-model'); //await
     await transferRecognizer.save(`indexeddb://${document.getElementById('transfer-model-name').value}`);
     //await transferRecognizer.save('localstorage://my-model'); //await
-
     await indexddb();
 });
 
@@ -1039,7 +1042,19 @@ saveTransferModelButtonDisk.addEventListener('click', async () => {
   await populateSavedTransferModelsSelect(); 
   saveTransferModelButtonDisk.textContent = 'Model saved!';
   await transferRecognizer.save(`downloads://${document.getElementById('transfer-model-name').value}`);
+  var __a = transferRecognizer.words;
+  downloadObjectAsJson(__a, `${document.getElementById('transfer-model-name').value}-metadata.json`)
 });
+
+function downloadObjectAsJson(exportObj, exportName){
+  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+  var downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href",     dataStr);
+  downloadAnchorNode.setAttribute("download", exportName + ".json");
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+}
 
 var transactedAmazonModel;
 var transac = false;
@@ -1068,7 +1083,7 @@ async function indexddb() {
         var objectStoreRequest = objectStore.get(`${document.getElementById("transfer-model-name").value}`);
 
         objectStoreRequest.onsuccess = function(event) {
-        // report the success of our request
+
           var myRecord = objectStoreRequest.result;
           loadedmodel = myRecord;
           loadedmodel.metadata = transferRecognizer.wordLabels();
@@ -1077,11 +1092,9 @@ async function indexddb() {
           localStorage.setItem(document.getElementById("transfer-model-name").value, JSON.stringify(loadedmodel));
           console.log(myRecord);
           
-
+          var modelStringify = JSON.stringify(myRecord);
+          console.log(modelStringify);
         
-          saveByteArray(myRecord, 'tst.txt');
-
-          
 
           const uploadFile = (fileName) => {
 
@@ -1109,19 +1122,6 @@ async function indexddb() {
 
 }
 
-var saveByteArray = (function () {
-  var a = document.createElement("a");
-  document.body.appendChild(a);
-  a.style = "display: none";
-  return function (data, name) {
-      var blob = new Blob(data, {type: "octet/stream"}),
-          url = window.URL.createObjectURL(blob);
-      a.href = url;
-      a.download = name;
-      a.click();
-      window.URL.revokeObjectURL(url);
-  };
-}());
 
 console.log("too big for cloud transfer check binary");
 

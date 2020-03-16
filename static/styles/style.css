@@ -61,7 +61,7 @@ body {
   left: 5px;
   border-radius: 3px;
   width: 30%;
-  height: 55%;
+  height: 65%;
 }
 
 #secondContainer {
@@ -501,7 +501,7 @@ button:disabled {
   background-color: rgba(32, 32, 32, 1);
   color: rgba(200,200,200,1);
   border-radius: 3px;
-  height: 12%;
+  height: 8%;
   width: 45%;
   left: 1px;
   top: 1px;
@@ -514,7 +514,7 @@ button:disabled {
   background-color: rgba(32, 32, 32, 1);
   color: rgba(200,200,200,1);
   border-radius: 3px;
-  height: 12%;
+  height: 8%;
   width: 28%;
   left: 46%;
   top: 1px;
@@ -528,7 +528,7 @@ button:disabled {
   background-color: rgba(32, 32, 32, 1);
   color: rgba(200,200,200,1);
   border-radius: 3px;
-  height: 12%;
+  height: 8%;
   width: 22%;
   right: 1px;
   top: 1px;
@@ -585,7 +585,7 @@ button:disabled {
   width: calc(100% - 2px);
   height: 45%;
   left: 1px;
-  top: 15%;
+  top: 10%;
   overflow: auto;
 }
 
@@ -597,7 +597,7 @@ button:disabled {
   width: calc(100% - 2px);
   height: 17%;
   left: 1px;
-  bottom: 1px;
+  top: 65%;
   overflow: hidden;
 }
 
@@ -605,7 +605,7 @@ button:disabled {
   position: absolute;
   width: 98%;
   height: 16%;
-  bottom: 3px;
+  top: 65%;
   left: 4px;
   z-index: 9999;
   border-radius: 3px;
@@ -615,7 +615,8 @@ button:disabled {
   position: absolute;
   background-color: rgba(0,0,0,0);
   color: white;
-  bottom: 0px;
+  top: calc(78% - 1px);
+  left: 1px;
   width: calc(100% - 2px);
   z-index: 9999;
 }
@@ -626,9 +627,9 @@ button:disabled {
   background-color: rgba(32, 32, 32, 1);
   color: rgba(200,200,200,1);
   width: 30%;
-  bottom: 18%;
+  top: calc(55% + 3px);
   left: 1px;
-  height: 8%;
+  height: 7%;
   padding-left: 5px;
   padding-top: 8px;
 }
@@ -638,9 +639,9 @@ button:disabled {
   background-color: rgba(32, 32, 32, 1);
   color: rgba(200,200,200,1);
   width: 30%;
-  bottom: 18%;
+  top: calc(55% + 3px);
   left: 32%;
-  height: 8%;
+  height: 7%;
   padding-left: 5px;
   padding-top: 8px;
 }
@@ -650,12 +651,24 @@ button:disabled {
   background-color: rgba(32, 32, 32, 1);
   color: rgba(200,200,200,1);
   width: 35%;
-  bottom: 18%;
+  top: calc(55% + 3px);
   right: 1px;
-  height: 8%;
+  height: 7%;
   padding-left: 5px;
   padding-top: 8px;
 }
+
+#sockettimeline1 {
+  position: absolute;
+  top: calc(83% - 2px);
+  left: 1px;
+  width: calc(100% - 2px);
+  border-radius: 3px;
+  height: 10%;
+  background-color: rgba(32, 32, 32, 1);
+  color: rgba(200,200,200,1);
+}
+
 
 #my_file {
   display: none;
