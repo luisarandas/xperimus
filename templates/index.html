@@ -11,17 +11,21 @@
 </head>
 
 <body>
-  <div id="topmenu">
-    <!--<div class="dropdown">
-      <button class="dropbtn">Dropdown
-        <i class="fa fa-caret-down"></i>
+  <div id="topmenu" class="navbar">
+    <a href="#home">File</a>
+    <div class="dropdown">
+      <button class="dropbtn">Edit 
+        <!--<i class="fa fa-caret-down"></i>-->
       </button>
       <div class="dropdown-content">
-        <a href="#">Link 1</a>
-        <a href="#">Link 2</a>
-        <a href="#">Link 3</a>
+        <a href="#">Save</a>
+        <a href="#">Load</a>
+        <a href="#">Open Separate Window</a>
+        <a href="#">Spectrogram</a>
+        <a href="#">ML New Window</a>
       </div>
-    </div>  -->
+    </div> 
+    <a href="#home">Exit</a>
   </div>
   <div id="bottommenu"></div>
   <!--<div id="spectogramdisplay"></div>-->
@@ -86,7 +90,7 @@
   <div id="secondContainer">
 
     <div id="cont10">
-      Amazon
+      Amazon S3 Repository
     </div>
     <div id="cont11">
       Trained Models<br>
@@ -99,26 +103,23 @@
       IO Methods<br>
     </div>
 
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-    <div>
-      <button id="download-dataset" disabled="true">↓ Download dataset as file</button>
-      <div>
-        <input type="file" id="dataset-file-input">
-        <button id="upload-dataset">↑ Upload dataset</button>
-        <button id="eval-model-on-dataset">Evaluate model on dataset</button>
-      </div>
-    </div>
-    <div>
-      <button id="load-transfer-model">Load:</button>
-      <select id="saved-transfer-models">
-        <option value="1"></option>
+    <div id="cont14">
+      Current Model<br><br>
+      <button id="save-transfer-model" disabled="true" class="amazonClass" style="text-align: center;">Save Model to Cloud</button>
+      <button id="save-transfer-model-disk" disabled="true" class="amazonClass" style="text-align: center;">Save Model to Disk</button>
+      <button id="delete-transfer-model" disabled="true" class="amazonClass" style="text-align: center;">Delete Model</button>
+      <button id="load-transfer-model" class="amazonClass" style="text-align: center;">Load Model from Disk</button>
+      <select id="saved-transfer-models" class="select1">
+      <option value="1"></option>
       </select>
-      <button id="delete-transfer-model">Delete</button>
     </div>
-    <div>
-      <button id="save-transfer-model">Save model</button>
+    <div id="cont15">
+      Current Dataset<br><br>
+      <button id="download-dataset" disabled="true" class="amazonClass" style="text-align: center;"><!--↓ -->Download Dataset as File</button>
+      <button id="upload-dataset" class="amazonClass" style="text-align: center;"><!--↑ -->Upload Dataset from File</button>
+      <input type="file" id="dataset-file-input" class="amazonClass" style="display: none;">
+      <button id="eval-model-on-dataset" class="amazonClass" style="text-align: center;">Evaluate Model on Dataset</button>
     </div>
-    <br><br>
 
   </div>
 
@@ -129,7 +130,7 @@
   <div class="transfer-learn-section">
     <div id="modelname">
       Model Name
-      <input id="transfer-model-name" size="20" placeholder="model name">
+      <input id="transfer-model-name" size="20" placeholder="Model Name" style="text-align: center;">
     </div>
     <div id="_worddiv">
       Sound Names
@@ -209,8 +210,9 @@
 
   
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
   <script src="/static/scripts/libs/spectrogram.js"></script>
+
+  <script src="/static/scripts/libs/jsonserialize.js"></script>
 
   <script src="/static/scripts/xperimus.js"></script>
 

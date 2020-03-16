@@ -51,42 +51,46 @@ var s3 = new AWS.S3({
   params: { Bucket: albumBucketName }
 });
 
-s3.listObjects(function (err, data) {
-  if(err)throw err;
-  //var e = data.Contents[0].Key;
-  var e = data.Contents
-  var _e = JSON.stringify(e);
-
-  Object.keys(e).forEach((key, index) => {
-    //for (i = 0; i < e.length; i++) {}
-    console.log("wa ", e[key].Key);
-
-    if (e[key].Key.includes("Model") == true && e[key].Key.length > 7) {
-      var button = document.createElement("button");
-      button.className = "amazonClass"; 
-      button.innerHTML = e[key].Key;
-      document.getElementById('cont11').appendChild(document.createElement("br"));    
-      document.getElementById('cont11').appendChild(button);
-    } 
-    if (e[key].Key.includes("Dataset") == true && e[key].Key.length > 9) {
-      //console.log(e[key].Key);
-      //console.log("wa");
-      var _button = document.createElement("button");
-      _button.className = "amazonClass"; 
-      _button.innerHTML = e[key].Key;
-      document.getElementById('cont12').appendChild(document.createElement("br"));    
-      document.getElementById('cont12').appendChild(_button);
-    }
-
-
+function listAmazonObjects() {
+  document.getElementById("cont11").innerHTML = "Trained Models<br>";
+  s3.listObjects(function (err, data) {
+    if(err)throw err;
+    //var e = data.Contents[0].Key;
+    var e = data.Contents
+    var _e = JSON.stringify(e);
+  
+    Object.keys(e).forEach((key, index) => {
+      //for (i = 0; i < e.length; i++) {}
+  
+      if (e[key].Key.includes("Model") == true && e[key].Key.length > 7) {
+        var button = document.createElement("button");
+        button.className = "amazonClass"; 
+        button.innerHTML = e[key].Key;
+        document.getElementById('cont11').appendChild(document.createElement("br"));    
+        document.getElementById('cont11').appendChild(button);
+      } 
+      if (e[key].Key.includes("Dataset") == true && e[key].Key.length > 9) {
+        //console.log(e[key].Key);
+        //console.log("wa");
+        var _button = document.createElement("button");
+        _button.className = "amazonClass"; 
+        _button.innerHTML = e[key].Key;
+        document.getElementById('cont12').appendChild(document.createElement("br"));    
+        document.getElementById('cont12').appendChild(_button);
+      }
+  
+    });
+  
+    //console.log(e);
+    //document.getElementById('database').innerHTML = _e;
+    //console.log(data);
   });
+}
 
-  //console.log(e);
-  //document.getElementById('database').innerHTML = _e;
-  //console.log(data);
-});
+listAmazonObjects();
 
 console.log("search for batch size");
+console.log("maybe timeline?");
 const tensorflow = tf; // check later
 const SpeechCommands = speechCommands;
 
@@ -112,7 +116,10 @@ const modelIOButton = document.getElementById('model-io');
 const transferModelSaveLoadInnerDiv = document.getElementById('transfer-model-save-load-inner');
 const loadTransferModelButton = document.getElementById('load-transfer-model');
 const saveTransferModelButton = document.getElementById('save-transfer-model');
-const savedTransferModelsSelect = document.getElementById('saved-transfer-models');
+const saveTransferModelButtonDisk = document.getElementById('save-transfer-model-disk');
+
+
+const savedTransferModelsSelect = document.getElementById('saved-transfer-models'); // hidden
 const deleteTransferModelButton = document.getElementById('delete-transfer-model');
 
 const statusDisplay = document.getElementById('status-display');
@@ -493,7 +500,7 @@ function createProgressBarAndIntervalJob(parentElement, durationSec) {
     progressBar.value = 0;
     progressBar.style['width'] = "100%";//`${Math.round(window.innerWidth * 0.25)}px`;
     progressBar.style['height'] = "100%";
-    progressBar.style['backgroundColor'] = 'rgba(32, 32, 32, 1)';
+    progressBar.style['background-color'] = 'red';//'rgba(32, 32, 32, 1)';
 
     progressBar.style['border-radius'] = "3px";
 
@@ -715,6 +722,10 @@ startTransferLearnButton.addEventListener('click', async () => {
     startTransferLearnButton.disabled = true;
     startButton.disabled = true;
     startTransferLearnButton.textContent = 'Transfer learning started...';
+
+    //startTransferLearnButton.disabled = true; caralho
+
+
     await tf.nextFrame();
 
     const INITIAL_PHASE = 'initial';
@@ -759,7 +770,7 @@ startTransferLearnButton.addEventListener('click', async () => {
             line: {width: lineWidth}
         };
     }
-
+    console.log("plotly here");
     function plotLossAndAccuracy(epoch, loss, acc, val_loss, val_acc, phase) {
         const displayEpoch = phase === FINE_TUNING_PHASE ? (epoch + epochs) : epoch;
         trainLossValues[phase].x.push(displayEpoch);
@@ -828,6 +839,7 @@ startTransferLearnButton.addEventListener('click', async () => {
         }
     });
     saveTransferModelButton.disabled = false;
+    saveTransferModelButtonDisk.disabled = false;
     transferModelNameInput.value = transferRecognizer.name;
     transferModelNameInput.disable = true;
     startTransferLearnButton.textContent = 'Transfer learning complete.';
@@ -836,16 +848,15 @@ startTransferLearnButton.addEventListener('click', async () => {
     evalModelOnDatasetButton.disabled = false;
 });
 
-var modelname;
+console.log("stop listen button not properly working");
 
 downloadAsFileButton.addEventListener('click', () => {
     const basename = getDateString();
-    modelname = basename;
     const artifacts = transferRecognizer.serializeExamples();
 
     //trigger downloading of the data .bin file.
     const anchor = document.createElement('a');
-    anchor.download = `${basename}.bin`;
+    anchor.download = `${document.getElementById('transfer-model-name').value}`//`${basename}.bin`;
     anchor.href = window.URL.createObjectURL(
         new Blob([artifacts], {type: 'application/octet-stream'}));
     anchor.click();
@@ -874,10 +885,11 @@ function getDateString() {
     if (second.length < 2) {
       second = `0${second}`;
     }
-    return `${year}-${month}-${day}T${hour}.${minute}.${second}`;
+    //return `${year}-${month}-${day}T${hour}.${minute}.${second}`;
+    return `${year}-${month}-${day}`;
 }
 
-uploadFilesButton.addEventListener('click', async () => {
+/*uploadFilesButton.addEventListener('click', async () => {
     const files = datasetFileInput.files;
     if (files == null || files.length !== 1) {
         throw new Error('Must select exactly one file.');
@@ -899,7 +911,7 @@ uploadFilesButton.addEventListener('click', async () => {
     };
     datasetFileReader.onerror = () => console.error(`Failed to binary data from file '${dataFile.name}'.`);
     datasetFileReader.readAsArrayBuffer(files[0]);
-});
+});*/
 
 async function loadDatasetInTransferRecognizer(serialized) {
     const modelName = transferModelNameInput.value;
@@ -1014,17 +1026,25 @@ saveTransferModelButton.addEventListener('click', async () => {
     
     //await transferRecognizer.save();
 
-    await populateSavedTransferModelsSelect(); //await
+    await populateSavedTransferModelsSelect(); 
     saveTransferModelButton.textContent = 'Model saved!';
     //await transferRecognizer.save('downloads://my-model'); //await
-    await transferRecognizer.save('indexeddb://my-model');//`indexeddb://${learnWordsInput.value}`); //await
+    await transferRecognizer.save(`indexeddb://${document.getElementById('transfer-model-name').value}`);
     //await transferRecognizer.save('localstorage://my-model'); //await
 
     await indexddb();
 });
 
+saveTransferModelButtonDisk.addEventListener('click', async () => {
+  await populateSavedTransferModelsSelect(); 
+  saveTransferModelButtonDisk.textContent = 'Model saved!';
+  await transferRecognizer.save(`downloads://${document.getElementById('transfer-model-name').value}`);
+});
+
+var transactedAmazonModel;
 var transac = false;
 var loadedmodel;
+console.log("new idea well we dont need everyone to use the model just one to keep things light")
 
 async function indexddb() {
 
@@ -1045,24 +1065,29 @@ async function indexddb() {
         // Make a request to get a record by key from the object store
         var objectStore = transaction.objectStore("models_store");
         
-        var objectStoreRequest = objectStore.get("my-model");
+        var objectStoreRequest = objectStore.get(`${document.getElementById("transfer-model-name").value}`);
 
         objectStoreRequest.onsuccess = function(event) {
         // report the success of our request
           var myRecord = objectStoreRequest.result;
           loadedmodel = myRecord;
+          loadedmodel.metadata = transferRecognizer.wordLabels();
           console.log(loadedmodel);
 
-          localStorage.setItem('my-model', JSON.stringify(loadedmodel));
+          localStorage.setItem(document.getElementById("transfer-model-name").value, JSON.stringify(loadedmodel));
+          console.log(myRecord);
+          
 
-          var modelStringify = JSON.stringify(myRecord);
-          console.log(modelStringify);
+        
+          saveByteArray(myRecord, 'tst.txt');
+
+          
 
           const uploadFile = (fileName) => {
 
             const params = {
                 Bucket: 'xperimusmodels/Models',
-                Key: 'my-model',//`xperimus-${getDateString()}`, 
+                Key: document.getElementById('transfer-model-name').value,//'my-model',//`xperimus-${getDateString()}`, 
                 ACL: 'public-read',
                 Body: fileName
             };
@@ -1074,7 +1099,8 @@ async function indexddb() {
                 console.log(`File uploaded successfully. ${data.Location}`);
             });
           };
-          uploadFile(modelStringify);
+          uploadFile(myRecord);
+          listAmazonObjects();
         };
       }
       getData();
@@ -1083,72 +1109,39 @@ async function indexddb() {
 
 }
 
-var __e;
-var _e;
+var saveByteArray = (function () {
+  var a = document.createElement("a");
+  document.body.appendChild(a);
+  a.style = "display: none";
+  return function (data, name) {
+      var blob = new Blob(data, {type: "octet/stream"}),
+          url = window.URL.createObjectURL(blob);
+      a.href = url;
+      a.download = name;
+      a.click();
+      window.URL.revokeObjectURL(url);
+  };
+}());
 
-async function getmodels() {
-
-  var params = {
-    Bucket: "xperimusmodels", 
-    Key: "Models/my-model", 
-    //Range: "bytes=0-9"
-   };
-  s3.getObject(params, function(err, data) {
-     if (err) console.log(err, err.stack); // an error occurred
-     else     console.log(data);           // successful response
-     //document.location = 'data:audio/midi;base64,' + btoa(file.toBytes());
-     __e = data.Body.toString();
-     console.log(__e);
-    
-    _e = JSON.parse(__e);
-    console.log(_e); 
-
-    _well();
-    
-    
-    
-  });
-}
-
-
-async function _well() {
-
-  var DBOpenRequest = window.indexedDB.open("tensorflowjs", dbVersion);
-  DBOpenRequest.onupgradeneeded = function(event) {
-    var db = event.target.result;
-    var objectStore = db.createObjectStore("models_store", { keyPath: "modelPath" });
-    objectStore.add(_e);
-    __well();
-  }
-}
-
-async function __well() {
-
-  await recognizer.ensureModelLoaded();
-  //await tf.loadLayersModel('indexeddb//my-model');
-  transferRecognizer_ = recognizer.createTransfer("my-model");
-  transferRecognizer_.load(_e);
-  transferModelNameInput.value = 'my-model';
-  console.log(transferRecognizer_);
-  console.log(learnWordsInput.value);
-  learnWordsInput.value = transferRecognizer_.wordLabels().join(',');
-  loadTransferModelButton.textContent = 'Model loaded!';  
-}
+console.log("too big for cloud transfer check binary");
 
 loadTransferModelButton.addEventListener('click', async () => {
   
-  getmodels();
+  //getmodels(); from amazon top
+  console.log("load model from disk check this part as blob");
 
 });
   
 deleteTransferModelButton.addEventListener('click', async () => {
-    const transferModelName = savedTransferModelsSelect.value;
+    /*const transferModelName = savedTransferModelsSelect.value;
+    console.log(savedTransferModelsSelect.value);
     await recognizer.ensureModelLoaded();
     transferRecognizer = recognizer.createTransfer(transferModelName);
     await SpeechCommands.deleteSavedTransferModel(transferModelName);
     deleteTransferModelButton.disabled = true;
     deleteTransferModelButton.textContent = `Deleted "${transferModelName}"`;
-    await populateSavedTransferModelsSelect();
+    await populateSavedTransferModelsSelect();*/
+    console.log("check what is happening");
 });
 
 // other files
@@ -1495,6 +1488,34 @@ document.getElementById('file-input').onclick = function() {
   document.getElementById('my_file').click();
 };
 
+document.getElementById('upload-dataset').onclick = function() {
+  document.getElementById('dataset-file-input').click();
+};
+
+document.getElementById("dataset-file-input").addEventListener('change', function(e){ 
+  const files = datasetFileInput.files;
+  if (files == null || files.length !== 1) {
+      throw new Error('Must select exactly one file.');
+  }
+  const datasetFileReader = new FileReader();
+  datasetFileReader.onload = async event => {
+      try {
+          await loadDatasetInTransferRecognizer(event.target.result);
+      } catch (err) {
+          const originalTextContent = uploadFilesButton.textContent;
+          uploadFilesButton.textContent = err.message;
+          setTimeout(() => {
+              uploadFilesButton.textContent = originalTextContent;
+          }, 2000);
+      }
+      durationMultiplierSelect.value = `${transferDurationMultiplier}`;
+      durationMultiplierSelect.disabled = true;
+      enterLearnWordsButton.disabled = true;
+  };
+  datasetFileReader.onerror = () => console.error(`Failed to binary data from file '${dataFile.name}'.`);
+  datasetFileReader.readAsArrayBuffer(files[0]);
+}, false);
+
 document.getElementById("my_file").addEventListener('change', function(e){
   var file = this.files[0];
   if (file) {
@@ -1558,3 +1579,67 @@ wavesurfer.on('region-play', function(region) {
       wavesurfer.pause();
   });
 });
+
+var loadedModelName;
+$(document).click(function(event) {
+  var text = $(event.target).text();
+  if (text.includes("Models/") == true) {
+    loadedModelName = text.replace('Models/','');
+    transactedAmazonModel = loadedModelName;
+    getmodels(text);
+  }
+});
+
+async function getmodels(v) {
+  var params = {
+    Bucket: "xperimusmodels", 
+    Key: v, 
+    //Range: "bytes=0-9"
+   };
+  s3.getObject(params, function(err, data) {
+     if (err) console.log(err, err.stack); 
+     else     console.log(data);           
+     //document.location = 'data:audio/midi;base64,' + btoa(file.toBytes());
+     var __e = data.Body.toString();
+     console.log(__e);
+    
+    var _e = JSON.parse(__e);
+    //_e.metadata = recornizer.;
+    console.log(_e); 
+
+    _well(_e);
+    
+  });
+}
+
+var _metadata;
+async function _well(v) {
+  console.log(v);
+  var DBOpenRequest = window.indexedDB.open("tensorflowjs", dbVersion);
+  DBOpenRequest.onupgradeneeded = function(event) {
+    var db = event.target.result;
+    var objectStore = db.createObjectStore("models_store", { keyPath: "modelPath" });
+    _metadata = v.metadata;
+    delete v["metadata"];
+    objectStore.add(v);
+    __well(v, _metadata);
+  }
+}
+
+async function __well(v, metadata_) {
+  
+  await recognizer.ensureModelLoaded();
+  //await tf.loadLayersModel('indexeddb//my-model');
+  transferRecognizer = recognizer.createTransfer(loadedModelName);
+  console.log(loadedModelName);
+  transferRecognizer.load(`indexeddb://${loadedModelName}`);
+  
+  transferModelNameInput.value = loadedModelName;
+  //v.metadata = transferRecognizer.wordLabels().join(',');
+  transferRecognizer.words = metadata_;
+  console.log(transferRecognizer);
+  console.log(recognizer);
+  console.log(transferRecognizer.wordLabels());
+  //learnWordsInput.value = transferRecognizer.wordLabels().join(',');
+  loadTransferModelButton.textContent = 'Model loaded!';  
+}
