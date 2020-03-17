@@ -6,24 +6,22 @@
 // controlar o numero dos outros samples que não o background noise
 // jorge coelho -- plotly
 
-document.addEventListener('DOMContentLoaded', () => {
-  var socket = io.connect('http://' + document.domain + ":" + location.port);
+document.addEventListener('DOMContentLoaded', () => {});
 
-  socket.on('connect', function() {
-    console.log('connected');
-  });
-  
-  socket.on('message', function(data) {
-    console.log(data);
-  });
-  socket.on('newmsg', function(data) {
-    console.log(data);
-  });
+var socket = io.connect('http://' + document.domain + ":" + location.port);
+
+socket.on('connect', function() {
+  console.log('connected');
+});
+
+socket.on('message', function(data) {
+  console.log(data);
+  //wavesurfer.play();
+  console.log("estruturar os sockets")
 });
 
 function socketMusic() {
-  console.log("enviou")
-  socket.emit("my event", "username");
+  socket.emit("my-event", "username");
 }
 
 

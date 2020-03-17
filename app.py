@@ -145,14 +145,36 @@ def background_process_test():
 ################################ boto3 is working
  
 
+'''ACCESS_KEY_ID = ''
+ACCESS_SECRET_KEY = ''
+BUCKET_NAME = ''
+
+data = open('teste.jpg', 'rb')
+s3 = boto3.resource(
+    's3',
+    aws_access_key_id=ACCESS_KEY_ID,
+    aws_secret_access_key=ACCESS_SECRET_KEY,
+    config=Config(signature_version='s3v4')
+)
+s3.Bucket(BUCKET_NAME).put_object(Key='teste.png', Body=data)
+objectname_string = '/k.png'
+s3.Bucket(BUCKET_NAME).download_file('teste.png', desktop+objectname_string)
+s3.Bucket(BUCKET_NAME).put_object(Key='novapasta/test.png', Body=data)
+
+for my_bucket_contents in s3.Bucket(BUCKET_NAME).objects.all():
+    print(my_bucket_contents)
+
+print(desktop)
+'''
 
 @socketio.on('connect')                                                         
 def connect():                                                                  
     emit('message', {'hello': "Hello"})  
 
-@socketio.on('my event')                                                         
-def newmsg(data):                                                                  
-    emit('message', {'hello': "Hello"})    
+@socketio.on('my-event')                                                         
+def newmsg(data):   
+    print(data)                                                               
+    socketio.emit('message', {'heldslo': "Helldso"})    
 
 
 if __name__ == "__main__":
