@@ -148,11 +148,20 @@ print("aaaaa")
 _username = os.environ.get('VARENV')
 print(os.environ['HOME'])
 
-s3 = S3Connection(os.environ['S3_KEY'], os.environ['S3_SECRET'])
+S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+
+
+s3 = boto3.resource(
+    's3',
+    aws_access_key_id=AWS_ACCESS_KEY,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    config=Config(signature_version='s3v4')
+)
 
 objectname_string = '/k.png'
-s3.download_file('teste.png', desktop+objectname_string)
-
+s3.Bucket(S3_BUCKET).download_file('teste.png', desktop+objectname_string)
 
 '''ACCESS_KEY_ID = ''
 ACCESS_SECRET_KEY = ''
