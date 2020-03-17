@@ -9,18 +9,23 @@
 document.addEventListener('DOMContentLoaded', () => {
   var socket = io.connect('http://' + document.domain + ":" + location.port);
 
-  socket.on('data', function(msg){
-    console.log(msg);
+  socket.on('connect', function() {
+    console.log('connected');
+  });
+  
+  socket.on('message', function(data) {
+    console.log(data);
+  });
+  socket.on('newmsg', function(data) {
+    console.log(data);
   });
 });
 
 function socketMusic() {
-  socket.emit('message', {data: 'ya'});
+  console.log("enviou")
+  socket.emit("my event", "username");
 }
 
-
-
-console.log("detection on bottom size");
 
 console.log("change bk noise for automatic string trunc");
 

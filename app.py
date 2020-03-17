@@ -143,57 +143,16 @@ def background_process_test():
 
 ### testing amazon
 ################################ boto3 is working
+ 
 
 
-#data = open('teste.jpg', 'rb')
-#s3 = boto3.resource(
-#    's3',
-#    aws_access_key_id=ACCESS_KEY_ID,
-#    aws_secret_access_key=ACCESS_SECRET_KEY,
-#    config=Config(signature_version='s3v4')
-#)
-#s3.Bucket(BUCKET_NAME).put_object(Key='teste.png', Body=data)
-#objectname_string = '/k.png'
-#s3.Bucket(BUCKET_NAME).download_file('teste.png', desktop+objectname_string)
-#s3.Bucket(BUCKET_NAME).put_object(Key='novapasta/test.png', Body=data)
+@socketio.on('connect')                                                         
+def connect():                                                                  
+    emit('message', {'hello': "Hello"})  
 
-#for my_bucket_contents in s3.Bucket(BUCKET_NAME).objects.all():
-#    print(my_bucket_contents)
-
-#print(desktop)
-
-@socketio.on("message")
-def message(data):
-
-    print(f"\n\n{data}\n\n")
-    send(
-        {
-            "msg": data["msg"],
-            "username": data["username"],
-            "time_stamp": strftime("%b-%d %I:%M%p", localtime()),
-        },
-        room=data["room"],
-    )
-    # check python time API
-    # emit("some-event", "this is a custom event message")
-
-
-@socketio.on("join")
-def join(data):
-    join_room(data["room"])
-    send(
-        {"msg": data["username"] + " has joined the " + data["room"] + " room."},
-        room=data["room"],
-    )
-
-
-@socketio.on("leave")
-def leave(data):
-    leave_room(data["room"])
-    send(
-        {"msg": data["username"] + " has left the " + data["room"] + " room."},
-        room=data["room"],
-    )
+@socketio.on('my event')                                                         
+def newmsg(data):                                                                  
+    emit('message', {'hello': "Hello"})    
 
 
 if __name__ == "__main__":
