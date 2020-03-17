@@ -594,7 +594,7 @@ function createWordDivs(transferWords) {
         wordDiv.className = 'transfer-word';
         collectButtonsDiv.appendChild(wordDiv);
         collectWordButtons[word] = button;
-        
+        //aqui
         let durationInput;
         if (word === BACKGROUND_NOISE_TAG) {
             // create noise duration input

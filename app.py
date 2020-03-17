@@ -145,9 +145,9 @@ def background_process_test():
 ################################ boto3 is working
  
 
-ACCESS_KEY_ID = 'AKIAI7UI6G7VI5UV76VQ'
-ACCESS_SECRET_KEY = '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'
-BUCKET_NAME = 'xperimusmodels'
+'''ACCESS_KEY_ID = ''
+ACCESS_SECRET_KEY = ''
+BUCKET_NAME = ''
 
 #data = open('teste.png', 'rb')
 s3 = boto3.resource(
@@ -165,7 +165,7 @@ s3.Bucket(BUCKET_NAME).download_file('teste.png', desktop+objectname_string)
 #    print(my_bucket_contents)
 
 #print(desktop)
-
+'''
 
 @socketio.on('connect')                                                         
 def connect():                                                                  
