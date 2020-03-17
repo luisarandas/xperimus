@@ -594,18 +594,19 @@ function createWordDivs(transferWords) {
         wordDiv.className = 'transfer-word';
         collectButtonsDiv.appendChild(wordDiv);
         collectWordButtons[word] = button;
-        //aqui
+        
         let durationInput;
         if (word === BACKGROUND_NOISE_TAG) {
             // create noise duration input
             durationInput = document.createElement('input');
             durationInput.setAttribute('isFixed', 'true');
             durationInput.value = '10';
-            durationInput.style['margin-top'] = '1%';
+            durationInput.style['margin-top'] = '0%';
             durationInput.style['text-align'] = 'center';
             durationInput.style['width'] = '50px';
             durationInput.style['height'] = '25px';
             wordDiv.appendChild(durationInput);
+            //wordDiv[0].style['height'] = '50%'; aqui
             //create time-unit span for noise duration
             const timeUnitSpan = document.createElement('span');
             timeUnitSpan.setAttribute('isFixed', 'true');

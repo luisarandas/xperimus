@@ -2,6 +2,7 @@ import os, json, boto3
 from botocore.client import Config 
 from botocore.exceptions import ClientError
 from boto3.s3.transfer import S3Transfer
+from boto.s3.connection import S3Connection
 
 from time import localtime, strftime
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -143,7 +144,15 @@ def background_process_test():
 
 ### testing amazon
 ################################ boto3 is working
- 
+print("aaaaa")
+_username = os.environ.get('VARENV')
+print(os.environ['HOME'])
+
+s3 = S3Connection(os.environ['S3_KEY'], os.environ['S3_SECRET'])
+
+objectname_string = '/k.png'
+s3.download_file('teste.png', desktop+objectname_string)
+
 
 '''ACCESS_KEY_ID = ''
 ACCESS_SECRET_KEY = ''
