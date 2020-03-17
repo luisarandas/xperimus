@@ -1059,7 +1059,7 @@ function downloadObjectAsJson(exportObj, exportName){
   downloadAnchorNode.remove();
 }
 
-var transactedAmazonModel;
+var transactedAmazonModel, transactedAmazonModel1;
 var transac = false;
 var loadedmodel;
 console.log("new idea well we dont need everyone to use the model just one to keep things light")
@@ -1098,6 +1098,13 @@ async function indexddb() {
           var modelStringify = JSON.stringify(myRecord);
           console.log(modelStringify);
         
+          var _parse = JSON.parse(modelStringify);
+          console.log(_parse);
+          
+          var _modelStringify = JSON.stringify(Array.from(new Int32Array(myRecord.modelArtifacts.weightData)));
+          console.log(_modelStringify);
+          var __modelStringify = StringToArrayBuffer(_modelStringify);
+          console.log(__modelStringify);
 
           const uploadFile = (fileName) => {
 
@@ -1583,7 +1590,7 @@ wavesurfer.on('region-play', function(region) {
   });
 });
 
-var loadedModelName;
+var loadedModelName, loadedModelName1;
 $(document).click(function(event) {
   var text = $(event.target).text();
   if (text.includes("Models/") == true) {
@@ -1591,7 +1598,32 @@ $(document).click(function(event) {
     transactedAmazonModel = loadedModelName;
     getmodels(text);
   }
+  if (text.includes("Datasets/") == true) {
+    loadedModelName1 = text.replace('Datasets/','');
+    transactedAmazonModel1 = loadedModelName1;
+    getdatasets(text);
+  }
 });
+
+async function getdatasets(v) {
+  var params = {
+    Bucket: "xperimusmodels", 
+    Key: v, 
+    //Range: "bytes=0-9"
+   };
+   s3.getObject(params, function(err, data) {
+    if (err) console.log(err, err.stack); 
+    else     console.log(data);  
+    var ___e = data;         
+    var __e = data.Body.toString();
+    var _eee = data.Body;
+    console.log(__e);
+    console.log(_eee);
+    console.log(___e);
+
+   
+ });
+}
 
 async function getmodels(v) {
   var params = {
@@ -1645,4 +1677,63 @@ async function __well(v, metadata_) {
   console.log(transferRecognizer.wordLabels());
   //learnWordsInput.value = transferRecognizer.wordLabels().join(',');
   loadTransferModelButton.textContent = 'Model loaded!';  
+}
+
+
+function ArrayBufferToString(buffer) {
+  return BinaryToString(String.fromCharCode.apply(null, Array.prototype.slice.apply(new Uint8Array(buffer))));
+}
+
+function StringToArrayBuffer(string) {
+  return StringToUint8Array(string).buffer;
+}
+
+function BinaryToString(binary) {
+  var error;
+
+  try {
+      return decodeURIComponent(escape(binary));
+  } catch (_error) {
+      error = _error;
+      if (error instanceof URIError) {
+          return binary;
+      } else {
+          throw error;
+      }
+  }
+}
+
+function StringToBinary(string) {
+  var chars, code, i, isUCS2, len, _i;
+
+  len = string.length;
+  chars = [];
+  isUCS2 = false;
+  for (i = _i = 0; 0 <= len ? _i < len : _i > len; i = 0 <= len ? ++_i : --_i) {
+      code = String.prototype.charCodeAt.call(string, i);
+      if (code > 255) {
+          isUCS2 = true;
+          chars = null;
+          break;
+      } else {
+          chars.push(code);
+      }
+  }
+  if (isUCS2 === true) {
+      return unescape(encodeURIComponent(string));
+  } else {
+      return String.fromCharCode.apply(null, Array.prototype.slice.apply(chars));
+  }
+}
+
+function StringToUint8Array(string) {
+  var binary, binLen, buffer, chars, i, _i;
+  binary = StringToBinary(string);
+  binLen = binary.length;
+  buffer = new ArrayBuffer(binLen);
+  chars  = new Uint8Array(buffer);
+  for (i = _i = 0; 0 <= binLen ? _i < binLen : _i > binLen; i = 0 <= binLen ? ++_i : --_i) {
+      chars[i] = String.prototype.charCodeAt.call(binary, i);
+  }
+  return chars;
 }
