@@ -230,11 +230,34 @@ class DatasetViz {
   
       // Create the left and right nav buttons.
       const leftButton = document.createElement('button');
+      var leftSize = wordDiv.childNodes[0].offsetWidth; 
+      console.log(leftSize);
+
       leftButton.textContent = '←';
+      leftButton.style['left'] = '500px';
+      leftButton.style['border'] = '1px solid black';
+      leftButton.style['height'] = '30px';
+
+      leftButton.style['position'] = 'absolute';
+      leftButton.style['left'] = `${leftSize+5}px`;
+
+      leftButton.style['border-radius'] = '3px';
+      leftButton.style['background-color'] = "rgba(53,53,53,1)";
+      leftButton.style['color'] = "rgba(200,200,200,1)";
+
+      //wordDiv.style['margin'] = '2px';
       wordDiv.appendChild(leftButton);
   
       const rightButton = document.createElement('button');
       rightButton.textContent = '→';
+      rightButton.style['left'] = '500px';
+      rightButton.style['border'] = '1px solid black';
+      rightButton.style['height'] = '30px';
+
+      rightButton.style['border-radius'] = '3px';
+      rightButton.style['background-color'] = "rgba(53,53,53,1)";
+      rightButton.style['color'] = "rgba(200,200,200,1)";
+      rightButton.style['bottom'] = "0px";
       wordDiv.appendChild(rightButton);
   
       // Determine the position of the example in the word of the dataset.
@@ -461,7 +484,6 @@ startButton.addEventListener('click', () => {
     activeRecognizer.listen( result => {
 
       console.log(result);
-      console.log("aqui");
 
         plotPredictions(predictionCanvas, activeRecognizer.wordLabels(), result.scores, 3, suppressionTimeMillis);
     }, {   
@@ -504,7 +526,7 @@ function createProgressBarAndIntervalJob(parentElement, durationSec) {
     const progressBar = document.createElement('progress');
     progressBar.value = 0;
     progressBar.style['width'] = "100%";//`${Math.round(window.innerWidth * 0.25)}px`;
-    progressBar.style['height'] = "100%";
+    progressBar.style['height'] = "95%";
     progressBar.style['background-color'] = 'red';//'rgba(32, 32, 32, 1)';
 
     progressBar.style['border-radius'] = "3px";
@@ -544,8 +566,9 @@ function createWordDivs(transferWords) {
         wordDiv.style['border'] = '1px solid grey';
         wordDiv.style['margin'] = '2px';
         wordDiv.style['border-radius'] = '3px';
-
+        wordDiv.style['position'] = 'relative';
         wordDiv.style['width'] = "99%";//'calc(100% - 2px)';
+        wordDiv.style['height'] = "60px";//'calc(100% - 2px)';
 
         wordDivs[word] = wordDiv;
         wordDiv.setAttribute('word', word);
@@ -569,9 +592,7 @@ function createWordDivs(transferWords) {
         button.style['color'] = "rgba(200,200,200,1)";
         button.style['border-radius'] = "3px";
         button.style['border-color'] = "black";
-
-
-
+        button.style['minWidth'] = "70px";
 
         /*position: absolute;
         color: ;
@@ -598,15 +619,19 @@ function createWordDivs(transferWords) {
         let durationInput;
         if (word === BACKGROUND_NOISE_TAG) {
             // create noise duration input
+            wordDiv.childNodes[0].style['height'] = '34px'; 
             durationInput = document.createElement('input');
-            durationInput.setAttribute('isFixed', 'true');
-            durationInput.value = '10';
-            durationInput.style['margin-top'] = '0%';
+            //durationInput.setAttribute('isFixed', 'true');
+            durationInput.value = '10[sec]';
+            durationInput.style['position'] = 'absolute';
             durationInput.style['text-align'] = 'center';
-            durationInput.style['width'] = '50px';
-            durationInput.style['height'] = '25px';
+            durationInput.style['bottom'] = '0px';
+            durationInput.style['width'] = '66px';
+            durationInput.style['right'] = '0px !important';
+
+            durationInput.style['height'] = '22px';
+            //durationInput.style['left'] = '0px';
             wordDiv.appendChild(durationInput);
-            //wordDiv[0].style['height'] = '50%'; aqui
             //create time-unit span for noise duration
             const timeUnitSpan = document.createElement('span');
             timeUnitSpan.setAttribute('isFixed', 'true');
@@ -644,7 +669,9 @@ function createWordDivs(transferWords) {
                 collectExampleOptions.durationMultiplier = transferDurationMultiplier;
                 let tempSpectrogramData;
                 const tempCanvas = document.createElement('canvas');
-                tempCanvas.style['margin-left'] = '132px';
+                tempCanvas.style['margin-left'] = '5%';
+                tempCanvas.style['border-radius'] = '3px';
+
                 tempCanvas.height = 50;
                 wordDiv.appendChild(tempCanvas);
 
@@ -1047,7 +1074,7 @@ saveTransferModelButtonDisk.addEventListener('click', async () => {
   saveTransferModelButtonDisk.textContent = 'Model saved!';
   await transferRecognizer.save(`downloads://${document.getElementById('transfer-model-name').value}`);
   var __a = transferRecognizer.words;
-  downloadObjectAsJson(__a, `${document.getElementById('transfer-model-name').value}-metadata.json`)
+  downloadObjectAsJson(__a, `${document.getElementById('transfer-model-name').value}-metadata`)
 });
 
 function downloadObjectAsJson(exportObj, exportName){
@@ -1102,10 +1129,10 @@ async function indexddb() {
           var _parse = JSON.parse(modelStringify);
           console.log(_parse);
           
-          var _modelStringify = JSON.stringify(Array.from(new Int32Array(myRecord.modelArtifacts.weightData)));
+          /*var _modelStringify = JSON.stringify(Array.from(new Int32Array(myRecord.modelArtifacts.weightData)));
           console.log(_modelStringify);
           var __modelStringify = StringToArrayBuffer(_modelStringify);
-          console.log(__modelStringify);
+          console.log(__modelStringify);*/
 
           const uploadFile = (fileName) => {
 
@@ -1134,12 +1161,22 @@ async function indexddb() {
 }
 
 
-console.log("too big for cloud transfer check binary");
 
 loadTransferModelButton.addEventListener('click', async () => {
   
-  //getmodels(); from amazon top
-  console.log("load model from disk check this part as blob");
+  console.log("load now and fix all buttons");
+  /*await recognizer.ensureModelLoaded();
+  transferRecognizer = recognizer.createTransfer("newloaded");
+  transferRecognizer.load(`indexeddb://${loadedModelName}`);
+  
+  transferModelNameInput.value = loadedModelName;
+  //v.metadata = transferRecognizer.wordLabels().join(',');
+  transferRecognizer.words = metadata_;
+  console.log(transferRecognizer);
+  console.log(recognizer);
+  console.log(transferRecognizer.wordLabels());
+  //learnWordsInput.value = transferRecognizer.wordLabels().join(',');
+  loadTransferModelButton.textContent = 'Model loaded!';  */
 
 });
   
@@ -1285,7 +1322,7 @@ async function plotSpectrogram(
       colorValue = Math.pow(colorValue, 3);
       colorValue = Math.round(255 * colorValue);
       const fillStyle =
-          `rgb(${colorValue},${255 - colorValue},${255 - colorValue})`;
+          `rgb(${colorValue},${255 - colorValue},${255 - colorValue})`; // cor espectro
       context.fillStyle = fillStyle;
       context.fillRect(x, y, pixelWidth, pixelHeight);
     }
@@ -1298,8 +1335,8 @@ async function plotSpectrogram(
                 {data: frequencyData, frameSize: fftSize})
             .data() :
         config.keyFrameIndex;
-    // Draw lines to mark the maximum-intensity frame.
-    context.strokeStyle = 'black';
+    // Draw lines to mark the maximum-intensity frame. AQUI ESTA O ONSET
+    context.strokeStyle = 'green';
     context.beginPath();
     context.moveTo(pixelWidth * keyFrameIndex, 0);
     context.lineTo(pixelWidth * keyFrameIndex, canvas.height * 0.1);
@@ -1615,12 +1652,9 @@ async function getdatasets(v) {
    s3.getObject(params, function(err, data) {
     if (err) console.log(err, err.stack); 
     else     console.log(data);  
-    var ___e = data;         
     var __e = data.Body.toString();
-    var _eee = data.Body;
     console.log(__e);
-    console.log(_eee);
-    console.log(___e);
+
 
    
  });
@@ -1638,15 +1672,52 @@ async function getmodels(v) {
      //document.location = 'data:audio/midi;base64,' + btoa(file.toBytes());
      var __e = data.Body.toString();
      console.log(__e);
-    
     var _e = JSON.parse(__e);
     //_e.metadata = recornizer.;
     console.log(_e); 
+    var __v = v.replace('Models/','');
+
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(__e));
+    var dlAnchorElem = document.getElementById('downloadAnchorElem');
+    dlAnchorElem.setAttribute("href",     dataStr     );
+    dlAnchorElem.setAttribute("download", __v);
+    dlAnchorElem.click();
+    getSameModelMetadata(__v);
 
     _well(_e);
     
   });
 }
+
+async function getSameModelMetadata(v) {
+  var v_ = v.replace('.json','');
+  var _key = `Models/${v_}-metadata.json`
+  var _sname = `${v_}-metadata.json`
+  var params = {
+    Bucket: "xperimusmodels", 
+    Key: _key, 
+   };
+  s3.getObject(params, function(err, data) {
+     if (err) console.log(err, err.stack); 
+     else     console.log(data);           
+     var __e = data.Body.toString();
+     /*console.log(__e);
+     var _e = JSON.parse(__e);
+     //_e.metadata = recornizer.;
+     console.log(_e);*/
+
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(__e));
+    var dlAnchorElem = document.getElementById('downloadAnchorElem');
+    dlAnchorElem.setAttribute("href",     dataStr     );
+    dlAnchorElem.setAttribute("download", _sname);
+    dlAnchorElem.click();
+
+    var _wname = `Models/${v_}.weights.bin`
+    window.open(`https://xperimusmodels.s3.eu-west-2.amazonaws.com/${_wname}`, '_blank');
+    
+  });
+}
+
 
 var _metadata;
 async function _well(v) {
