@@ -1141,7 +1141,6 @@ saveTransferModelButtonDisk.addEventListener('click', async () => {
   var __a = transferRecognizer.words;
   downloadObjectAsJson(__a, `${document.getElementById('transfer-model-name').value}-metadata`);
   saveTransferModelButtonDisk.textContent = 'Model saved!';
-
 });
 
 function downloadObjectAsJson(exportObj, exportName){
@@ -1590,7 +1589,13 @@ document.getElementById('upload-dataset').onclick = function() {
 };
 
 document.getElementById('load-transfer-model').onclick = function() {
-  document.getElementById('modeldiskload').click();
+  //document.getElementById('modeldiskload').click();
+  transferRecognizer = recognizer.createTransfer("newloaded");
+
+  transferRecognizer.load("https://xperimusmodels.s3.eu-west-2.amazonaws.com/Models/xperimus-2020-03-17.json");
+  //var e = tf.loadLayersModel();//`https://xperimusmodels.s3.eu-west-2.amazonaws.com/Models/${v_}`);
+  console.log(transferRecognizer);
+  console.log("works finally");
 };
 
 /*document.getElementById("modeldiskload").addEventListener('change', function(e){ 
@@ -1609,7 +1614,7 @@ async function loadFile(file) {
 async function loadNewModelAfterWords(v, v_) {
   await recognizer.ensureModelLoaded();
   transferRecognizer = recognizer.createTransfer("newloaded");
-  tf.loadLayersModel(`downloads://${v_}`);
+
   //transferRecognizer.load(`downloads://${v_}`);
   transferModelNameInput.value = loadedModelName;
 
@@ -1893,3 +1898,42 @@ function StringToUint8Array(string) {
   }
   return chars;
 }
+
+var trace1 = {
+  x: [1, 2, 3, 4],
+  y: [10, 15, 13, 17],
+  type: 'scatter'
+};
+
+var trace2 = {
+  x: [1, 2, 3, 4],
+  y: [16, 5, 11, 9],
+  type: 'scatter'
+};
+
+var data = [trace1, trace2];
+var colors = ['rgba(67,67,67,1)', 'rgba(115,115,115,1)'];
+var layout = {
+  autosize: true,
+  height: 150,
+  showlegend: false,
+  line: {
+    color: colors[i]
+  },
+  margin: {
+    l: 0,
+    r: 0,
+    b: 0,
+    t: 0,
+    pad: -4
+  },
+ 
+  xaxis: {title: 'Epoch'},
+  yaxis: {title: 'Loss'},
+  paper_bgcolor: 'rgba(52,52,52,1)',
+  plot_bgcolor: 'rgba(52,52,52,1)'
+};
+
+Plotly.newPlot('loss-plot', data, layout);
+
+//Plotly.newPlot('accuracy-plot', data, layout);
