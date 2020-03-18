@@ -56,8 +56,19 @@ var s3 = new AWS.S3({
   params: { Bucket: albumBucketName }
 });
 
+function sortUsingNestedText(parent, childSelector, keySelector) {
+  var items = parent.children(childSelector).sort(function(a, b) {
+      var vA = $(keySelector, a).text();
+      var vB = $(keySelector, b).text();
+      return (vA < vB) ? -1 : (vA > vB) ? 1 : 0;
+  });
+  parent.append(items);
+}
+
 function listAmazonObjects() {
   document.getElementById("cont11").innerHTML = "Trained Models<br>";
+  var __main = document.getElementById('cont11');
+
   s3.listObjects(function (err, data) {
     if(err)throw err;
     //var e = data.Contents[0].Key;
@@ -71,8 +82,13 @@ function listAmazonObjects() {
         var button = document.createElement("button");
         button.className = "amazonClass"; 
         button.innerHTML = e[key].Key;
-        document.getElementById('cont11').appendChild(document.createElement("br"));    
-        document.getElementById('cont11').appendChild(button);
+        // append seguido aqui
+
+
+        __main.appendChild(document.createElement("br"));    
+        __main.appendChild(button);        
+
+
       } 
       if (e[key].Key.includes("Dataset") == true && e[key].Key.length > 9) {
         //console.log(e[key].Key);
@@ -86,9 +102,11 @@ function listAmazonObjects() {
   
     });
   
-    //console.log(e);
-    //document.getElementById('database').innerHTML = _e;
-    //console.log(data);
+    for (i = 0; i < __main.children.length; i++) {
+      if (!__main.children[i].innerHTML.includes('metadata') && !__main.children[i].innerHTML.includes('weights')) {
+        console.log(__main.children[i].innerHTML); // works
+      }
+    }
   });
 }
 
@@ -919,7 +937,7 @@ startTransferLearnButton.addEventListener('click', async () => {
             }
         }
     });
-    saveTransferModelButton.disabled = false;
+    //saveTransferModelButton.disabled = false;
     saveTransferModelButtonDisk.disabled = false;
     transferModelNameInput.value = transferRecognizer.name;
     transferModelNameInput.disable = true;
@@ -1118,11 +1136,12 @@ saveTransferModelButton.addEventListener('click', async () => {
 });
 
 saveTransferModelButtonDisk.addEventListener('click', async () => {
-  await populateSavedTransferModelsSelect(); 
-  saveTransferModelButtonDisk.textContent = 'Model saved!';
+  console.log("well");
   await transferRecognizer.save(`downloads://${document.getElementById('transfer-model-name').value}`);
   var __a = transferRecognizer.words;
-  downloadObjectAsJson(__a, `${document.getElementById('transfer-model-name').value}-metadata`)
+  downloadObjectAsJson(__a, `${document.getElementById('transfer-model-name').value}-metadata`);
+  saveTransferModelButtonDisk.textContent = 'Model saved!';
+
 });
 
 function downloadObjectAsJson(exportObj, exportName){
@@ -1211,33 +1230,12 @@ async function indexddb() {
 
 
 loadTransferModelButton.addEventListener('click', async () => {
-  
-  console.log("load now and fix all buttons");
-  /*await recognizer.ensureModelLoaded();
-  transferRecognizer = recognizer.createTransfer("newloaded");
-  transferRecognizer.load(`indexeddb://${loadedModelName}`);
-  
-  transferModelNameInput.value = loadedModelName;
-  //v.metadata = transferRecognizer.wordLabels().join(',');
-  transferRecognizer.words = metadata_;
-  console.log(transferRecognizer);
-  console.log(recognizer);
-  console.log(transferRecognizer.wordLabels());
-  //learnWordsInput.value = transferRecognizer.wordLabels().join(',');
-  loadTransferModelButton.textContent = 'Model loaded!';  */
 
 });
   
 deleteTransferModelButton.addEventListener('click', async () => {
-    /*const transferModelName = savedTransferModelsSelect.value;
-    console.log(savedTransferModelsSelect.value);
-    await recognizer.ensureModelLoaded();
-    transferRecognizer = recognizer.createTransfer(transferModelName);
-    await SpeechCommands.deleteSavedTransferModel(transferModelName);
-    deleteTransferModelButton.disabled = true;
-    deleteTransferModelButton.textContent = `Deleted "${transferModelName}"`;
-    await populateSavedTransferModelsSelect();*/
-    console.log("check what is happening");
+  /*console.log(transferModelNameInput.innerHTML);
+    await SpeechCommands.deleteSavedTransferModel(transferModelNameInput.innerHTML);*/
 });
 
 // other files
@@ -1591,6 +1589,40 @@ document.getElementById('upload-dataset').onclick = function() {
   document.getElementById('dataset-file-input').click();
 };
 
+document.getElementById('load-transfer-model').onclick = function() {
+  document.getElementById('modeldiskload').click();
+};
+
+/*document.getElementById("modeldiskload").addEventListener('change', function(e){ 
+  console.log(e);
+}, false);*/
+var newModelWords;
+async function loadFile(file) {
+  let text = await file.text();
+  var e_ = file.name;
+  var e__ = e_.replace('-metadata', '');
+  console.log(e__);
+  newModelWords = text;
+  loadNewModelAfterWords(newModelWords, e__);
+}
+
+async function loadNewModelAfterWords(v, v_) {
+  await recognizer.ensureModelLoaded();
+  transferRecognizer = recognizer.createTransfer("newloaded");
+  tf.loadLayersModel(`downloads://${v_}`);
+  //transferRecognizer.load(`downloads://${v_}`);
+  transferModelNameInput.value = loadedModelName;
+
+  var obj = JSON.parse(v);
+  console.log(obj);
+  //obj = transferRecognizer.wordLabels().join(',');
+  transferRecognizer.words = obj;
+  console.log(transferRecognizer);
+  
+  //learnWordsInput.value = transferRecognizer.wordLabels().join(',');
+  loadTransferModelButton.textContent = 'Model loaded!';  
+}
+
 document.getElementById("dataset-file-input").addEventListener('change', function(e){ 
   const files = datasetFileInput.files;
   if (files == null || files.length !== 1) {
@@ -1682,12 +1714,12 @@ wavesurfer.on('region-play', function(region) {
 var loadedModelName, loadedModelName1;
 $(document).click(function(event) {
   var text = $(event.target).text();
-  if (text.includes("Models/") == true) {
+  if (text.includes("Models/") == true && !text.includes("Trained") && !text.includes("metadata") && !text.includes("weights")) {
     loadedModelName = text.replace('Models/','');
     transactedAmazonModel = loadedModelName;
     getmodels(text);
   }
-  if (text.includes("Datasets/") == true) {
+  if (text.includes("Datasets/") == true && !text.includes("Recorded")) {
     loadedModelName1 = text.replace('Datasets/','');
     transactedAmazonModel1 = loadedModelName1;
     getdatasets(text);
@@ -1695,6 +1727,7 @@ $(document).click(function(event) {
 });
 
 async function getdatasets(v) {
+  console.log(v);
   var params = {
     Bucket: "xperimusmodels", 
     Key: v, 
@@ -1703,10 +1736,10 @@ async function getdatasets(v) {
    s3.getObject(params, function(err, data) {
     if (err) console.log(err, err.stack); 
     else     console.log(data);  
-    var __e = data.Body.toString();
-    console.log(__e);
+    //var __e = data.Body.toString();
 
-
+    //var _dname = `Datasets/${v_}.weights.bin`
+    window.open(`https://xperimusmodels.s3.eu-west-2.amazonaws.com/${v}`, '_blank');
    
  });
 }

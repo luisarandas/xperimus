@@ -107,10 +107,13 @@
 
     <div id="cont14">
       Current Model<br><br>
-      <button id="save-transfer-model" disabled="true" class="amazonClass" style="text-align: center;">Save Model to Cloud</button>
-      <button id="save-transfer-model-disk" disabled="true" class="amazonClass" style="text-align: center;">Save Model to Disk</button>
-      <button id="delete-transfer-model" disabled="true" class="amazonClass" style="text-align: center;">Delete Model</button>
+      <button id="save-transfer-model" disabled="true" class="amazonClass" style="text-align: center; display: none;">Save Model to Cloud</button>
+      <button id="save-transfer-model-disk"  disabled="true" class="amazonClass" style="text-align: center;">Save Model to Disk</button>
+      <button id="delete-transfer-model" class="amazonClass" style="text-align: center;">Delete Model</button>
+      
+      <input type="file" id="modeldiskload" onchange="loadFile(this.files[0])" class="amazonClass" style="display: none;">
       <button id="load-transfer-model" class="amazonClass" style="text-align: center;">Load Model from Disk</button>
+
       <select id="saved-transfer-models" class="select1">
       <option value="1"></option>
       </select>
@@ -181,7 +184,7 @@
     </div>
     <div id="fourthdiv4">
       <span>Train</span>
-      <button id="start-transfer-learn" disabled="true">Start Transfer</button>
+      <button id="start-transfer-learn" disabled="true">Start Training</button>
     </div>
 
 
