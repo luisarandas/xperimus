@@ -236,10 +236,10 @@ class DatasetViz {
       leftButton.textContent = '←';
       leftButton.style['left'] = '500px';
       leftButton.style['border'] = '1px solid black';
-      leftButton.style['height'] = '30px';
+      leftButton.style['height'] = '50%';
 
       leftButton.style['position'] = 'absolute';
-      leftButton.style['left'] = `${leftSize+5}px`;
+      leftButton.style['left'] = `${leftSize+10}px`;
 
       leftButton.style['border-radius'] = '3px';
       leftButton.style['background-color'] = "rgba(53,53,53,1)";
@@ -252,7 +252,10 @@ class DatasetViz {
       rightButton.textContent = '→';
       rightButton.style['left'] = '500px';
       rightButton.style['border'] = '1px solid black';
-      rightButton.style['height'] = '30px';
+      rightButton.style['height'] = '50%';
+
+      rightButton.style['position'] = 'absolute';
+      rightButton.style['left'] = `${leftSize+10}px`;
 
       rightButton.style['border-radius'] = '3px';
       rightButton.style['background-color'] = "rgba(53,53,53,1)";
@@ -285,10 +288,20 @@ class DatasetViz {
       // Spectrogram canvas.
       const exampleCanvas = document.createElement('canvas');
       exampleCanvas.style['display'] = 'inline-block';
-      exampleCanvas.style['vertical-align'] = 'middle';
+      exampleCanvas.style['position'] = 'absolute';
+      exampleCanvas.style['top'] = '0px !important';
+
+      var _leftSize = wordDiv.childNodes[0].offsetWidth; 
+      var _leftSize1 = wordDiv.childNodes[1].offsetWidth; 
+ 
+
+      exampleCanvas.style['left'] = `${_leftSize + _leftSize1 + 10}px`;
+
       exampleCanvas.height = 60;
       exampleCanvas.width = 80;
       exampleCanvas.style['padding'] = '3px';
+      exampleCanvas.style['border-radius'] = '5px';
+      
   
       // Set up the click callback for the spectrogram canvas. When clicked,
       // the keyFrameIndex will be set.
@@ -318,7 +331,9 @@ class DatasetViz {
                 word !== speechCommands.BACKGROUND_NOISE_TAG,
             keyFrameIndex: spectrogram.keyFrameIndex
           });
-  
+      
+      exampleCanvas.style['top'] = '-3px';
+
       if (rawAudio != null) {
         const playButton = document.createElement('button');
         playButton.textContent = '▶️';
@@ -562,6 +577,7 @@ function createWordDivs(transferWords) {
 
         const wordDiv = document.createElement('div');
         wordDiv.classList.add('word-div');
+
         wordDiv.style['backgroundColor'] = 'rgba(32, 32, 32, 1)';
         wordDiv.style['border'] = '1px solid grey';
         wordDiv.style['margin'] = '2px';
@@ -569,6 +585,7 @@ function createWordDivs(transferWords) {
         wordDiv.style['position'] = 'relative';
         wordDiv.style['width'] = "99%";//'calc(100% - 2px)';
         wordDiv.style['height'] = "60px";//'calc(100% - 2px)';
+
 
         wordDivs[word] = wordDiv;
         wordDiv.setAttribute('word', word);
@@ -582,17 +599,18 @@ function createWordDivs(transferWords) {
 */
 
         const button = document.createElement('button');
+
         button.setAttribute('isFixed', 'true');
         button.style['display'] = 'inline-clock';
+        button.style['position'] = "absolute";//'calc(100% - 2px)';
         button.style['vertical-align'] = 'middle';
         button.style['height'] = "60px";
         //button.style['width'] = "45px";
-        console.log("minimo 40");
         button.style['background-color'] = "rgba(53,53,53,1)";
         button.style['color'] = "rgba(200,200,200,1)";
         button.style['border-radius'] = "3px";
         button.style['border-color'] = "black";
-        button.style['minWidth'] = "70px";
+        button.style['minWidth'] = "75px";
 
         /*position: absolute;
         color: ;
@@ -626,7 +644,7 @@ function createWordDivs(transferWords) {
             durationInput.style['position'] = 'absolute';
             durationInput.style['text-align'] = 'center';
             durationInput.style['bottom'] = '0px';
-            durationInput.style['width'] = '66px';
+            durationInput.style['width'] = '71px';
             durationInput.style['right'] = '0px !important';
 
             durationInput.style['height'] = '22px';
@@ -669,7 +687,7 @@ function createWordDivs(transferWords) {
                 collectExampleOptions.durationMultiplier = transferDurationMultiplier;
                 let tempSpectrogramData;
                 const tempCanvas = document.createElement('canvas');
-                tempCanvas.style['margin-left'] = '5%';
+                tempCanvas.style['margin-left'] = '25%';
                 tempCanvas.style['border-radius'] = '3px';
 
                 tempCanvas.height = 50;
@@ -1297,6 +1315,7 @@ async function plotSpectrogram(
 
   const context = canvas.getContext('2d');
   context.clearRect(0, 0, canvas.width, canvas.height);
+  
 
   const numFrames = frequencyData.length / fftSize;
   if (config.pixelsPerFrame != null) {
