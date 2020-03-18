@@ -230,20 +230,22 @@ class DatasetViz {
   
       // Create the left and right nav buttons.
       const leftButton = document.createElement('button');
-      var leftSize = wordDiv.childNodes[0].offsetWidth; 
-      console.log(leftSize);
 
       leftButton.textContent = '←';
-      leftButton.style['left'] = '500px';
       leftButton.style['border'] = '1px solid black';
       leftButton.style['height'] = '50%';
 
+      var _leftSize = wordDiv.childNodes[0].offsetWidth; 
+      //var _leftSize1 = wordDiv.childNodes[1].offsetWidth; 
+ 
       leftButton.style['position'] = 'absolute';
-      leftButton.style['left'] = `${leftSize+10}px`;
+
+      leftButton.style['left'] = `${_leftSize}px`;
 
       leftButton.style['border-radius'] = '3px';
       leftButton.style['background-color'] = "rgba(53,53,53,1)";
       leftButton.style['color'] = "rgba(200,200,200,1)";
+      leftButton.style['width'] = "30px";
 
       //wordDiv.style['margin'] = '2px';
       wordDiv.appendChild(leftButton);
@@ -253,9 +255,11 @@ class DatasetViz {
       rightButton.style['left'] = '500px';
       rightButton.style['border'] = '1px solid black';
       rightButton.style['height'] = '50%';
+      rightButton.style['width'] = "30px";
 
       rightButton.style['position'] = 'absolute';
-      rightButton.style['left'] = `${leftSize+10}px`;
+      rightButton.style['left'] = `${_leftSize}px`;
+      //rightButton.style['left'] = `${_leftSize + _leftSize1 + 10}px`;
 
       rightButton.style['border-radius'] = '3px';
       rightButton.style['background-color'] = "rgba(53,53,53,1)";
@@ -289,13 +293,9 @@ class DatasetViz {
       const exampleCanvas = document.createElement('canvas');
       exampleCanvas.style['display'] = 'inline-block';
       exampleCanvas.style['position'] = 'absolute';
-      exampleCanvas.style['top'] = '0px !important';
+      exampleCanvas.style['top'] = '0px !important'; 
 
-      var _leftSize = wordDiv.childNodes[0].offsetWidth; 
-      var _leftSize1 = wordDiv.childNodes[1].offsetWidth; 
- 
-
-      exampleCanvas.style['left'] = `${_leftSize + _leftSize1 + 10}px`;
+      exampleCanvas.style['left'] = `${_leftSize + 28}px`;
 
       exampleCanvas.height = 60;
       exampleCanvas.width = 80;
@@ -332,7 +332,12 @@ class DatasetViz {
             keyFrameIndex: spectrogram.keyFrameIndex
           });
       
-      exampleCanvas.style['top'] = '-3px';
+      exampleCanvas.style['top'] = '-3px';//'-3px';
+      var _exampleC = exampleCanvas.offsetWidth; 
+      var _divC = wordDiv.offsetWidth;
+      if (_exampleC > _divC) {
+        wordDiv.style['width'] = `${_leftSize + 28 + _exampleC + 30}px`;
+      }
 
       if (rawAudio != null) {
         const playButton = document.createElement('button');
@@ -342,14 +347,35 @@ class DatasetViz {
           speechCommands.utils.playRawAudio(
               rawAudio, () => playButton.disabled = false);
         });
+        playButton.style['position'] = 'absolute';
+        playButton.style['left'] = `${_leftSize + 26 + _exampleC}px`;
+        playButton.style['width'] = '30px';
+        playButton.style['border-radius'] = '3px';
+        playButton.style['border-color'] = 'black';
+        playButton.style['background-color'] = "rgba(53,53,53,1)";
+        playButton.style['color'] = "rgba(200,200,200,1)";
+        playButton.style['height'] = '50%';
+        playButton.style['bottom'] = '1px';
         wordDiv.appendChild(playButton);
+        
       }
   
       // Create Delete button.
       const deleteButton = document.createElement('button');
       deleteButton.textContent = 'X';
       wordDiv.appendChild(deleteButton);
-  
+      deleteButton.style['position'] = 'absolute';
+      deleteButton.style['left'] = `${_leftSize + 26 + _exampleC}px`;
+      deleteButton.style['width'] = '35px';
+      deleteButton.style['border-radius'] = '3px';
+      deleteButton.style['border-color'] = 'black';
+      deleteButton.style['background-color'] = "rgba(53,53,53,1)";
+      deleteButton.style['color'] = "rgba(200,200,200,1)";
+      deleteButton.style['width'] = "30px";
+      deleteButton.style['height'] = '50%';
+
+      //leftButton.style['left'] = `${_leftSize}px`;
+
       // Callback for delete button.
       deleteButton.addEventListener('click', () => {
         this.transferRecognizer.removeExample(uid);
@@ -543,6 +569,7 @@ function createProgressBarAndIntervalJob(parentElement, durationSec) {
     progressBar.style['width'] = "100%";//`${Math.round(window.innerWidth * 0.25)}px`;
     progressBar.style['height'] = "95%";
     progressBar.style['background-color'] = 'red';//'rgba(32, 32, 32, 1)';
+    progressBar.style['color'] = 'red';//'rgba(32, 32, 32, 1)';
 
     progressBar.style['border-radius'] = "3px";
 
@@ -687,7 +714,10 @@ function createWordDivs(transferWords) {
                 collectExampleOptions.durationMultiplier = transferDurationMultiplier;
                 let tempSpectrogramData;
                 const tempCanvas = document.createElement('canvas');
-                tempCanvas.style['margin-left'] = '25%';
+                
+                var _leftSize = wordDiv.childNodes[0].offsetWidth; 
+
+                tempCanvas.style['margin-left'] = `${_leftSize + 31}px`;
                 tempCanvas.style['border-radius'] = '3px';
 
                 tempCanvas.height = 50;
@@ -1439,13 +1469,15 @@ function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiv
 function includewavform() {
   if (includeAudioWaveformSpec == false) {
     includeAudioWaveformSpec = true;
-    document.getElementById("includewav").style.borderColor = "red";
-    document.getElementById("includewav").style.backgroundColor = "red";
+    document.getElementById("includewav").style.backgroundColor = "rgba(70,70,70,1)";
+    document.getElementById("includewav").style.border = "solid 1px grey";
+
   }
   else if (includeAudioWaveformSpec == true) {
     includeAudioWaveformSpec = false;
-    document.getElementById("includewav").style.borderColor = "green";
-    document.getElementById("includewav").style.backgroundColor = "green";
+    document.getElementById("includewav").style.backgroundColor = "rgba(52, 52, 52, 1)";
+    document.getElementById("includewav").style.border = "solid 1px black";
+
   }
 }
 
