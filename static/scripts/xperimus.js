@@ -7,6 +7,9 @@
 // jorge coelho -- plotly
 
 document.addEventListener('DOMContentLoaded', () => {});
+if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+  mobilePerformanceSetup();
+}
 
 var socket = io.connect('http://' + document.domain + ":" + location.port);
 
@@ -17,7 +20,6 @@ socket.on('connect', function() {
 socket.on('message', function(data) {
   console.log(data);
   //wavesurfer.play();
-  console.log("estruturar os sockets")
 });
 
 function socketMusic() {
@@ -163,6 +165,7 @@ const includeTimeDomainWaveformCheckbox = document.getElementById('include-audio
 const collectButtonsDiv = document.getElementById('collect-words');
 const startTransferLearnButton = document.getElementById('start-transfer-learn');
 
+const cleanGraphData = document.getElementById('clean-graph-data');
 
 const XFER_MODEL_NAME = 'xfer-model';
 const MIN_EXAMPLES_PER_CLASS = 8;
@@ -571,6 +574,9 @@ stopButton.addEventListener('click', () => {
     .catch(err => {
         console.log("Failed to stop streaming display: ", err.message);
     });
+    const myNode = document.getElementById("cont4");
+    console.log("doesnt work check");
+    myNode.innerHTML = '';
 });
 
 /** Transfer Learning Logic */
@@ -817,6 +823,10 @@ function disableFileUploadControls() {
     uploadFilesButton.disabled = true;
 }*/
 
+cleanGraphData.addEventListener('click', async () => {
+  console.log("lel");
+});
+
 startTransferLearnButton.addEventListener('click', async () => {
     startTransferLearnButton.disabled = true;
     startButton.disabled = true;
@@ -880,33 +890,21 @@ startTransferLearnButton.addEventListener('click', async () => {
         valLossValues[phase].y.push(val_loss);
         valAccValues[phase].x.push(displayEpoch);
         valAccValues[phase].y.push(val_acc);
-
+        
         Plotly.newPlot(
             'loss-plot',
             [
               trainLossValues[INITIAL_PHASE], valLossValues[INITIAL_PHASE],
               trainLossValues[FINE_TUNING_PHASE], valLossValues[FINE_TUNING_PHASE]
             ],
-            {
-              width: 480,
-              height: 360,
-              xaxis: {title: 'Epoch #'},
-              yaxis: {title: 'Loss'},
-              font: {size: 18}
-            });
+            layout);
         Plotly.newPlot(
             'accuracy-plot',
             [
               trainAccValues[INITIAL_PHASE], valAccValues[INITIAL_PHASE],
               trainAccValues[FINE_TUNING_PHASE], valAccValues[FINE_TUNING_PHASE]
             ],
-            {
-              width: 480,
-              height: 360,
-              xaxis: {title: 'Epoch #'},
-              yaxis: {title: 'Accuracy'},
-              font: {size: 18}
-            });
+            layout1);
         startTransferLearnButton.textContent = phase === INITIAL_PHASE ?
             `Transfer-learning... (${(epoch / epochs * 1e2).toFixed(0)}%)` :
             `Transfer-learning (fine-tuning)... (${
@@ -1496,9 +1494,9 @@ function augmentnoisemix() {
 var wavesurfer = WaveSurfer.create({
   container: '#cont5',
   waveColor: 'white',
-  progressColor: 'purple',
-  loaderColor: 'purple',
-  cursorColor: 'navy',
+  progressColor: 'rgba(38,165,164,1)',
+  loaderColor: 'rgba(38,165,164,1)',
+  cursorColor: 'rgba(38,165,164,1)',
 
   height: 70,
 
@@ -1532,9 +1530,9 @@ var wavesurfer = WaveSurfer.create({
     }),*/
     WaveSurfer.timeline.create({
                 container: '#cont6',
-                primaryColor: 'blue',
+                primaryColor: 'white',
                 secondaryColor: 'white',
-                primaryFontColor: 'blue',
+                primaryFontColor: 'white',
                 secondaryFontColor: 'white'
 
     }),
@@ -1543,7 +1541,7 @@ var wavesurfer = WaveSurfer.create({
         opacity: 1,
         customShowTimeStyle: {
             'background-color': '#000',
-            color: '#fff',
+            color: 'rgba(38,165,164,1)',
             padding: '2px',
             'font-size': '10px'
         }
@@ -1577,8 +1575,13 @@ function playStopFile(v) {
 }
 
 wavesurfer.on('ready', function () {
-  console.log('ready');
 });
+
+wavesurfer.on('region-in', function (evt) {
+  console.log(evt);
+  document.getElementById("sockettimeline1").innerHTML = "olaolaola";
+});
+
 
 document.getElementById('file-input').onclick = function() {
   document.getElementById('my_file').click();
@@ -1688,14 +1691,33 @@ document.body.onkeyup = function(e){
 }
 
 //https://github.com/katspaugh/wavesurfer.js/blob/master/example/annotation/app.js
-
+var annotationID = 0;
 function addAnnot(v){
   if (v == 'add') {
     wavesurfer.addRegion({
       start: 0,
       end: 0.5,
-      color: 'hsla(400, 100%, 30%, 0.1)'
+      color: 'rgba(78,215,214,0.2)',
+      id: annotationID
     });
+    annotationID++;
+
+    var element = document.createElement("div");
+    element.style.position = "absolute";
+    element.style.backgroundColor = "rgba(22,22,22,1)"//"rgba(78,215,214,0.2)";
+    element.style.width = '20%';//"calc(14% + 1px)";
+    element.style.height = "calc(100% - 4px)";
+    element.style.top = "2px";
+    element.style.left = "1px";
+    element.style.borderRadius = "3px";
+
+    element.setAttribute('id', 'followerRegion');
+
+
+    element.appendChild(document.createTextNode("Size Seconds: 0.0 - 0.5" + '<br>' + "ola"));
+    document.getElementById('sockettimeline1').appendChild(element);
+
+
   }
 }
 
@@ -1704,10 +1726,20 @@ wavesurfer.on('region-click', function(region, e) {
   // Play on click, loop on shift click
   e.shiftKey ? region.playLoop() : region.play();
 });
-/*wavesurfer.on('region-click', editAnnotation);
-wavesurfer.on('region-updated', saveRegions);
-wavesurfer.on('region-removed', saveRegions);
-wavesurfer.on('region-in', showNote);*/
+
+wavesurfer.on('region-created', function(region,e) {
+  console.log(region);
+  console.log(e);
+})
+//region-mouseenter
+wavesurfer.on('region-click', function(region, e) {
+  console.log("clicked");
+});
+
+wavesurfer.on('region-updated', function(region, e) {
+  
+});
+
 
 wavesurfer.on('region-play', function(region) {
   region.once('out', function() {
@@ -1900,14 +1932,14 @@ function StringToUint8Array(string) {
 }
 
 var trace1 = {
-  x: [1, 2, 3, 4],
-  y: [10, 15, 13, 17],
+  x: [],
+  y: [],
   type: 'scatter'
 };
 
 var trace2 = {
-  x: [1, 2, 3, 4],
-  y: [16, 5, 11, 9],
+  x: [],
+  y: [],
   type: 'scatter'
 };
 
@@ -1915,11 +1947,13 @@ var data = [trace1, trace2];
 var colors = ['rgba(67,67,67,1)', 'rgba(115,115,115,1)'];
 var layout = {
   autosize: true,
-  height: 150,
+  //height: "5%",//150,
+  //width: 282,
   showlegend: false,
   line: {
     color: colors[i]
   },
+  colorway : ['rgba(38,165,164,1)', 'rgba(38,165,164,1)'],
   margin: {
     l: 0,
     r: 0,
@@ -1927,13 +1961,100 @@ var layout = {
     t: 0,
     pad: -4
   },
- 
-  xaxis: {title: 'Epoch'},
-  yaxis: {title: 'Loss'},
+  xaxis: {
+    showticklabels: true,
+    showgrid: true,
+    //zeroline: true,
+    showline: true,
+    mirror: 'ticks',
+    gridcolor: 'rgba(32,32,32,1)',
+    gridwidth: 1,
+    //zerolinecolor: 'rgba(32,32,32,1)',
+    //zerolinewidth: 4,
+    linecolor: '#636363',
+    linewidth: 1,
+    title: 'Epoch',
+  },
+  yaxis: {
+    showticklabels: true,
+    showgrid: true,
+    zeroline: true,
+    showline: true,
+    mirror: 'ticks',
+    gridcolor: 'rgba(32,32,32,1)',
+    gridwidth: 1,
+    zerolinecolor: 'rgba(32,32,32,1)',
+    zerolinewidth: 4,
+    linecolor: '#636363',
+    linewidth: 1,
+    title: 'Loss'
+  },
   paper_bgcolor: 'rgba(52,52,52,1)',
-  plot_bgcolor: 'rgba(52,52,52,1)'
+  plot_bgcolor: 'rgba(52,52,52,1)',
+  font: {
+    //family: 'Courier New, monospace',
+    //size: 18,
+    color: 'rgba(200,200,200,1)'
+  }
+};
+
+var layout1 = {
+  autosize: true,
+  //height: "5%",//150,
+  //width: 282,
+  showlegend: false,
+  line: {
+    color: colors[i]
+  },
+  colorway : ['rgba(38,165,164,1)', 'rgba(38,165,164,1)'],
+  margin: {
+    l: 0,
+    r: 0,
+    b: 0,
+    t: 0,
+    pad: -4
+  },
+  xaxis: {
+    showgrid: true,
+    //zeroline: true,
+    showline: true,
+    mirror: 'ticks',
+    gridcolor: 'rgba(32,32,32,1)',
+    gridwidth: 1,
+    //zerolinecolor: 'rgba(32,32,32,1)',
+    //zerolinewidth: 4,
+    linecolor: '#636363',
+    linewidth: 1,
+    title: 'Epoch',
+  },
+  yaxis: {
+    showgrid: true,
+    zeroline: true,
+    showline: true,
+    mirror: 'ticks',
+    gridcolor: 'rgba(32,32,32,1)',
+    gridwidth: 1,
+    zerolinecolor: 'rgba(32,32,32,1)',
+    zerolinewidth: 4,
+    linecolor: '#636363',
+    linewidth: 1,
+    title: 'Accuracy'
+  },
+  paper_bgcolor: 'rgba(52,52,52,1)',
+  plot_bgcolor: 'rgba(52,52,52,1)',
+  font: {
+    //family: 'Courier New, monospace',
+    //size: 18,
+    color: 'rgba(200,200,200,1)'
+  }
 };
 
 Plotly.newPlot('loss-plot', data, layout);
+Plotly.newPlot('accuracy-plot', data, layout1);
 
-//Plotly.newPlot('accuracy-plot', data, layout);
+async function mobilePerformanceSetup() {
+  $('div').not('#allPage').remove();
+  document.body.innerHTML = '';
+  $('body').append('<div id="performancemode"><br><br><br>performance-mode</div>')
+}
+
