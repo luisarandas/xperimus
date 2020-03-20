@@ -64,7 +64,7 @@
     <!--<div id="cont5_">
     </div>-->
 
-    <div id="cont6">
+    <div id="cont6" style="display: hidden">
     </div>
 
     <div id="cont7">
@@ -76,27 +76,37 @@
     </div>
     <div id="cont8">
       <button style="font-size:14px" onclick="addAnnot('add')" class="btnsFile"><i style='font-size:14px' class='fas'>&#xf065;</i></button>
-      <button style="font-size:14px" onclick="socketMusic()" class="btnsFile"><i style="font-size:14px" class="fa">&#xf101;</i></button>
+      <button style="font-size:14px" onclick="spectrogramNewWindow()" class="btnsFile"><i style="font-size:14px" class="fa">&#xf101;</i></button>
     </div>
     <div id="cont9">
     </div>
 
     <div id="sockettimeline1">
       <div id="aboutAnnot" style="text-align: left; vertical-align: auto;">
-        <div id="annotID" style="position: absolute; width: calc(100% - 3px); height: 20%; border-radius: 3px; border: 1px solid grey; top: 1px; left: 0px;">
+        <div id="annotID" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid grey; top: 1px; left: 0px;">
           Annotation ID
-          <input onclick="" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid grey; width: 40%; background-color: grey;" value="IDval">
+          <input onclick="" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid grey; width: 40%; background-color: rgba(32,32,32,1); color: grey;" value="IDval">
         </div>
-        <div id="annotSeconds" style="position: absolute; width: calc(100% - 3px); height: 20%; border-radius: 3px; border: 1px solid grey; top: calc(20% + 4px); left: 0px;">
+        <div id="annotSeconds" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid grey; top: calc(17% + 4px); left: 0px;">
           Length in Secs 
-          <input onclick="" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid grey; width: 40%; background-color: grey;" value="00.00-01.00">
+          <input onclick="" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid grey; width: 40%; background-color: rgba(32,32,32,1); color: grey;" value="00.00-01.00">
         </div>
-        <div id="annotSocket" style="position: absolute; width: calc(100% - 3px); height: 20%; border-radius: 3px; border: 1px solid grey; top: calc(40% + 7px); left: 0px;">
-          Stream Region
-          <button onclick="sendingDataSockets()" id="streamButton" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid grey; width: 43%; background-color: grey; z-index: 5;">send</button>
-        </div>
-        <div id="" style="position: absolute; width: calc(100% - 3px); height: 20%; border-radius: 3px; border: 1px solid grey; top: calc(40% + 7px); left: 0px;"></div>
 
+        <div id="annotTrained" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid grey; top: calc(34% + 7px); left: 0px;">
+          Trigger when Detect
+          <input onclick="" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid grey; width: 40%; background-color: rgba(32,32,32,1); color: grey;" value="00.00-01.00">
+        </div>
+        
+        <div id="annotSocket" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid grey; top: calc(51% + 10px); left: 0px;">
+          Stream Region
+          <button onclick="sendingDataSockets()" id="streamButton" style="position: absolute; right: 1px; top: 1px; border-radius: 3px; height: 98%; border: 1px solid grey; color: grey; width: 43%; background-color: rgba(32,32,32,1); z-index: 5;">send</button>
+        </div>
+        <div id="annotPlay" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid grey; top: calc(68% + 13px); left: 0px;">
+          P/S/E Region
+        <button onclick="" id="playRegionButton1" style="position: absolute; right: calc(30% + 4px); top: 1px; border-radius: 3px;  border: 1px solid grey; width: 15%; background-color: rgba(32,32,32,1); color: grey; z-index: 5;">P</button>
+        <button onclick="" id="playRegionButton2" style="position: absolute; right: calc(15% + 2px); top: 1px; border-radius: 3px;  border: 1px solid grey; width: 15%; background-color: rgba(32,32,32,1); color: grey; z-index: 5;">S</button>
+        <button onclick="" id="playRegionButton3" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid grey; width: 15%; background-color: rgba(32,32,32,1); color: grey; z-index: 5;">X</button>
+        </div>
 
       </div>
     </div>
@@ -131,7 +141,7 @@
       <button id="delete-transfer-model" class="amazonClass" style="text-align: center;">Delete Model</button>
       
       <input type="file" id="modeldiskload" onchange="loadFile(this.files[0])" class="amazonClass" style="display: none;">
-      <button id="load-transfer-model" class="amazonClass" style="text-align: center;">Load Model from Disk</button>
+      <button id="load-transfer-model" class="amazonClass" style="text-align: center;">Load Model from Cloud</button>
 
       <select id="saved-transfer-models" class="select1">
       <option value="1"></option>
@@ -233,6 +243,16 @@
     </div>
   </div>
   <a id="downloadAnchorElem" style="display:none"></a>
+
+  <!-- The Modal -->
+  <div id="amazonmodal" class="modal">
+
+  <!-- Modal content -->
+    <div class="modal-content" id="modal-content">
+     <span class="close" id="closemodal">&times;</span>
+    </div>
+
+  </div>
 
   <script src="https://unpkg.com/@tensorflow/tfjs"></script>
   <script src="https://unpkg.com/@tensorflow-models/speech-commands"></script>

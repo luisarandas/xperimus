@@ -119,7 +119,6 @@ function listAmazonObjects() {
 listAmazonObjects();
 
 console.log("search for batch size");
-console.log("maybe timeline?");
 const tensorflow = tf; // check later
 const SpeechCommands = speechCommands;
 
@@ -506,7 +505,7 @@ class DatasetViz {
         this.startTransferLearnButton.disabled = false;
       } else {
         this.startTransferLearnButton.textContent =
-            `Need at least ${requiredMinCountPerClass} examples per word`;
+            `Need Min ${requiredMinCountPerClass} p/Word`;
         this.startTransferLearnButton.disabled = true;
       }
   
@@ -834,7 +833,7 @@ cleanGraphData.addEventListener('click', async () => {
 startTransferLearnButton.addEventListener('click', async () => {
     startTransferLearnButton.disabled = true;
     startButton.disabled = true;
-    startTransferLearnButton.textContent = 'Transfer learning started...';
+    startTransferLearnButton.textContent = 'Learning Started';
 
     //startTransferLearnButton.disabled = true; caralho
 
@@ -883,7 +882,6 @@ startTransferLearnButton.addEventListener('click', async () => {
             line: {width: lineWidth}
         };
     }
-    console.log("plotly here");
     function plotLossAndAccuracy(epoch, loss, acc, val_loss, val_acc, phase) {
         const displayEpoch = phase === FINE_TUNING_PHASE ? (epoch + epochs) : epoch;
         trainLossValues[phase].x.push(displayEpoch);
@@ -910,8 +908,8 @@ startTransferLearnButton.addEventListener('click', async () => {
             ],
             layout1);
         startTransferLearnButton.textContent = phase === INITIAL_PHASE ?
-            `Transfer-learning... (${(epoch / epochs * 1e2).toFixed(0)}%)` :
-            `Transfer-learning (fine-tuning)... (${
+            `Learning (${(epoch / epochs * 1e2).toFixed(0)}%)` :
+            `Learning (FT)... (${
                 (epoch / fineTuningEpochs * 1e2).toFixed(0)}%)`
                 
     }
@@ -943,7 +941,7 @@ startTransferLearnButton.addEventListener('click', async () => {
     saveTransferModelButtonDisk.disabled = false;
     transferModelNameInput.value = transferRecognizer.name;
     transferModelNameInput.disable = true;
-    startTransferLearnButton.textContent = 'Transfer learning complete.';
+    startTransferLearnButton.textContent = 'Learning Complete';
     transferModelNameInput.disabled = false;
     startButton.disabled = false;
     evalModelOnDatasetButton.disabled = false;
@@ -1080,8 +1078,8 @@ evalModelOnDatasetButton.addEventListener('click', async () => {
           rocDataForPlot.x.push(item.fpr);
           rocDataForPlot.y.push(item.tpr);
         });
-  
-        Plotly.newPlot('roc-plot', [rocDataForPlot], {
+        
+        /*Plotly.newPlot('roc-plot', [rocDataForPlot], {
           width: 360,
           height: 360,
           mode: 'markers',
@@ -1089,7 +1087,7 @@ evalModelOnDatasetButton.addEventListener('click', async () => {
           xaxis: {title: 'False positive rate (FPR)', range: [0, 1]},
           yaxis: {title: 'True positive rate (TPR)', range: [0, 1]},
           font: {size: 18}
-        });
+        });*/
         evalResultsSpan.textContent = `AUC = ${evalResult.auc}`;
       } catch (err) {
         const originalTextContent = evalModelOnDatasetButton.textContent;
@@ -1227,16 +1225,11 @@ async function indexddb() {
     }
 
 }
-
-
-
-loadTransferModelButton.addEventListener('click', async () => {
-
-});
   
 deleteTransferModelButton.addEventListener('click', async () => {
-  /*console.log(transferModelNameInput.innerHTML);
-    await SpeechCommands.deleteSavedTransferModel(transferModelNameInput.innerHTML);*/
+  transferModelNameInput.value = "";
+  SpeechCommands.deleteSavedTransferModel(transferRecognizer.name);
+  transferRecognizer = "";
 });
 
 // other files
@@ -1590,16 +1583,6 @@ document.getElementById('file-input').onclick = function() {
 
 document.getElementById('upload-dataset').onclick = function() {
   document.getElementById('dataset-file-input').click();
-};
-
-document.getElementById('load-transfer-model').onclick = function() {
-  //document.getElementById('modeldiskload').click();
-  transferRecognizer = recognizer.createTransfer("newloaded");
-
-  transferRecognizer.load("https://xperimusmodels.s3.eu-west-2.amazonaws.com/Models/xperimus-2020-03-17.json");
-  //var e = tf.loadLayersModel();//`https://xperimusmodels.s3.eu-west-2.amazonaws.com/Models/${v_}`);
-  console.log(transferRecognizer);
-  console.log("works finally");
 };
 
 /*document.getElementById("modeldiskload").addEventListener('change', function(e){ 
@@ -1970,16 +1953,18 @@ var layout = {
   xaxis: {
     showticklabels: true,
     showgrid: true,
-    //zeroline: true,
+    zeroline: true,
     showline: true,
     mirror: 'ticks',
     gridcolor: 'rgba(32,32,32,1)',
     gridwidth: 1,
-    //zerolinecolor: 'rgba(32,32,32,1)',
-    //zerolinewidth: 4,
+    zerolinecolor: 'rgba(32,32,32,1)',
+    zerolinewidth: 4,
     linecolor: '#636363',
     linewidth: 1,
     title: 'Epoch',
+    range: [-1.2, parseInt(epochsInput.value)]
+
   },
   yaxis: {
     showticklabels: true,
@@ -1993,7 +1978,8 @@ var layout = {
     zerolinewidth: 4,
     linecolor: '#636363',
     linewidth: 1,
-    title: 'Loss'
+    title: 'Loss',
+    range: [-0.2, 1.2]
   },
   paper_bgcolor: 'rgba(52,52,52,1)',
   plot_bgcolor: 'rgba(52,52,52,1)',
@@ -2022,18 +2008,20 @@ var layout1 = {
   },
   xaxis: {
     showgrid: true,
-    //zeroline: true,
+    zeroline: true,
     showline: true,
     mirror: 'ticks',
     gridcolor: 'rgba(32,32,32,1)',
     gridwidth: 1,
-    //zerolinecolor: 'rgba(32,32,32,1)',
-    //zerolinewidth: 4,
+    zerolinecolor: 'rgba(32,32,32,1)',
+    zerolinewidth: 4,
     linecolor: '#636363',
     linewidth: 1,
     title: 'Epoch',
+    range: [-1.2, parseInt(epochsInput.value)]
   },
   yaxis: {
+    showticklabels: true,
     showgrid: true,
     zeroline: true,
     showline: true,
@@ -2044,7 +2032,8 @@ var layout1 = {
     zerolinewidth: 4,
     linecolor: '#636363',
     linewidth: 1,
-    title: 'Accuracy'
+    title: 'Accuracy',
+    range: [-0.2, 1.2]
   },
   paper_bgcolor: 'rgba(52,52,52,1)',
   plot_bgcolor: 'rgba(52,52,52,1)',
@@ -2081,3 +2070,108 @@ async function sendingDataSockets() {
   }
   console.log(isMobile);
 }
+
+async function spectrogramNewWindow() {
+  var w = window.open("", "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=780,height=200,top="+(screen.height-400)+",left="+(screen.width-840));
+  w.document.title = 'Audio Spectrogram';
+  w.document.body.innerHTML += document.getElementById('cont6').innerHTML;
+}
+
+var modal = document.getElementById("amazonmodal");
+var _modal = document.getElementById("modal-content");
+var span = document.getElementById("closemodal");
+
+buttonIDDownload = 0;
+document.getElementById('load-transfer-model').onclick = function() {
+  document.getElementById('modal-content').innerHTML = "";
+
+  s3.listObjects(function (err, data) {
+    if(err)throw err;
+    //var e = data.Contents[0].Key;
+    var e = data.Contents
+    var _e = JSON.stringify(e);
+  
+    Object.keys(e).forEach((key, index) => {  
+      if (e[key].Key.includes("Models") == true && !e[key].Key.includes("metadata") && !e[key].Key.includes("weights") && e[key].Key.includes(".json")) {
+
+        var button = document.createElement("button");
+        button.style["height"] = "10%"; 
+        button.style["overflow"] = "auto"; 
+        button.style["position"] = "relative"; 
+        button.style["width"] = "60%"; 
+        button.style["left"] = "20%"; 
+        button.style["top"] = "30%"; 
+        button.style["text-align"] = "center"; 
+        button.style["background-color"] = "rgba(42,42,42,1)"; 
+        button.style["border-radius"] = "3px"; 
+        button.style["border"] = "1px solid #888"; 
+        button.style["color"] = "grey"; 
+        button.id = buttonIDDownload;
+        button.onclick = downloadFilesDirectly;
+
+        var e_ = e[key].Key.replace("Models/", "");
+        var e__ = e_.replace(".json", "");
+        button.innerHTML = e__;
+        var __e = document.getElementById('modal-content')
+        __e.appendChild(button);
+      }
+      buttonIDDownload++;
+    });
+  });
+
+  //wordDiv.style['margin'] = '2px';
+
+  /*ar $el_ = $('#cont11').clone(true, true).appendTo('#modal-content');
+  
+  $el_.css({position:'absolute', width: '60%', top: 200, left: '20%', backgroundColor: 'red'});
+  $el_.children().attr( "onclick", null );
+  var children = $el_.children();
+  for (var i = 0; i < children.length; i++) {
+    var tableChild = children[i];
+    var e = tableChild.innerHTML.replace("Models/", "");
+    var e_ = tableChild.innerHTML.replace(".json", "");
+    if (tableChild.innerHTML.includes("metadata")) {
+
+    }
+    tableChild.innerHTML = _e;
+    console.log(tableChild.innerHTML);
+  }
+
+  console.log($el_.children());*/
+  modal.style.display = "block";
+};
+
+var newArrayOfNames;
+function reqListener () {
+  var _e = JSON.parse(this.responseText);
+  newArrayOfNames = _e;
+}
+
+
+
+async function downloadFilesDirectly() {
+  var oReq = new XMLHttpRequest();
+  oReq.addEventListener("load", reqListener);
+  oReq.open("GET", `https://xperimusmodels.s3.eu-west-2.amazonaws.com/Models/${event.srcElement.innerHTML}-metadata.json`, false );
+  oReq.send();
+  transferRecognizer = recognizer.createTransfer(event.srcElement.innerHTML);
+  transferRecognizer.words = newArrayOfNames; // AQUI MAN .words 
+  transferRecognizer.load(`https://xperimusmodels.s3.eu-west-2.amazonaws.com/Models/${event.srcElement.innerHTML}.json`);
+
+  modal.style.display = "none";
+
+}
+
+
+span.onclick = function() {
+  console.log("works");
+  modal.style.display = "none";
+}
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+  //document.getElementById('modeldiskload').click();
+
+  //var e = tf.loadLayersModel();//`https://xperimusmodels.s3.eu-west-2.amazonaws.com/Models/${v_}`);
