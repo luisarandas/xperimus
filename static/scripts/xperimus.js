@@ -19,7 +19,11 @@ socket.on('connect', function() {
 
 socket.on('message', function(data) {
   console.log(data);
-  //wavesurfer.play();
+});
+
+socket.on('region-socket', function(data) {
+  console.log("receiving");
+  document.body.style.backgroundColor = "red";
 });
 
 function socketMusic() {
@@ -1577,10 +1581,7 @@ function playStopFile(v) {
 wavesurfer.on('ready', function () {
 });
 
-wavesurfer.on('region-in', function (evt) {
-  console.log(evt);
-  document.getElementById("sockettimeline1").innerHTML = "olaolaola";
-});
+
 
 
 document.getElementById('file-input').onclick = function() {
@@ -1702,10 +1703,10 @@ function addAnnot(v){
     });
     annotationID++;
 
-    var element = document.createElement("div");
+    /*var element = document.createElement("div");
     element.style.position = "absolute";
     element.style.backgroundColor = "rgba(22,22,22,1)"//"rgba(78,215,214,0.2)";
-    element.style.width = '20%';//"calc(14% + 1px)";
+    element.style.width = '40%';//"calc(14% + 1px)";
     element.style.height = "calc(100% - 4px)";
     element.style.top = "2px";
     element.style.left = "1px";
@@ -1713,9 +1714,8 @@ function addAnnot(v){
 
     element.setAttribute('id', 'followerRegion');
 
-
-    element.appendChild(document.createTextNode("Size Seconds: 0.0 - 0.5" + '<br>' + "ola"));
-    document.getElementById('sockettimeline1').appendChild(element);
+    element.appendChild(document.createTextNode("Size in Seconds: 0.0 - 0.5 \n ok"));
+    document.getElementById('sockettimeline1').appendChild(element);*/
 
 
   }
@@ -1738,6 +1738,12 @@ wavesurfer.on('region-click', function(region, e) {
 
 wavesurfer.on('region-updated', function(region, e) {
   
+});
+
+wavesurfer.on('region-in', function (evt) {
+  if (isMobile == true) {
+    socket.emit("regionsocket", "_olaola_");
+  }
 });
 
 
@@ -2052,9 +2058,26 @@ var layout1 = {
 Plotly.newPlot('loss-plot', data, layout);
 Plotly.newPlot('accuracy-plot', data, layout1);
 
+var isMobile = false;
+
 async function mobilePerformanceSetup() {
   $('div').not('#allPage').remove();
   document.body.innerHTML = '';
-  $('body').append('<div id="performancemode"><br><br><br>performance-mode</div>')
+  $('body').append('<div id="performancemode"><br><br><br>performance-mode</div>');
+  isMobile = true;
 }
 
+async function sendingDataSockets() {
+
+  if (isMobile == true) {
+    isMobile = false;
+    var _a = document.getElementById("streamButton");
+    _a.style['backgroundColor'] = 'grey';
+  }
+  else if (isMobile == false) {
+    isMobile = true;
+    var _a = document.getElementById("streamButton");
+    _a.style['backgroundColor'] = 'red';
+  }
+  console.log(isMobile);
+}

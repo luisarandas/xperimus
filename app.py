@@ -195,6 +195,11 @@ def newmsg(data):
     print(data)                                                               
     socketio.emit('message', {'heldslo': "Helldso"})    
 
+@socketio.on('regionsocket')                                                         
+def _newmsg(data):   
+    print(data)                                                               
+    socketio.emit('region-socket', 'change_color')    
+
 
 if __name__ == "__main__":
     # Will always execute
