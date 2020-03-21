@@ -30,6 +30,10 @@ function socketMusic() {
   socket.emit("my-event", "username");
 }
 
+async function removeAnnots() {
+  wavesurfer.clearRegions();
+}
+
 
 console.log("change bk noise for automatic string trunc");
 
@@ -1684,6 +1688,10 @@ function addAnnot(v){
       color: 'rgba(78,215,214,0.2)',
       id: annotationID
     });
+    document.getElementById("idval").value = annotationID;
+    document.getElementById("idlength").value = "00:00-00:50"
+    document.getElementById("triggerspace").value = "00:00-00:50"
+
     annotationID++;
 
     /*var element = document.createElement("div");
@@ -1703,31 +1711,82 @@ function addAnnot(v){
 
   }
 }
+var annotObject;
 
 wavesurfer.on('region-click', function(region, e) {
   e.stopPropagation();
+  annotObject = region;
   // Play on click, loop on shift click
   e.shiftKey ? region.playLoop() : region.play();
+  document.getElementById("idval").value = region.id;
+
 });
 
 wavesurfer.on('region-created', function(region,e) {
-  console.log(region);
-  console.log(e);
 })
-//region-mouseenter
-wavesurfer.on('region-click', function(region, e) {
-  console.log("clicked");
-});
+
 
 wavesurfer.on('region-updated', function(region, e) {
-  
+
+  annotObject = region;
+
+  var _newtimeStart = parseFloat(region.start).toFixed(2);
+  var __newtimeStart = _newtimeStart.replace(".", ":");
+
+  var _newtimeStop = parseFloat(region.end).toFixed(2);
+  var __newtimeStop = _newtimeStop.replace(".", ":");
+
+  console.log(_newtimeStart, _newtimeStop);
+  document.getElementById("triggerspace").value = `0${__newtimeStart}-0${__newtimeStop}`;
+
+
 });
 
-wavesurfer.on('region-in', function (evt) {
+wavesurfer.on('region-in', function (region, e) {
+  annotObject = region;
+
   if (isMobile == true) {
     socket.emit("regionsocket", "_olaola_");
   }
+  document.getElementById("idval").value = region.id;
 });
+
+wavesurfer.on('region-mouseenter', function (region, e) {
+  annotObject = region;
+
+  document.getElementById("idval").value = region.id;
+});
+
+wavesurfer.on('region-updated', function (region, e) {
+  annotObject = region;
+
+  document.getElementById("idval").value = region.id;
+});
+
+wavesurfer.on('region-mouseleave', function (region, e) {
+  annotObject = region;
+
+  //document.getElementById("idval").value = "---";
+});
+
+wavesurfer.on('region-removed', function (region, e) {
+  annotObject = region;
+  //document.getElementById("idval").value = "---";
+});
+//CLEAR REGIONS
+async function playstopRegion(v) {
+  if (v == "play") {
+    annotObject.play();
+    console.log("playloop?");
+  }
+  if (v == "stop") {
+    wavesurfer.pause();
+
+  }
+  if (v == "close") {
+    annotObject.remove();
+  }
+}
 
 
 wavesurfer.on('region-play', function(region) {
@@ -2074,7 +2133,6 @@ async function sendingDataSockets() {
 async function spectrogramNewWindow() {
   var w = window.open("", "", "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=780,height=200,top="+(screen.height-400)+",left="+(screen.width-840));
   w.document.title = 'Audio Spectrogram';
-  w.document.body.innerHTML += document.getElementById('cont6').innerHTML;
 }
 
 var modal = document.getElementById("amazonmodal");
@@ -2172,6 +2230,3 @@ window.onclick = function(event) {
     modal.style.display = "none";
   }
 }
-  //document.getElementById('modeldiskload').click();
-
-  //var e = tf.loadLayersModel();//`https://xperimusmodels.s3.eu-west-2.amazonaws.com/Models/${v_}`);
