@@ -215,7 +215,8 @@ button:disabled {
     background-color: rgba(30,30,30,1);
     margin: 5px;
     border-radius: 3px;
-    width: 8%;
+    width: auto;
+    height: auto;
     float: left;
     padding: 7px;
     display: inline;
@@ -705,9 +706,9 @@ button:disabled {
 
 #sockettimeline1 {
   position: absolute;
-  top: calc(51% - 1px);
-  left: 1px;
-  width: calc(62% - 2px);
+  top: calc(50% - 3px);
+  right: 2px;
+  width: calc(100% - 2px);
   border-radius: 3px;
   height: 16%;
   background-color: rgba(32, 32, 32, 1);
@@ -940,8 +941,8 @@ button:disabled {
 
 #aboutAnnot {
   position: absolute; 
-  width: 100%; 
-  left: 1px; 
+  width: 60%; 
+  right: 1px; 
   height: calc(100% - 1px); 
   top: 1px; 
   border-radius: 3px; 

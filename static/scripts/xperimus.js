@@ -34,7 +34,6 @@ async function removeAnnots() {
   wavesurfer.clearRegions();
 }
 
-
 console.log("change bk noise for automatic string trunc");
 
 window.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB,
@@ -182,6 +181,7 @@ let transferWords;
 let transferRecognizer;
 let transferDurationMultiplier;
 
+var _rawAudio;
 //var spectrogram = new Spectrogram("viewport");
 
 /**
@@ -368,6 +368,7 @@ class DatasetViz {
       }
 
       if (rawAudio != null) {
+        _rawAudio = rawAudio;
         const playButton = document.createElement('button');
         playButton.textContent = '▶️';
         playButton.addEventListener('click', () => {
@@ -684,7 +685,7 @@ function createWordDivs(transferWords) {
         top: 4%;
         left: 18%;*/
 
-        const displayWord = word === BACKGROUND_NOISE_TAG ? 'noise' : word;
+        const displayWord = word === BACKGROUND_NOISE_TAG ? 'Noise' : word;
 
         button.textContent = `${displayWord} (0)`;
         wordDiv.appendChild(button);
@@ -796,13 +797,13 @@ enterLearnWordsButton.addEventListener('click', () => {
         }, 2000);
         return;
     }
-   
+   //_background_noise_,red,green
 
     transferDurationMultiplier = durationMultiplierSelect.value;
 
     learnWordsInput.disabled = true;
     transferWords = learnWordsInput.value.trim().split(',').map(w => w.trim());
-    transferWords.sort();
+    transferWords.splice(0,0,"_background_noise_");
     if (transferWords == null || transferWords.length <= 1) {
         console.log("ERROR: Invalid list of transfer words");
         return;
@@ -812,26 +813,10 @@ enterLearnWordsButton.addEventListener('click', () => {
     createWordDivs(transferWords);
 
 });
-/*
-function disableAllCollectWordButtons() {
-    for (const word in collectWordButtons) {
-        collectWordButtons[word].disabled = true;
-    }
-}
-
-function enableAllCollectWordButtons() {
-    for (const word in collectWordButtons) {
-        collectWordButtons[word].disabled = false;
-    }
-}
-
-function disableFileUploadControls() {
-    datasetFileInput.disabled = true;
-    uploadFilesButton.disabled = true;
-}*/
 
 cleanGraphData.addEventListener('click', async () => {
-  console.log("lel");
+  Plotly.deleteTraces('loss-plot', [0, 1]);
+  Plotly.deleteTraces('accuracy-plot', [0, 1]);
 });
 
 startTransferLearnButton.addEventListener('click', async () => {
@@ -918,7 +903,6 @@ startTransferLearnButton.addEventListener('click', async () => {
                 
     }
 
-    //disableAllCollectWordButtons();
     const augmentByMixingNoiseRatio = augmentNoise == true ? 0.5 : null;
     console.log(`augmentByMixingNoiseRatio = ${augmentByMixingNoiseRatio}`);
     await transferRecognizer.train({
@@ -941,7 +925,6 @@ startTransferLearnButton.addEventListener('click', async () => {
             }
         }
     });
-    //saveTransferModelButton.disabled = false;
     saveTransferModelButtonDisk.disabled = false;
     transferModelNameInput.value = transferRecognizer.name;
     transferModelNameInput.disable = true;
@@ -957,9 +940,8 @@ downloadAsFileButton.addEventListener('click', () => {
     const basename = getDateString();
     const artifacts = transferRecognizer.serializeExamples();
 
-    //trigger downloading of the data .bin file.
     const anchor = document.createElement('a');
-    anchor.download = `${document.getElementById('transfer-model-name').value}`//`${basename}.bin`;
+    anchor.download = `${document.getElementById('transfer-model-name').value}`
     anchor.href = window.URL.createObjectURL(
         new Blob([artifacts], {type: 'application/octet-stream'}));
     anchor.click();
@@ -988,33 +970,8 @@ function getDateString() {
     if (second.length < 2) {
       second = `0${second}`;
     }
-    //return `${year}-${month}-${day}T${hour}.${minute}.${second}`;
     return `${year}-${month}-${day}`;
 }
-
-/*uploadFilesButton.addEventListener('click', async () => {
-    const files = datasetFileInput.files;
-    if (files == null || files.length !== 1) {
-        throw new Error('Must select exactly one file.');
-    }
-    const datasetFileReader = new FileReader();
-    datasetFileReader.onload = async event => {
-        try {
-            await loadDatasetInTransferRecognizer(event.target.result);
-        } catch (err) {
-            const originalTextContent = uploadFilesButton.textContent;
-            uploadFilesButton.textContent = err.message;
-            setTimeout(() => {
-                uploadFilesButton.textContent = originalTextContent;
-            }, 2000);
-        }
-        durationMultiplierSelect.value = `${transferDurationMultiplier}`;
-        durationMultiplierSelect.disabled = true;
-        enterLearnWordsButton.disabled = true;
-    };
-    datasetFileReader.onerror = () => console.error(`Failed to binary data from file '${dataFile.name}'.`);
-    datasetFileReader.readAsArrayBuffer(files[0]);
-});*/
 
 async function loadDatasetInTransferRecognizer(serialized) {
     const modelName = transferModelNameInput.value;
@@ -1342,7 +1299,6 @@ async function plotSpectrogram(
   const context = canvas.getContext('2d');
   context.clearRect(0, 0, canvas.width, canvas.height);
   
-
   const numFrames = frequencyData.length / fftSize;
   if (config.pixelsPerFrame != null) {
     let realWidth = Math.round(config.pixelsPerFrame * numFrames);
@@ -1473,20 +1429,19 @@ function includewavform() {
     includeAudioWaveformSpec = false;
     document.getElementById("includewav").style.backgroundColor = "rgba(52, 52, 52, 1)";
     document.getElementById("includewav").style.border = "solid 1px black";
-
   }
 }
 
 function augmentnoisemix() {
   if (augmentNoise == false) {
     augmentNoise = true;
-    document.getElementById("mixnoise").style.borderColor = "red";
-    document.getElementById("mixnoise").style.backgroundColor = "red";
+    document.getElementById("mixnoise").style.backgroundColor = "rgba(70,70,70,1)";
+    document.getElementById("mixnoise").style.border = "solid 1px grey";
   }
   else if (augmentNoise == true) {
     augmentNoise = false;
-    document.getElementById("mixnoise").style.borderColor = "green";
-    document.getElementById("mixnoise").style.backgroundColor = "green";
+    document.getElementById("mixnoise").style.backgroundColor = "rgba(52, 52, 52, 1)";
+    document.getElementById("mixnoise").style.border = "solid 1px black";
   }
 }
 
@@ -1675,6 +1630,13 @@ document.body.onkeyup = function(e){
   if(e.keyCode == 32){
     //space bar
     wavesurfer.play();
+    console.log(transferRecognizer.dataset.examples);
+    
+    for (const prop in transferRecognizer.dataset.examples) {
+      var _e = prop;
+        speechCommands.utils.playRawAudio(_rawAudio); //transferRecognizer.dataset.examples._e.rawAudio);
+    }
+    console.log(transferRecognizer);
   }
 }
 

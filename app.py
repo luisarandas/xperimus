@@ -199,6 +199,7 @@ def newmsg(data):
 def _newmsg(data):   
     print(data)                                                               
     socketio.emit('region-socket', 'change_color')    
+    #emit('my response', data, broadcast=True)
 
 
 if __name__ == "__main__":
