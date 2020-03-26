@@ -93,7 +93,6 @@ function listAmazonObjects() {
         button.innerHTML = e[key].Key;
         // append seguido aqui
 
-
         __main.appendChild(document.createElement("br"));    
         __main.appendChild(button);        
 
@@ -553,7 +552,7 @@ startButton.addEventListener('click', () => {
     const suppressionTimeMillis = 1000;
     activeRecognizer.listen( result => {
 
-      console.log(result);
+      drawMicSpectrogram(result);
 
         plotPredictions(predictionCanvas, activeRecognizer.wordLabels(), result.scores, 3, suppressionTimeMillis);
     }, {   
@@ -586,6 +585,12 @@ stopButton.addEventListener('click', () => {
     console.log("doesnt work check");
     myNode.innerHTML = '';
 });
+
+
+async function drawMicSpectrogram(result) {
+  console.log(result);
+  console.log(window);
+}
 
 /** Transfer Learning Logic */
 
@@ -1228,9 +1233,10 @@ let candidateWordSpans;
  *
  * @param {*} words Candidate words.
  */
-
+var _word, btnColor = false;
 function populateCandidateWords(words) {
     candidateWordSpans = {};
+    _candidateWordSpans = {};
 
     var existingDirectChildrenDivCount = $('#cont4 > div').size();
     console.log(existingDirectChildrenDivCount);
@@ -1239,15 +1245,57 @@ function populateCandidateWords(words) {
       if (word === BACKGROUND_NOISE_TAG || word === UNKNOWN_TAG) {
         continue;
       }
-      const wordSpan = document.createElement('span');
+      _word = word;
+      const wordSpan = document.createElement('div');
       wordSpan.textContent = word;
       wordSpan.classList.add('candidate-word');
-      document.getElementById("cont4").appendChild(wordSpan);
-      //candidateWordsContainer.appendChild(wordSpan);
+      //document.getElementById("cont4").appendChild(wordSpan);
       candidateWordSpans[word] = wordSpan;
+      const _button = document.createElement("button");
+      _button.style['position'] = 'absolute';
+      _button.style['left'] = '100%';
+      _button.style['top'] = '-1px';
+      _button.style['backgroundColor'] = 'rgba(32,32,32,1)';
+      _button.style['border-top-right-radius'] = '2px';
+      _button.style['border-bottom-right-radius'] = '2px';
+
+      _button.style['border'] = '1px solid black';
+      _button.style['width'] = '20%';
+      _button.style['height'] = 'calc(100% + 2px)';
+      _button.setAttribute("id", word);
+      console.log(_button.style.backgroundColor);
+      var newColor;
+      _button.onclick = function() { 
+        if (_button.classList.contains("buttonBack1") != true) {
+          _button.classList.add("buttonBack1");
+          console.log(_button.id);
+        } else {
+          _button.classList.remove("buttonBack1");
+        }
+      };
+
+      wordSpan.appendChild(_button);
+      candidateWordsContainer.appendChild(wordSpan);
+
+      const _wordSpanDiv = document.createElement('div');
+      _wordSpanDiv.style['backgroundColor'] = 'rgba(32, 32, 32, 1)';
+      _wordSpanDiv.style['border'] = '1px solid grey';
+      _wordSpanDiv.style['margin'] = '2px';
+      _wordSpanDiv.style['border-radius'] = '3px';
+      _wordSpanDiv.style['position'] = 'relative';
+      _wordSpanDiv.style['width'] = "97%";//'calc(100% - 2px)';
+      _wordSpanDiv.style['height'] = "30%";//'calc(100% - 2px)';
+      _wordSpanDiv.textContent = _word;
+
+      //_candidateWordSpans[word] = _wordSpanDiv;
+      //_wordSpanDiv.appendChild(_wordSpan);
+      document.getElementById("sendAnnot").appendChild(_wordSpanDiv);      
     }
 }
 
+async function wordAudioSockets() {
+
+}
 
 /**
  * Show an audio spectrogram in a canvas.
@@ -1323,11 +1371,14 @@ async function plotSpectrogram(
       colorValue = Math.pow(colorValue, 3);
       colorValue = Math.round(255 * colorValue);
       const fillStyle =
-          `rgb(${colorValue},${255 - colorValue},${255 - colorValue})`; // cor espectro
+          `rgb(${0},${colorValue},${colorValue})`; // cor espectro `rgb(${colorValue},${255 - colorValue},${255 - colorValue})`; // cor espectro
       context.fillStyle = fillStyle;
       context.fillRect(x, y, pixelWidth, pixelHeight);
+      //`rgb(${0},${colorValue},${colorValue})`;
     }
   }
+  console.log("aaaaaaaa");
+  console.log(config);
 
   if (config.markKeyFrame) {
     const keyFrameIndex = config.keyFrameIndex == null ?
@@ -1336,11 +1387,11 @@ async function plotSpectrogram(
                 {data: frequencyData, frameSize: fftSize})
             .data() :
         config.keyFrameIndex;
-    // Draw lines to mark the maximum-intensity frame. AQUI ESTA O ONSET
-    context.strokeStyle = 'green';
+
+        context.strokeStyle = 'aqua';
     context.beginPath();
     context.moveTo(pixelWidth * keyFrameIndex, 0);
-    context.lineTo(pixelWidth * keyFrameIndex, canvas.height * 0.1);
+    context.lineTo(pixelWidth * keyFrameIndex, canvas.height * 1);
     context.stroke();
     context.beginPath();
     context.moveTo(pixelWidth * keyFrameIndex, canvas.height * 0.9);
@@ -1384,17 +1435,17 @@ function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiv
 
 
     if (prob_ > 0.9 && topWord == "one") {
-      document.getElementById("sequence1").style.backgroundColor = "green";
+      //document.getElementById("sequence1").style.backgroundColor = "green";
       truthChain[0] = true;
       console.log(truthChain);
     }
     if (prob_ > 0.9 && topWord == "two" && truthChain[0] == true) {
-      document.getElementById("sequence2").style.backgroundColor = "green";
+      //document.getElementById("sequence2").style.backgroundColor = "green";
       truthChain[1] = true;
       console.log(truthChain);
     }
     if (prob_ > 0.9 && topWord == "three" && truthChain[1] == true) {
-      document.getElementById("sequence3").style.backgroundColor = "green";
+      //document.getElementById("sequence3").style.backgroundColor = "green";
       truthChain[2] = true;
       console.log("found song!");
     }
@@ -1698,7 +1749,6 @@ wavesurfer.on('region-updated', function(region, e) {
   var _newtimeStop = parseFloat(region.end).toFixed(2);
   var __newtimeStop = _newtimeStop.replace(".", ":");
 
-  console.log(_newtimeStart, _newtimeStop);
   document.getElementById("triggerspace").value = `0${__newtimeStart}-0${__newtimeStop}`;
 
 
@@ -2082,12 +2132,12 @@ async function sendingDataSockets() {
   if (isMobile == true) {
     isMobile = false;
     var _a = document.getElementById("streamButton");
-    _a.style['backgroundColor'] = 'grey';
+    _a.style['backgroundColor'] = 'rgba(32,32,32,1)';
   }
   else if (isMobile == false) {
     isMobile = true;
     var _a = document.getElementById("streamButton");
-    _a.style['backgroundColor'] = 'red';
+    _a.style['backgroundColor'] = 'rgba(38,165,164,1)';
   }
   console.log(isMobile);
 }

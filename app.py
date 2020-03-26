@@ -20,8 +20,6 @@ from wtform_fields import *
 from models import *
 from main import *
 
-# from flask_yarn import Yarn 
-
 # python3 -m venv local_python_environment
 # source local_py_env/bin/activate
 # For (current machine env) pip install -r requirements.txt
@@ -35,16 +33,9 @@ from main import *
 
 # Make the allocation part in rooms and then try webassembly
 # Turn connection to secure, continue with python bindings
-# Play music, and open microphone
-# NOW CHECK LOGS, PROPERTIES AND SERVER SIDE W CHILL
 # https://github.com/sicklincoln/MMLL/tree/master/Examples
 
 # If you want to execute your function without generating a request to the server, then your function must be defined in JavaScript. Otherwise, you need to fire an HTTP request.
-
-# Test flask deep learning - machine listening in JS and visualizations
-# https://www.html5rocks.com/en/tutorials/audio/scheduling/
-# https://www.youtube.com/watch?v=mrExsjcvF4o
-# https://github.com/jnmaloney/WebGui
 
 # Configure app
 app = Flask(__name__)
@@ -59,7 +50,7 @@ db = SQLAlchemy(app)
 
 # Initialize Flask-SocketIO
 socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
-ROOMS = ["lounge", "news", "games", "coding"]
+ROOMS = ["1", "2", "3", "4"]
 
 desktop = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop') 
 #desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop') Windows
@@ -93,8 +84,7 @@ def index():
 
         flash("Registered Succesfully. Please Login.", "success")
         return redirect(url_for("login"))
-
-    # return "<html><body><h1>Hello World</h1></body></html>"
+    print("HEHEHE: {}".format(request.headers))
     return render_template("index.html", form=reg_form)
 
 
@@ -144,7 +134,6 @@ def background_process_test():
 
 ### testing amazon
 ################################ boto3 is working
-print("aaaaa")
 print(desktop)
 '''
 AWS_ACCESS_KEY = str(os.getenv("AWS_ACCESS_KEY"))

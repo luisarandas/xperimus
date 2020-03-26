@@ -210,22 +210,25 @@ button:disabled {
   }
   
   .candidate-word {
-  
+    position: relative;
     border: 1px solid gray;
-    background-color: rgba(30,30,30,1);
+    background-color: rgba(53,53,53,1);
     margin: 5px;
-    border-radius: 3px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border: 1px solid black;
     width: auto;
+    margin-right: 5%;
     height: auto;
     float: left;
     padding: 7px;
+    font-size: 10px;
     display: inline;
     text-align: center;
   }
   
   .candidate-word-active {
-    border: 1px solid gray;
-    background-color: aqua;
+    background-color: rgba(38,165,164,1);
   }
   
   /*.candidate-word-label {
@@ -480,6 +483,17 @@ button:disabled {
   border-radius: 3px;
   width: 18%;
   height: 13%;
+  text-align: center;
+}
+
+#fourthdiv6 {
+  background-color: rgba(32, 32, 32, 1);
+  position: absolute;
+  bottom: 1px;
+  left: 1px;
+  border-radius: 3px;
+  width: calc(100% - 2px);
+  height: calc(35% - 2px);
   text-align: center;
 }
 
@@ -992,4 +1006,20 @@ button:disabled {
   color: #000;
   text-decoration: none;
   cursor: pointer;
+}
+
+#sendAnnot {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  border: 1px solid #888;
+  border-radius: 3px;
+  width: calc(39% - 2px);
+  height: 95%;
+  background-color: rgba(32,32,32,1);
+  overflow: auto;
+}
+
+.buttonBack1 {
+  background-color: rgba(38,165,164,1) !important;
 }
