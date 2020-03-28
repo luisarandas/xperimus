@@ -11,7 +11,8 @@ if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(naviga
   mobilePerformanceSetup();
 }
 
-var socket = io.connect('http://' + document.domain + ":" + location.port);
+var protocol = window.location.protocol;
+var socket = io.connect(protocol + '//' + document.domain + ":" + location.port); //port + namespace);
 
 socket.on('connect', function() {
   console.log('connected');
@@ -529,12 +530,15 @@ class DatasetViz {
 
     // await populateSavedTransferModelsSelect();
     // onde ele vem por HTTP
-
+    console.log(SpeechCommands);
     recognizer.ensureModelLoaded().then(() => {
         startButton.disabled = false;
         transferModelNameInput.value = `xperimus-${getDateString()}`;
 
         console.log("Loaded Model");
+        console.log(recognizer.modelInputShape());
+        console.log(recognizer);
+        console.log(recognizer.params());
 
         const params = recognizer.params();
         console.log(`sampleRateHz: ${params.sampleRateHz}`);
@@ -571,6 +575,7 @@ startButton.addEventListener('click', () => {
     })
     .catch(err => {
         console.log("Failed to start streaming: ", err.message);
+        console.log(err);
     });
 });
 
@@ -1515,7 +1520,6 @@ function augmentnoisemix() {
   }
 }
 
-//https://github.com/katspaugh/wavesurfer.js/blob/master/example/annotation/app.js
 
 var wavesurfer = WaveSurfer.create({
   container: '#cont5',
@@ -1944,9 +1948,6 @@ async function __well(v, metadata_) {
   transferModelNameInput.value = loadedModelName;
   //v.metadata = transferRecognizer.wordLabels().join(',');
   transferRecognizer.words = metadata_;
-  console.log(transferRecognizer);
-  console.log(recognizer);
-  console.log(transferRecognizer.wordLabels());
   //learnWordsInput.value = transferRecognizer.wordLabels().join(',');
   loadTransferModelButton.textContent = 'Model loaded!';  
 }
@@ -2290,7 +2291,7 @@ ctx.arc(0, 130, 90, 10, 2 * Math.PI);
 ctx.fillStyle = 'rgba(32,32,32,1)';
 ctx.fill();
 ctx.lineTo(0, 130);
-ctx.strokeStyle = 'rgba(200,200,200,1)';
+ctx.strokeStyle = 'black';
 ctx.stroke();
 
 var _room = document.getElementById("interroom");
@@ -2305,4 +2306,76 @@ newRoom.addEventListener('click', () => {
   _room.style.backgroundColor = "#353535";
   _room.style.border = "1px solid black";
   _room.disabled = false;
+});
+
+const _fileInput = document.getElementById('audio-file');
+
+console.log("check multiple audio contexts");
+
+var _audioCtx = new AudioContext();
+var _sourceNode = _audioCtx.createBufferSource();
+var _dataSocketBuf = null;
+var _receiverBuffer = [];
+
+
+let __data = [];
+let superBlob = new Blob(__data, { type: "audio/wav" });
+
+var arrayBuffer; 
+_fileInput.addEventListener("change", function() {
+  var reader = new FileReader();
+
+	reader.onload = function(ev) {
+    //arrayBuffer = this.result;
+    //console.log(arrayBuffer);
+    _audioCtx.decodeAudioData(ev.target.result, function(buffer) {
+      _dataSocketBuf = buffer;
+      console.log(_dataSocketBuf)
+
+      reader.readAsArrayBuffer(superBlob);
+
+
+      /*for (var channel = 0; channel < channels; channel++) {
+        var nowBuffering = _dataSocketBuf.getChannelData(channel);
+        _receiverBuffer.push(nowBuffering);
+
+        for (var i = 0; i < frameCount; i++) {
+          nowBuffering[i] = Math.random() * 2 - 1;
+        }
+      }*/
+      //socket.emit("new-buffer", _receiverBuffer);
+      //console.log(_receiverBuffer);
+
+  });
+
+
+
+    //socket.emit("new-buffer", arrayBuffer);
+
+/*
+    console.log(ev.target.result);
+    _dataSocket = ev.target.result;
+    let sharedFloats = new Float32Array(new SharedArrayBuffer(1024));
+    sharedFloats.set(_dataSocket, 0);
+
+    socket.emit("new-buffer", sharedFloats);
+
+		_audioCtx.decodeAudioData(ev.target.result, function(buffer) {
+      _sourceNode.buffer = buffer;
+		});*/
+	};
+	reader.readAsArrayBuffer(this.files[0]);
+}, false);
+
+
+var _newbufferData = null;
+socket.on('new-buffer', function(data) {
+  console.log(data);
+  /*var myArrayBuffer = _audioCtx.createBuffer(2, data[0], 44100);
+  myArrayBuffer.duration = data[1];
+  console.log(myArrayBuffer);
+  var _source = _audioCtx.createBufferSource();
+  _source.buffer = data;
+  _source.connect(_audioCtx.destination);
+  _source.start();*/
 });

@@ -190,6 +190,11 @@ def _newmsg(data):
     socketio.emit('region-socket', 'change_color')    
     #emit('my response', data, broadcast=True)
 
+@socketio.on('new-buffer')                                                         
+def _bufferdata(data):   
+    socketio.emit('new-buffer', data, broadcast=True, include_self=False)    
+    #emit('my response', data, broadcast=True)
+
 
 if __name__ == "__main__":
     # Will always execute
