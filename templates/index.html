@@ -5,7 +5,9 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
-    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.4.1.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
@@ -113,7 +115,7 @@
       <div id="sendAnnot"></div>
     </div>
 
-    <div id="micspec" style="width: 100%; height: 20%; position: absolute; bottom: 0px; background-color: red;"></div>
+    <!--<div id="micspec" style="width: 100%; height: 20%; position: absolute; bottom: 0px; background-color: red;"></div>-->
     
   <!--
   <div id="sequence1"></div><br>
@@ -246,15 +248,49 @@
   </div>
   <div id="fifthContainer">
     <div id="cont16">
-      State Interaction<br>
-      mais um 1 length <br>
-      making 
-      <input type="text" id="room" name="fname"><br>
-      https://stackoverflow.com/questions/48415858/resizable-2d-floor-plan-ruler-on-drag-images
-      <button id="lock">lock</button>
-      <button id="lock">edit</button>
+      Interaction Group
+      <input type="text" id="interroom" name="room" value="New Room" style="background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 78%; height: 34%; margin-top: 3px; margin-bottom: 3px;"><br>
+      
+      <button id="lock-room" style="font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 39%; margin-bottom: 3px;">Lock</button>
+      <button id="new-room" style="font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 39%;">New</button>
+    </div>
+    <div id="cont17">
+      Connected Machines
+      <div id="number-connected-users" disabled="true" style="background-color: #353535; border: 1px solid black; border-radius: 3px; width: 80%; margin-left: 10%; height: 20%; margin-top: 3px;">0</div>
+      <button id="stop-room-connect"></button>
+      <button id="refresh-room-connect"></button>
+      <button id="add-room-players"></button>
 
     </div>
+    <div id="cont18">
+      meter azul
+
+    </div>
+
+      <div id="house" style="width: calc(100% - 2px); height: 52%; position: absolute; left: 1px; top: calc(20% + 1px); border-radius: 3px; background-color: rgba(52,52,52,1);">
+        <pre style="position: absolute; top: -10px; left: 35%; border-radius: 3px; font-family: inherit;"><span style="background-color:rgba(32,32,32,1); color: rgba(200,200,200,1); border-radius: 3px;"></span></pre>
+        <pre style="position: absolute; bottom: -10px; left: 35%; border-radius: 3px; font-family: inherit;"><span style="background-color:rgba(32,32,32,1); color: rgba(200,200,200,1); border-radius: 3px;"></span></pre>
+        
+        <pre style="position: absolute; bottom: 48%; left: -14%; border-radius: 3px; font-family: inherit;"><span class="rotate1"></span></pre>
+        <pre style="position: absolute; bottom: 48%; right: 18%; border-radius: 3px; font-family: inherit;"><span class="rotate2"></span></pre>
+
+        <div id="lefttop" style="position: absolute; left: 0px; top: 0px; width: calc(100% - 0px); height: 100%; border-radius: 3px; background-color: rgba(32,32,32,1);"></div>
+        <div id="righttop" style="position: absolute; right: 0px; top: 0px; width: calc(33% + 2px); height: 26%; border-radius: 3px; background-color: rgba(32,32,32,1);"></div>
+        <div id="leftbottom" style="position: absolute; left: 0px; bottom: 0px; width: calc(35% - 2px); height: 26%; border-radius: 3px; background-color: rgba(32,32,32,1);"></div>
+        <div id="rightbottom" style="position: absolute; right: 0px; bottom: 0px; width: calc(33% + 2px); height: 26%; border-radius: 3px; background-color: rgba(32,32,32,1);"></div>
+
+
+        <div id="room" style="width: calc(96% - 2px); height: 86%; position: absolute; left: 2%; top: 7%; border-radius: 3px; background-color: rgba(52,52,52,1); border: 1px solid rgba(72,72,72,1);">
+          <div id="draggable" class="ui-widget-content">#1</div>
+
+          <div id="draggable1" class="ui-widget-content">#2</div>
+
+          <div id="draggable2" class="ui-widget-content">#3</div>
+
+          </div>
+        <canvas id="door" style="position: absolute; width: 20%; height: 25%; top: 55%; left: 2%;"></canvas>
+
+      </div>
   </div>
   <a id="downloadAnchorElem" style="display:none"></a>
 

@@ -23,7 +23,11 @@ socket.on('message', function(data) {
 
 socket.on('region-socket', function(data) {
   console.log("receiving");
-  document.body.style.backgroundColor = "red";
+  var x = Math.floor(Math.random() * 256);
+    var y = Math.floor(Math.random() * 256);
+    var z = Math.floor(Math.random() * 256);
+    var bgColor = "rgb(" + x + "," + y + "," + z + ")";
+  document.body.style.backgroundColor = bgColor;
 });
 
 function socketMusic() {
@@ -46,10 +50,6 @@ if (isIndexDbTransactionPossible) {
         isIndexDbTransactionPossible.READ_ONLY = isIndexDbTransactionPossible.READ_ONLY || 'readonly';
 }    
 
-var socket = io();
-    socket.on('connect', function() {
-        socket.emit('my event', {data: 'I\'m connected!'});
-    });
 
 var albumBucketName = "xperimusmodels";
 var bucketRegion = "eu-west-2";
@@ -132,6 +132,10 @@ const predictionCanvas = document.getElementById('prediction-canvas');
 const probaThresholdInput = document.getElementById('proba-threshold');
 const epochsInput = document.getElementById('epochs');
 const fineTuningEpochsInput = document.getElementById('fine-tuning-epochs');
+
+const lockRoom = document.getElementById('lock-room');
+const newRoom = document.getElementById('new-room');
+
 
 const datasetIOButton = document.getElementById('dataset-io');
 const datasetIOInnerDiv = document.getElementById('dataset-io-inner');
@@ -552,7 +556,7 @@ startButton.addEventListener('click', () => {
     const suppressionTimeMillis = 1000;
     activeRecognizer.listen( result => {
 
-      drawMicSpectrogram(result);
+      //drawMicSpectrogram(result);
 
         plotPredictions(predictionCanvas, activeRecognizer.wordLabels(), result.scores, 3, suppressionTimeMillis);
     }, {   
@@ -587,10 +591,9 @@ stopButton.addEventListener('click', () => {
 });
 
 
-async function drawMicSpectrogram(result) {
-  console.log(result);
-  console.log(window);
-}
+
+
+async function drawMicSpectrogram(result) {}
 
 /** Transfer Learning Logic */
 
@@ -829,9 +832,6 @@ startTransferLearnButton.addEventListener('click', async () => {
     startButton.disabled = true;
     startTransferLearnButton.textContent = 'Learning Started';
 
-    //startTransferLearnButton.disabled = true; caralho
-
-
     await tf.nextFrame();
 
     const INITIAL_PHASE = 'initial';
@@ -939,6 +939,8 @@ startTransferLearnButton.addEventListener('click', async () => {
     evalModelOnDatasetButton.disabled = false;
 });
 
+console.log(SpeechCommands);
+console.log(transferRecognizer);
 console.log("stop listen button not properly working");
 
 downloadAsFileButton.addEventListener('click', () => {
@@ -1269,9 +1271,14 @@ function populateCandidateWords(words) {
         if (_button.classList.contains("buttonBack1") != true) {
           _button.classList.add("buttonBack1");
           console.log(_button.id);
+          _btnsArray.push(_button.id);
+
         } else {
           _button.classList.remove("buttonBack1");
+          _btnsArray = _btnsArray.filter(e => e !== _button.id);
         }
+
+
       };
 
       wordSpan.appendChild(_button);
@@ -1416,6 +1423,8 @@ async function plotSpectrogram(
 var truthChain = new Array(3);
 for (var i = 0; i < truthChain.length; ++i) { truthChain[i] = false; } 
 
+var _btnsArray = [];
+
 function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiveMillis) {
   if (topK != null) {
     let wordsAndProbs = [];
@@ -1432,6 +1441,16 @@ function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiv
     console.log( `"${topWord}" (p=${wordsAndProbs[0][1].toFixed(6)}) @ ` + new Date().toTimeString());
     var prob_ = wordsAndProbs[0][1].toFixed(2);
     document.getElementById('probabil').innerHTML = `"${topWord}" ${prob_}` //@ ` + new Date().toTimeString();
+
+    // check if the biggest probability has clicked button 
+    console.log(topWord);
+    console.log(_btnsArray);
+
+    if (_btnsArray.includes(topWord)) {
+      socket.emit("regionsocket", "__");
+    }
+
+    ///var hasButtonClick = candidateWordsContainer.querySelector(topWord) != null;
 
 
     if (prob_ > 0.9 && topWord == "one") {
@@ -2123,7 +2142,7 @@ var isMobile = false;
 async function mobilePerformanceSetup() {
   $('div').not('#allPage').remove();
   document.body.innerHTML = '';
-  $('body').append('<div id="performancemode"><br><br><br>performance-mode</div>');
+  $('body').append('<div id="performancemode"><br><br><br>performance-mode<br><div id="roomSend"><input type="text" id="interroom" name="room" value="Connect"></input><br><button>Send</button></div></div>');
   isMobile = true;
 }
 
@@ -2242,3 +2261,48 @@ window.onclick = function(event) {
     modal.style.display = "none";
   }
 }
+
+$( function() {
+  $("#draggable").draggable({containment: "parent"});
+  $('#draggable').animate({
+    'left' : "20%",
+    'top' : "5%"
+  });
+
+  $("#draggable1").draggable({containment: "parent"});
+  $('#draggable1').animate({
+    'left' : "65%",
+    'top' : "-5%"
+  });
+
+  $("#draggable2").draggable({containment: "parent"});
+  $('#draggable2').animate({
+    'left' : "45%",
+    'top' : "5%"
+  });
+});
+
+var c = document.getElementById("door");
+var ctx = c.getContext("2d");
+ctx.beginPath();
+ctx.lineWidth = 4;
+ctx.arc(0, 130, 90, 10, 2 * Math.PI);
+ctx.fillStyle = 'rgba(32,32,32,1)';
+ctx.fill();
+ctx.lineTo(0, 130);
+ctx.strokeStyle = 'rgba(200,200,200,1)';
+ctx.stroke();
+
+var _room = document.getElementById("interroom");
+lockRoom.addEventListener('click', () => {
+  _room.disabled = true;
+  console.log(_room.value);
+  _room.style.backgroundColor = "rgba(72,72,72,1)";
+  _room.style.border = "1px solid grey";
+});
+
+newRoom.addEventListener('click', () => {
+  _room.style.backgroundColor = "#353535";
+  _room.style.border = "1px solid black";
+  _room.disabled = false;
+});

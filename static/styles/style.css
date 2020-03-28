@@ -423,16 +423,42 @@ button:disabled {
   border-radius: 3px;
 }
 
-
 #cont16 {
   position: absolute;
   background-color: #202020;
   border-radius: 3px;
   left: 1px;
   top: 1px;
-  height: calc(100% - 2px);
-  width: calc(100% - 2px);
+  text-align: center;
+  padding-top: 4px;
+  height: calc(19% - 2px);
+  width: calc(30% - 2px);
 }
+
+#cont17 {
+  position: absolute;
+  background-color: #202020;
+  border-radius: 3px;
+  left: 30%;
+  top: 1px;
+  text-align: center;
+  padding-top: 4px;
+  height: calc(19% - 2px);
+  width: calc(40% - 0px);
+}
+
+#cont18 {
+  position: absolute;
+  background-color: #202020;
+  border-radius: 3px;
+  right: 1px;
+  top: 1px;
+  text-align: center;
+  padding-top: 4px;
+  height: calc(19% - 2px);
+  width: calc(30% - 2px);
+}
+
 
 #fourthdiv1 {
   background-color: rgba(32, 32, 32, 1);
@@ -720,8 +746,8 @@ button:disabled {
 
 #sockettimeline1 {
   position: absolute;
-  top: calc(50% - 3px);
-  right: 2px;
+  top: calc(50% - 2px);
+  right: 1px;
   width: calc(100% - 2px);
   border-radius: 3px;
   height: 16%;
@@ -1012,7 +1038,7 @@ button:disabled {
   position: absolute;
   left: 2px;
   top: 2px;
-  border: 1px solid #888;
+  border: 1px solid black;
   border-radius: 3px;
   width: calc(39% - 2px);
   height: 95%;
@@ -1022,4 +1048,48 @@ button:disabled {
 
 .buttonBack1 {
   background-color: rgba(38,165,164,1) !important;
+}
+
+#draggable, #draggable1, #draggable2 { 
+  width: 10%; 
+  height: 10%; 
+  border: 1px solid rgba(22,22,22,1); 
+  background-color: rgba(32,32,32,1);
+  border-radius: 3px;
+  text-align: center;
+  cursor: move;
+  vertical-align: middle;
+  padding-top: 4px;
+  z-index: 9999;
+}
+
+.rotate1 {
+  transform: rotate(-90deg);
+  transform-origin: right, top;
+  -ms-transform: rotate(-90deg);
+  -ms-transform-origin:right, top;
+  -webkit-transform: rotate(-90deg);
+  -webkit-transform-origin:right, top;
+  position: absolute; 
+  background-color:rgba(32,32,32,1); 
+  color: rgba(200,200,200,1); 
+  border-radius: 3px;
+}
+
+.rotate2 {
+  transform: rotate(90deg);
+  transform-origin: right, top;
+  -ms-transform: rotate(90deg);
+  -ms-transform-origin:right, top;
+  -webkit-transform: rotate(90deg);
+  -webkit-transform-origin:right, top;
+  position: absolute; 
+  background-color:rgba(32,32,32,1); 
+  color: rgba(200,200,200,1); 
+  border-radius: 3px;
+}
+
+::placeholder {
+  color: rgba(200,200,200,1);
+  opacity: 1; /* Firefox */
 }
