@@ -1,11 +1,11 @@
-import os, json, boto3
+import os, json, boto3, uuid
 from botocore.client import Config 
 from botocore.exceptions import ClientError
 from boto3.s3.transfer import S3Transfer
 #from boto3.s3.connection import S3Connection
 
 from time import localtime, strftime
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, current_app
 from flask_login import (
     LoginManager,
     login_user,
@@ -194,6 +194,7 @@ def _newmsg(data):
 def _bufferdata(data):   
     socketio.emit('new-buffer', data, broadcast=True, include_self=False)    
     #emit('my response', data, broadcast=True)
+
 
 
 if __name__ == "__main__":

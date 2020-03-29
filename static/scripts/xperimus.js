@@ -2318,64 +2318,32 @@ var _dataSocketBuf = null;
 var _receiverBuffer = [];
 
 
-let __data = [];
-let superBlob = new Blob(__data, { type: "audio/wav" });
+
 
 var arrayBuffer; 
 _fileInput.addEventListener("change", function() {
+
   var reader = new FileReader();
-
-	reader.onload = function(ev) {
-    //arrayBuffer = this.result;
-    //console.log(arrayBuffer);
-    _audioCtx.decodeAudioData(ev.target.result, function(buffer) {
-      _dataSocketBuf = buffer;
-      console.log(_dataSocketBuf)
-
-      reader.readAsArrayBuffer(superBlob);
-
-
-      /*for (var channel = 0; channel < channels; channel++) {
-        var nowBuffering = _dataSocketBuf.getChannelData(channel);
-        _receiverBuffer.push(nowBuffering);
-
-        for (var i = 0; i < frameCount; i++) {
-          nowBuffering[i] = Math.random() * 2 - 1;
-        }
-      }*/
-      //socket.emit("new-buffer", _receiverBuffer);
-      //console.log(_receiverBuffer);
+  reader.addEventListener("loadend", function() {
+    console.log(reader.result);
+    var _bufArr = new Uint8Array(reader.result);
+    console.log(_bufArr);
+    var _base64data = JSON.stringify(_bufArr);
+    socket.emit("new-buffer", _bufArr);
 
   });
 
+	reader.onload = function(file, offset, length, e) {}
 
-
-    //socket.emit("new-buffer", arrayBuffer);
-
-/*
-    console.log(ev.target.result);
-    _dataSocket = ev.target.result;
-    let sharedFloats = new Float32Array(new SharedArrayBuffer(1024));
-    sharedFloats.set(_dataSocket, 0);
-
-    socket.emit("new-buffer", sharedFloats);
-
-		_audioCtx.decodeAudioData(ev.target.result, function(buffer) {
-      _sourceNode.buffer = buffer;
-		});*/
-	};
 	reader.readAsArrayBuffer(this.files[0]);
 }, false);
 
 
-var _newbufferData = null;
 socket.on('new-buffer', function(data) {
   console.log(data);
-  /*var myArrayBuffer = _audioCtx.createBuffer(2, data[0], 44100);
-  myArrayBuffer.duration = data[1];
-  console.log(myArrayBuffer);
-  var _source = _audioCtx.createBufferSource();
-  _source.buffer = data;
-  _source.connect(_audioCtx.destination);
-  _source.start();*/
+
+  var _new8int = [];
+  _new8int.push(data);
+  console.log(_new8int);
+
 });
