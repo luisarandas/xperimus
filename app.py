@@ -195,7 +195,9 @@ def _bufferdata(data):
     socketio.emit('new-buffer', data, broadcast=True, include_self=False)    
     #emit('my response', data, broadcast=True)
 
-
+@socketio.on('buffer-qual')
+def __bufferdata(data):
+    socketio.emit('buffer-qual', data, broadcast=True, include_self=False) 
 
 if __name__ == "__main__":
     # Will always execute

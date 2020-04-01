@@ -2320,30 +2320,53 @@ var _receiverBuffer = [];
 
 
 
-var arrayBuffer; 
-_fileInput.addEventListener("change", function() {
-
+_fileInput.addEventListener("change", function(event) {
+  console.log(event);
   var reader = new FileReader();
-  reader.addEventListener("loadend", function() {
-    console.log(reader.result);
-    var _bufArr = new Uint8Array(reader.result);
-    console.log(_bufArr);
-    var _base64data = JSON.stringify(_bufArr);
-    socket.emit("new-buffer", _bufArr);
+  reader.addEventListener("loadend", function(e) {
+    arrayBuffer = reader.result;
 
+    _audioCtx.decodeAudioData(reader.result, function(buffer) {
+      console.log(buffer);
+      var bufAttrs = [];
+      var _channeldata = buffer.getChannelData(0);
+      var arrayBuffer = new Float32Array(_channeldata);
+      bufAttrs.push(buffer.length, buffer.duration, buffer.sampleRate, buffer.numberOfChannels);
+
+      socket.emit("new-buffer", bufAttrs);
+      socket.emit("buffer-qual", arrayBuffer.buffer);
+
+      
+      //
+      //socket.emit("buffer-qual", arrayBuffer.buffer);
+
+    });
+    
   });
 
-	reader.onload = function(file, offset, length, e) {}
+
 
 	reader.readAsArrayBuffer(this.files[0]);
 }, false);
 
+var _ee = document.getElementById('newaudio');
 
+var _newSongData;
 socket.on('new-buffer', function(data) {
   console.log(data);
-
-  var _new8int = [];
-  _new8int.push(data);
-  console.log(_new8int);
-
+  _newSongData = data
 });
+
+socket.on('buffer-qual', function(data) {
+  console.log(_newSongData);
+  var __arrayBuffer = new Float32Array(data);
+  console.log(__arrayBuffer);
+  var myArrayBuffer = _audioCtx.createBuffer(_newSongData[3], _newSongData[0], _newSongData[2]);
+  myArrayBuffer.copyToChannel(__arrayBuffer, 0, 0);
+  //myArrayBuffer.duration = _newSongData[1];
+  var _source = _audioCtx.createBufferSource();
+  _source.buffer = myArrayBuffer;
+  _source.connect(_audioCtx.destination);
+  _source.start();
+});
+
