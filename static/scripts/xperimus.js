@@ -2141,10 +2141,10 @@ Plotly.newPlot('accuracy-plot', data, layout1);
 var isMobile = false;
 
 async function mobilePerformanceSetup() {
-  $('div').not('#allPage').remove();
+  /*$('div').not('#allPage').remove();
   document.body.innerHTML = '';
   $('body').append('<div id="performancemode"><br><br><br>performance-mode<br><div id="roomSend"><input type="text" id="interroom" name="room" value="Connect"></input><br><button>Send</button></div></div>');
-  isMobile = true;
+  isMobile = true;*/
 }
 
 async function sendingDataSockets() {
@@ -2312,7 +2312,8 @@ const _fileInput = document.getElementById('audio-file');
 
 console.log("check multiple audio contexts");
 
-var _audioCtx = new AudioContext();
+var _audioCtx = new AudioContext(); 
+console.log("after button push connect context");
 var _sourceNode = _audioCtx.createBufferSource();
 var _dataSocketBuf = null;
 var _receiverBuffer = [];
@@ -2362,11 +2363,21 @@ socket.on('buffer-qual', function(data) {
   var __arrayBuffer = new Float32Array(data);
   console.log(__arrayBuffer);
   var myArrayBuffer = _audioCtx.createBuffer(_newSongData[3], _newSongData[0], _newSongData[2]);
-  myArrayBuffer.copyToChannel(__arrayBuffer, 0, 0);
+  myArrayBuffer.copyToChannel(__arrayBuffer, 0, 0); 
+  console.log("only left check");
   //myArrayBuffer.duration = _newSongData[1];
   var _source = _audioCtx.createBufferSource();
   _source.buffer = myArrayBuffer;
   _source.connect(_audioCtx.destination);
   _source.start();
+});
+
+navigator.mediaDevices.enumerateDevices().then((devices) => {
+  devices.filter((d) => d.kind === 'audioinput');
+  console.log(devices);
+  devices.forEach(function(device) {
+    console.log(device.kind + ": " + device.label +
+                " id = " + device.deviceId);
+  }); 
 });
 
