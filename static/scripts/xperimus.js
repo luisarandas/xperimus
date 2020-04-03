@@ -1289,19 +1289,28 @@ function populateCandidateWords(words) {
       wordSpan.appendChild(_button);
       candidateWordsContainer.appendChild(wordSpan);
 
-      const _wordSpanDiv = document.createElement('div');
+      const _wordSpanDiv = document.createElement('button');
+      _wordSpanDiv.id = "sendannotbtn";
+
       _wordSpanDiv.style['backgroundColor'] = 'rgba(32, 32, 32, 1)';
-      _wordSpanDiv.style['border'] = '1px solid grey';
-      _wordSpanDiv.style['margin'] = '2px';
+      _wordSpanDiv.style['border'] = '1px solid black';
+      _wordSpanDiv.style['color'] = 'rgba(200,200,200,1)';
+
       _wordSpanDiv.style['border-radius'] = '3px';
       _wordSpanDiv.style['position'] = 'relative';
-      _wordSpanDiv.style['width'] = "97%";//'calc(100% - 2px)';
-      _wordSpanDiv.style['height'] = "30%";//'calc(100% - 2px)';
+      _wordSpanDiv.style['padding-top'] = '1px';
+      _wordSpanDiv.style['margin-left'] = '0px';
+      _wordSpanDiv.style['margin-bottom'] = '1px';
+
+      _wordSpanDiv.style['width'] = "calc(97% - 1px)";//'calc(100% - 2px)';
+      _wordSpanDiv.style['height'] = "25%";//'calc(100% - 2px)';
       _wordSpanDiv.textContent = _word;
 
       //_candidateWordSpans[word] = _wordSpanDiv;
       //_wordSpanDiv.appendChild(_wordSpan);
-      document.getElementById("sendAnnot").appendChild(_wordSpanDiv);      
+      document.getElementById("sendannotfill").appendChild(_wordSpanDiv);      
+      document.getElementById("sendannotfill").style.height = "auto";      
+
     }
 }
 
@@ -1616,6 +1625,10 @@ document.getElementById('file-input').onclick = function() {
 
 document.getElementById('upload-dataset').onclick = function() {
   document.getElementById('dataset-file-input').click();
+};
+
+document.getElementById('audiofile').onclick = function() {
+  document.getElementById('audio-file').click();
 };
 
 /*document.getElementById("modeldiskload").addEventListener('change', function(e){ 
@@ -2350,7 +2363,6 @@ _fileInput.addEventListener("change", function(event) {
 	reader.readAsArrayBuffer(this.files[0]);
 }, false);
 
-var _ee = document.getElementById('newaudio');
 
 var _newSongData;
 socket.on('new-buffer', function(data) {

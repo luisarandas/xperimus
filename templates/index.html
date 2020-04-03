@@ -86,40 +86,55 @@
 
     <div id="sockettimeline1">
       <div id="aboutAnnot" style="text-align: left; vertical-align: auto;">
-        <div id="annotID" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid grey; top: 1px; left: 0px; color: rgba(200,200,200,1);">
+        <div id="annotID" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid black; top: 1px; left: 0px; color: rgba(200,200,200,1); background-color: #353535;">
           <span style="position: absolute; left: 3%; top: 11%;">Annotation ID</span>
-          <input id="idval" onclick="" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid grey; width: 40%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); text-align: center;" value="ID Value">
+          <input id="idval" onclick="" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid black; width: 40%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 65%; text-align: center;" value="ID Value">
         </div>
-        <div id="annotSeconds" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid grey; top: calc(17% + 4px); left: 0px; color: rgba(200,200,200,1);">
+        <div id="annotSeconds" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid black; top: calc(17% + 4px); left: 0px; color: rgba(200,200,200,1); background-color: #353535">
           <span style="position: absolute; left: 3%; top: 11%;">Length in Secs</span>
-          <input id="idlength" onclick="" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid grey; width: 40%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); text-align: center; height: 70%;" value="00:00-00:00">
+          <input id="idlength" onclick="" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid black; width: 40%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); text-align: center; height: 65%;" value="00:00-00:00">
         </div>
 
-        <div id="annotTrained" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid grey; top: calc(34% + 7px); left: 0px; color: rgba(200,200,200,1);">
+        <div id="annotTrained" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid black; top: calc(34% + 7px); left: 0px; color: rgba(200,200,200,1); background-color: #353535">
           <span style="position: absolute; left: 3%; top: 11%;">Trigger when Detect</span>
-          <input id="triggerspace" onclick="" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid grey; width: 40%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); text-align: center; height: 70%;" value="00:00-00:00">
+          <input id="triggerspace" onclick="" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid black; width: 40%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); text-align: center; height: 65%;" value="00:00-00:00">
         </div>
         
-        <div id="annotSocket" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid grey; top: calc(51% + 10px); left: 0px; color: rgba(200,200,200,1);">
+        <div id="annotSocket" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid black; top: calc(51% + 10px); left: 0px; color: rgba(200,200,200,1); background-color: #353535">
           <span style="position: absolute; left: 3%; top: 11%;">Stream Region</span>
-          <button onclick="sendingDataSockets()" id="streamButton" style="position: absolute; right: 1px; top: 1px; border-radius: 3px; height: 98%; border: 1px solid grey; color: rgba(200,200,200,1); width: calc(41% + 0px); background-color: rgba(32,32,32,1); z-index: 5; text-align: center; height: 90%;" >Send Users</button>
+          <button onclick="sendingDataSockets()" id="streamButton" style="position: absolute; right: 1px; top: 1px; border-radius: 3px; height: 98%; border: 1px solid black; color: rgba(200,200,200,1); width: calc(41% + 0px); background-color: rgba(32,32,32,1); z-index: 5; text-align: center; height: 90%;" >Send Users</button>
         </div>
-        <div id="annotPlay" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid grey; top: calc(68% + 13px); left: 0px; color: rgba(200,200,200,1);">
-          <span style="position: absolute; left: 3%; top: 11%;">P/S/E Region</span>
-        <button  id="playRegionButton1" onclick="playstopRegion('play')" style="position: absolute; right: calc(26% + 7px); top: 1px; border-radius: 3px;  border: 1px solid grey; width: 13%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 92%; z-index: 5;">P</button>
-        <button  id="playRegionButton2" onclick="playstopRegion('stop')" style="position: absolute; right: calc(13% + 4px); top: 1px; border-radius: 3px;  border: 1px solid grey; width: 13%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 92%; z-index: 5;">S</button>
-        <button  id="playRegionButton3" onclick="playstopRegion('close')" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid grey; width: 13%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 92%; z-index: 5;">X</button>
+        <div id="annotPlay" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid black; top: calc(68% + 13px); left: 0px; color: rgba(200,200,200,1); background-color: #353535">
+          <span style="position: absolute; left: 3%; top: 11%;">P-S-E Region</span>
+        <button  id="playRegionButton1" onclick="playstopRegion('play')" style="position: absolute; right: calc(26% + 7px); top: 1px; border-radius: 3px;  border: 1px solid black; width: 13%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 85%; z-index: 5;">P</button>
+        <button  id="playRegionButton2" onclick="playstopRegion('stop')" style="position: absolute; right: calc(13% + 4px); top: 1px; border-radius: 3px;  border: 1px solid black; width: 13%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 85%; z-index: 5;">S</button>
+        <button  id="playRegionButton3" onclick="playstopRegion('close')" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid black; width: 13%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 85%; z-index: 5;">X</button>
         </div>
 
       </div>
-      <div id="sendAnnot"></div>
+      <div id="sendAnnot">
+
+        <div id="sendmanual" style="position: absolute; width: calc(100% - 4px); height: 17%; border-radius: 3px; border: 1px solid black; top: 1px; left: 1px; color: rgba(200,200,200,1); background-color: #202020; text-align: center; height: 17%; padding-top: 5px;">
+          Send Manually
+        </div>
+        <div id="sendannotfill" style="position: absolute; width: calc(100% - 4px); height: 17%; border-radius: 3px; border: 1px solid black; top: calc(28% - 2px); left: 1px; color: rgba(200,200,200,1); background-color: #353535; text-align: center; height: calc(67% - 1px); padding-top: 5px;"></div>
+
+      </div>
+
+
     </div>
 
     <!--<div id="micspec" style="width: 100%; height: 20%; position: absolute; bottom: 0px; background-color: red;"></div>-->
     
-    <input type="file" id="audio-file" style="position: absolute; bottom: 0px;">
-    ORQUESTRAR SEQUENCIAS AQUI AQUI AQUI RACIOS E METER PAUSA
-    <audio id="newaudio" style="position: absolute; bottom: 0px;"></audio>
+    <div id="cont9_">orquestrate ratios here here and here and pause ofc</div>
+
+    <div id="cont10_">
+      <button id="audiofile" style="position: absolute; top: 3px; left: 3px; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: 20%; top: 3px; width: 20%;">Stream Local Audio File</button>
+      <input type="file" id="audio-file" style="display: none">
+      <br><br><br>
+      about the file and maybe a viz
+    </div>
+
   </div>
 
   <br>
