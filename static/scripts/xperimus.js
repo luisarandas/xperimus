@@ -1730,33 +1730,34 @@ document.body.onkeyup = function(e){
 //https://github.com/katspaugh/wavesurfer.js/blob/master/example/annotation/app.js
 var annotationID = 0;
 function addAnnot(v){
+  var _v = wavesurfer.getCurrentTime();
+  var __e = wavesurfer.getDuration();
+
+  console.log(wavesurfer);
   if (v == 'add') {
     wavesurfer.addRegion({
-      start: 0,
-      end: 0.5,
+      start: _v,
+      end: _v + __e/7,
       color: 'rgba(78,215,214,0.2)',
       id: annotationID
     });
+
+    var _newfloat = parseFloat(_v).toFixed(3);
+    var newfloat_ = _newfloat.replace(".", ":");
+
+    var __newfloat = parseFloat(__e/7).toFixed(3);
+    var ___newfloat = __newfloat.replace(".", ":");
+
+    var _finalfloat = _v + __e/7;
+    var __finalfloat = parseFloat(_finalfloat).toFixed(3);
+    var ___finalfloat = __finalfloat.replace(".", ":");
+
+
     document.getElementById("idval").value = annotationID;
-    document.getElementById("idlength").value = "00:00-00:50"
-    document.getElementById("triggerspace").value = "00:00-00:50"
+    document.getElementById("idlength").value = `00:000-${___newfloat}`;
+    document.getElementById("triggerspace").value = `${newfloat_}-${___finalfloat}`;
 
     annotationID++;
-
-    /*var element = document.createElement("div");
-    element.style.position = "absolute";
-    element.style.backgroundColor = "rgba(22,22,22,1)"//"rgba(78,215,214,0.2)";
-    element.style.width = '40%';//"calc(14% + 1px)";
-    element.style.height = "calc(100% - 4px)";
-    element.style.top = "2px";
-    element.style.left = "1px";
-    element.style.borderRadius = "3px";
-
-    element.setAttribute('id', 'followerRegion');
-
-    element.appendChild(document.createTextNode("Size in Seconds: 0.0 - 0.5 \n ok"));
-    document.getElementById('sockettimeline1').appendChild(element);*/
-
 
   }
 }
@@ -1779,13 +1780,20 @@ wavesurfer.on('region-updated', function(region, e) {
 
   annotObject = region;
 
-  var _newtimeStart = parseFloat(region.start).toFixed(2);
+  var _newtimeStart = parseFloat(region.start).toFixed(3);
   var __newtimeStart = _newtimeStart.replace(".", ":");
 
-  var _newtimeStop = parseFloat(region.end).toFixed(2);
+  var _newtimeStop = parseFloat(region.end).toFixed(3);
   var __newtimeStop = _newtimeStop.replace(".", ":");
 
   document.getElementById("triggerspace").value = `0${__newtimeStart}-0${__newtimeStop}`;
+
+  var _difference = _newtimeStop - _newtimeStart;
+  var __difference = parseFloat(_difference).toFixed(3);
+  var ___difference = __difference.replace(".", ":");
+
+
+  document.getElementById("idlength").value = `00:000-0${___difference}`;
 
 
 });
@@ -1824,7 +1832,7 @@ wavesurfer.on('region-removed', function (region, e) {
 //CLEAR REGIONS
 async function playstopRegion(v) {
   if (v == "play") {
-    annotObject.play();
+    annotObject.playLoop();
     console.log("playloop?");
   }
   if (v == "stop") {
@@ -2321,48 +2329,99 @@ newRoom.addEventListener('click', () => {
   _room.disabled = false;
 });
 
+var _bufwavesurfer = WaveSurfer.create({
+  container: '#bufferplot',
+  waveColor: 'white',
+  progressColor: 'rgba(38,165,164,1)',
+  loaderColor: 'rgba(38,165,164,1)',
+  cursorColor: 'rgba(38,165,164,0)',
+  height: 60,
+  normalize: true,
+  minimap: true,
+  backend: 'MediaElement'
+});
+
+
 const _fileInput = document.getElementById('audio-file');
 
 console.log("check multiple audio contexts");
 
 var _audioCtx = new AudioContext(); 
-console.log("after button push connect context");
 var _sourceNode = _audioCtx.createBufferSource();
 var _dataSocketBuf = null;
 var _receiverBuffer = [];
 
 
-
-
 _fileInput.addEventListener("change", function(event) {
-  console.log(event);
+  var evtAttrs = event.srcElement.files[0];
   var reader = new FileReader();
+  //
+  reader.onload = function (evt) {
+
+    var blob = new window.Blob([new Uint8Array(evt.target.result)]);
+
+    let audio = new Audio();
+    audio.src = URL.createObjectURL(blob);
+    _bufwavesurfer.load(audio);
+  };
+
   reader.addEventListener("loadend", function(e) {
+
     arrayBuffer = reader.result;
+    //plotWaveformBuf(arrayBuffer);
+
 
     _audioCtx.decodeAudioData(reader.result, function(buffer) {
-      console.log(buffer);
+
       var bufAttrs = [];
       var _channeldata = buffer.getChannelData(0);
       var arrayBuffer = new Float32Array(_channeldata);
+
+      //var __e = new Uint8Array(_channeldata);
+      //console.log(__e);
+      //
+      
       bufAttrs.push(buffer.length, buffer.duration, buffer.sampleRate, buffer.numberOfChannels);
 
       socket.emit("new-buffer", bufAttrs);
       socket.emit("buffer-qual", arrayBuffer.buffer);
 
-      
-      //
+      var _bufAttrs = buffer;
+      aboutAudioFile(evtAttrs, _bufAttrs);
+
       //socket.emit("buffer-qual", arrayBuffer.buffer);
 
     });
-    
   });
-
-
 
 	reader.readAsArrayBuffer(this.files[0]);
 }, false);
 
+
+async function aboutAudioFile(e,a) {
+  console.log(e);
+  document.getElementById('name-audio-file-fill').innerHTML = e.name;
+  document.getElementById('type-audio-file-fill').innerHTML = e.type;
+  document.getElementById('size-audio-file-fill').innerHTML = e.size;
+
+  document.getElementById('buflen-audio-file-fill').innerHTML = a.length;
+  var _duration = parseFloat(a.length).toFixed(3);
+  document.getElementById('bufdur-audio-file-fill').innerHTML = _duration;
+  document.getElementById('bufsamp-audio-file-fill').innerHTML = a.sampleRate;
+  document.getElementById('bufnumc-audio-file-fill').innerHTML = a.numberOfChannels;
+
+
+
+  
+  console.log(a);
+
+  //_bufwavesurfer.loadDecodedBuffer(blob);
+  
+}
+
+async function plotWaveformBuf(v) {
+  console.log(v);
+}
 
 var _newSongData;
 socket.on('new-buffer', function(data) {
