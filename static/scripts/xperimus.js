@@ -2316,11 +2316,11 @@ ctx.lineTo(0, 130);
 ctx.strokeStyle = 'black';
 ctx.stroke();
 
-const interactionState = {
+/*const interactionState = {
   name = [],
   players = [],
   playerIDS = []
-}
+}*/
 
 var _room = document.getElementById("interroom");
 
