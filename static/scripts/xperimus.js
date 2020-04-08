@@ -2452,3 +2452,11 @@ navigator.mediaDevices.enumerateDevices().then((devices) => {
   }); 
 });
 
+var button1 = document.querySelector('#play-stream-socket');
+button1.addEventListener("mousedown", function(){ 
+  button1.style.backgroundColor = 'rgba(38,165,164,1)';
+});
+
+button1.addEventListener("mouseup", function() {
+  button1.style.backgroundColor = '#353535';
+});
