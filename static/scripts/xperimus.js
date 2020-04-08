@@ -29,6 +29,7 @@ socket.on('region-socket', function(data) {
     var z = Math.floor(Math.random() * 256);
     var bgColor = "rgb(" + x + "," + y + "," + z + ")";
   document.body.style.backgroundColor = bgColor;
+  console.log("if clicked TRIGGER W REGION bang play");
 });
 
 function socketMusic() {
@@ -2315,13 +2316,40 @@ ctx.lineTo(0, 130);
 ctx.strokeStyle = 'black';
 ctx.stroke();
 
+const interactionState = {
+  name = [],
+  players = [],
+  playerIDS = []
+}
+
 var _room = document.getElementById("interroom");
+
 lockRoom.addEventListener('click', () => {
   _room.disabled = true;
   console.log(_room.value);
+
+  //interactRoom = new InteractionState(_room.value, 0, 0);
+  //console.log(interactRoom.name);
+
+  lockRoom.backgroundColor = "rgba(72,72,72,1)";
+  lockRoom.style.border = "1px solid grey";
   _room.style.backgroundColor = "rgba(72,72,72,1)";
   _room.style.border = "1px solid grey";
 });
+
+
+sendRoom = document.getElementById("send-room");
+_enterRoom = document.getElementById("enter-room");
+
+sendRoom.addEventListener('click', () => {
+  socket.emit("enter-room", _enterRoom.value);
+});
+
+socket.on("room-token", function(data) {
+  console.log(data);
+});
+
+
 
 newRoom.addEventListener('click', () => {
   _room.style.backgroundColor = "#353535";
@@ -2429,16 +2457,20 @@ socket.on('new-buffer', function(data) {
   _newSongData = data
 });
 
+var newSongBufferToCopy;
 socket.on('buffer-qual', function(data) {
   console.log(_newSongData);
   var __arrayBuffer = new Float32Array(data);
   console.log(__arrayBuffer);
   var myArrayBuffer = _audioCtx.createBuffer(_newSongData[3], _newSongData[0], _newSongData[2]);
   myArrayBuffer.copyToChannel(__arrayBuffer, 0, 0); 
-  console.log("only left check");
+  if (_newSongData[3] != 1) {
+    myArrayBuffer.copyToChannel(__arrayBuffer, 1, 0);
+  }
   //myArrayBuffer.duration = _newSongData[1];
   var _source = _audioCtx.createBufferSource();
   _source.buffer = myArrayBuffer;
+  newSongBufferToCopy = myArrayBuffer;
   _source.connect(_audioCtx.destination);
   _source.start();
 });
@@ -2460,3 +2492,22 @@ button1.addEventListener("mousedown", function(){
 button1.addEventListener("mouseup", function() {
   button1.style.backgroundColor = '#353535';
 });
+
+button1.addEventListener("click", function() {
+  button1.style.backgroundColor = '#353535';
+});
+
+button1.addEventListener('click', () => {
+  socket.emit("play-buffer", "play");
+});
+
+socket.on("buffer-play", function(data) {
+  console.log(data);
+  var _source = _audioCtx.createBufferSource();
+  _source.buffer = newSongBufferToCopy;
+  _source.connect(_audioCtx.destination);
+  _source.start();
+  //AudioBufferSourceNode.start([when][, offset][, duration]);
+});
+
+

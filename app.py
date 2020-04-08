@@ -199,6 +199,16 @@ def _bufferdata(data):
 def __bufferdata(data):
     socketio.emit('buffer-qual', data, broadcast=True, include_self=False) 
 
+@socketio.on('play-buffer')
+def __bufferdata(data):
+    socketio.emit('buffer-play', data, broadcast=True, include_self=False) 
+
+@socketio.on('enter-room')
+def enterRoom(data):
+    socketio.emit('room-token', data, broadcast=True, include_self=False) 
+
+    
+
 if __name__ == "__main__":
     # Will always execute
     #app.run()

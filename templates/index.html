@@ -168,7 +168,7 @@
       </div>
       <button id="play-stream-socket" style="position: absolute; top: 66%; left: 3px; height: 10%; width: 20%; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; ">Play</button>
       <br><br><br><br><br><br><br>
-      <br>maybe dont send logo - maybe a class with all of this
+      <br>add positions in inputs and draw bars in vis
 
 
       <!--<div id="about-file-name" style="position: absolute; left: 1px; top: 1px; border-radius: 3px;  border: 1px solid black; width: 40%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 65%; text-align: center;"></div>-->  
@@ -312,14 +312,17 @@
     </div>
     <div id="cont17">
       Connected Machines
-      <div id="number-connected-users" disabled="true" style="background-color: #353535; border: 1px solid black; border-radius: 3px; width: 80%; margin-left: 10%; height: 20%; margin-top: 3px;">0</div>
-      <button id="stop-room-connect"></button>
-      <button id="refresh-room-connect"></button>
-      <button id="add-room-players"></button>
+      <div id="number-connected-users" disabled="true" style="position: absolute; left: calc(1% - 4px); background-color: #353535; padding-top: 4px; border: 1px solid black; border-radius: 3px; width: 40%; margin-left: 10%; height: calc(23% - 1px); margin-top: 3px;">0</div>
+      <button id="stop-room-connect" style="position: absolute; right: 8%; top: 22%; background-color: #353535; padding-top: 0px; border: 1px solid black; border-radius: 3px; color: rgba(220,220,220,1); width: 40%; margin-left: 10%; height: calc(27% + 2px); margin-top: 3px;">Stop</button>
+      <button id="refresh-room-connect" style="position: absolute; text-align: center; left: calc(1% - 4px); top: 55%; background-color: #353535; padding-top: 2px; border: 1px solid black; border-radius: 3px; color: rgba(220,220,220,1); width: calc(41% + 1px); margin-left: 10%; height: calc(28% + 1px); margin-top: 3px;">Refresh</button>
+      <button id="add-room-players" style="position: absolute; text-align: center; right: 8%; top: calc(57% - 1px); background-color: #353535; padding-top: 2px; border: 1px solid black; border-radius: 3px; color: rgba(220,220,220,1); width: 40%; margin-left: 10%; height: calc(28% + 1px); margin-top: 3px;">Add</button>
 
     </div>
     <div id="cont18">
-      meter azul
+      Connect To
+      <input type="text" id="enter-room" value="Connect To" style="background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 78%; height: 34%; margin-top: 3px; margin-bottom: 3px;"><br>
+      <button id="send-room" style="font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 39%; margin-bottom: 3px;">Send</button>
+      <button id="new-send-room" style="font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 39%;">Other</button>
 
     </div>
 
@@ -335,10 +338,10 @@
         <div id="leftbottom" style="position: absolute; left: 0px; bottom: 0px; width: calc(35% - 2px); height: 26%; border-radius: 3px; background-color: rgba(32,32,32,1);"></div>
         <div id="rightbottom" style="position: absolute; right: 0px; bottom: 0px; width: calc(33% + 2px); height: 26%; border-radius: 3px; background-color: rgba(32,32,32,1);"></div>
 
-
         <div id="room" style="width: calc(96% - 2px); height: 86%; position: absolute; left: 2%; top: 7%; border-radius: 3px; background-color: rgba(52,52,52,1); border: 1px solid rgba(72,72,72,1);">
+          DEEP CONTROL
           <!--<div id="draggable" class="ui-widget-content">#1</div>
-
+       
           <div id="draggable1" class="ui-widget-content">#2</div>
 
           <div id="draggable2" class="ui-widget-content">#3</div>-->

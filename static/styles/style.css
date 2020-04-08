@@ -431,7 +431,7 @@ button:disabled {
   top: calc(5% + 4px);
   text-align: center;
   padding-top: 4px;
-  height: calc(19% - 2px);
+  height: calc(15% - 4px);
   width: calc(30% - 2px);
 }
 
@@ -443,7 +443,7 @@ button:disabled {
   top: calc(5% + 4px);
   text-align: center;
   padding-top: 4px;
-  height: calc(19% - 2px);
+  height: calc(15% - 4px);
   width: calc(40% - 0px);
 }
 
@@ -455,7 +455,7 @@ button:disabled {
   top: calc(5% + 4px);
   text-align: center;
   padding-top: 4px;
-  height: calc(19% - 2px);
+  height: calc(15% - 4px);
   width: calc(30% - 2px);
 }
 
