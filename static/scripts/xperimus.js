@@ -2316,20 +2316,19 @@ ctx.lineTo(0, 130);
 ctx.strokeStyle = 'black';
 ctx.stroke();
 
-/*const interactionState = {
-  name = [],
-  players = [],
-  playerIDS = []
-}*/
+const interactionState = {
+  name: [],
+  players: 0,
+  playerIDS: []
+}
 
 var _room = document.getElementById("interroom");
 
 lockRoom.addEventListener('click', () => {
   _room.disabled = true;
   console.log(_room.value);
-
-  //interactRoom = new InteractionState(_room.value, 0, 0);
-  //console.log(interactRoom.name);
+  interactionState.name = [];
+  interactionState.name.push(_room.value);
 
   lockRoom.backgroundColor = "rgba(72,72,72,1)";
   lockRoom.style.border = "1px solid grey";
@@ -2347,9 +2346,17 @@ sendRoom.addEventListener('click', () => {
 
 socket.on("room-token", function(data) {
   console.log(data);
+  if (data == interactionState.name) {
+    interactionState.players++
+
+  }
 });
 
-
+/*lockRoom.backgroundColor = "rgba(72,72,72,1)";
+lockRoom.style.border = "1px solid grey";
+_room.style.backgroundColor = "rgba(72,72,72,1)";
+_room.style.border = "1px solid grey";
+_room.value = data;*/
 
 newRoom.addEventListener('click', () => {
   _room.style.backgroundColor = "#353535";
@@ -2359,6 +2366,7 @@ newRoom.addEventListener('click', () => {
 
 var _bufwavesurfer = WaveSurfer.create({
   container: '#bufferplot',
+  //waveColor: 'rgba(38,165,164,1)',
   waveColor: 'white',
   progressColor: 'rgba(38,165,164,1)',
   loaderColor: 'rgba(38,165,164,1)',
