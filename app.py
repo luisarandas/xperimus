@@ -176,8 +176,9 @@ s3.Bucket(BUCKET_NAME).download_file('teste.png', desktop+objectname_string)
 '''
 
 @socketio.on('connect')                                                         
-def connect():                                                                  
-    emit('message', {'hello': "Hello"})  
+def connect():     
+    currentSocketID = request.sid                                                             
+    emit('message', currentSocketID)
 
 @socketio.on('my-event')                                                         
 def newmsg(data):   
@@ -206,6 +207,10 @@ def __bufferdata(data):
 @socketio.on('enter-room')
 def enterRoom(data):
     socketio.emit('room-token', data, broadcast=True, include_self=False) 
+
+@socketio.on('addRoom')
+def addRoom(data):
+    socketio.emit('new-room-added', data, broadcast=True) 
 
     
 

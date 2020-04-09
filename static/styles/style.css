@@ -456,7 +456,8 @@ button:disabled {
   text-align: center;
   padding-top: 4px;
   height: calc(13% - 4px);
-  width: calc(70% - 1px)
+  width: calc(70% - 1px);
+  overflow-y: auto;
 }
 
 
@@ -1124,4 +1125,23 @@ button:disabled {
 
 #sendannotbtn:active {
   background-color: aqua;
+}
+
+#_wrapper {
+  position:relative;
+  height:200px;
+  width:300px;
+  background-color:#fff;
+  margin-top:30px;
+  color: black;
+}  
+#_list {
+    margin:0px;
+    padding:0px;
+    position:absolute;
+    bottom:0px; 
+    left:0px;
+    width:inherit;
+    overflow:hidden;
+    overflow-y:scroll;
 }

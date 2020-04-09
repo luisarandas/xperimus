@@ -19,7 +19,7 @@ socket.on('connect', function() {
 });
 
 socket.on('message', function(data) {
-  console.log(data);
+  interactionState.thisid = data;
 });
 
 socket.on('region-socket', function(data) {
@@ -1714,17 +1714,21 @@ document.getElementById("my_file").addEventListener('change', function(e){
 
 console.log("abrir waveform noutra janela");
 
+var li;
 document.body.onkeyup = function(e){
   if(e.keyCode == 32){
     //space bar
     wavesurfer.play();
+
     console.log(transferRecognizer.dataset.examples);
     
     for (const prop in transferRecognizer.dataset.examples) {
       var _e = prop;
-        speechCommands.utils.playRawAudio(_rawAudio); //transferRecognizer.dataset.examples._e.rawAudio);
+        speechCommands.utils.playRawAudio(_rawAudio);
     }
     console.log(transferRecognizer);
+
+
   }
 }
 
@@ -1806,6 +1810,9 @@ wavesurfer.on('region-in', function (region, e) {
     socket.emit("regionsocket", "_olaola_");
   }
   document.getElementById("idval").value = region.id;
+  document.getElementById("blink-when-region").style["background-color"] = "rgba(38,165,164,1)";
+  document.getElementById("blink-when-region").style["background-color"] = "rgba(0,0,0,1)";
+
 });
 
 wavesurfer.on('region-mouseenter', function (region, e) {
@@ -2319,7 +2326,8 @@ ctx.stroke();
 const interactionState = {
   name: [],
   players: 0,
-  playerIDS: []
+  playerIDS: [],
+  thisid: ""
 }
 
 var _room = document.getElementById("interroom");
@@ -2334,6 +2342,18 @@ lockRoom.addEventListener('click', () => {
   lockRoom.style.border = "1px solid grey";
   _room.style.backgroundColor = "rgba(72,72,72,1)";
   _room.style.border = "1px solid grey";
+
+  socket.emit("addRoom", _room.value);
+});
+
+var controlTerminal = document.getElementById("control-terminal");
+
+socket.on('new-room-added', function(data) {
+  var output_node = document.createElement("div");
+  output_node.innerHTML = `${data}`;
+  output_node.style["padding-right"] = "10px";
+
+  controlTerminal.appendChild(output_node);
 });
 
 
