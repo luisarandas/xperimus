@@ -511,7 +511,7 @@ class DatasetViz {
       const requiredMinCountPerClass =
           Math.ceil(this.minExamplesPerClass / this.transferDurationMultiplier);
       if (minCountByClass >= requiredMinCountPerClass) {
-        this.startTransferLearnButton.textContent = 'Start transfer learning';
+        this.startTransferLearnButton.textContent = 'Start Learning';
         this.startTransferLearnButton.disabled = false;
       } else {
         this.startTransferLearnButton.textContent =
@@ -523,7 +523,7 @@ class DatasetViz {
           this.transferRecognizer.isDatasetEmpty();
     }
 }
-
+console.log("augment noise doesnt work");
 
 (async function() {
     console.log("Creating Recognizer");
@@ -555,6 +555,9 @@ var BACKGROUND_NOISE_TAG = SpeechCommands.BACKGROUND_NOISE_TAG;
 var UNKNOWN_TAG = SpeechCommands.UNKNOWN_TAG;
 
 startButton.addEventListener('click', () => {
+
+    startButton.disabled = true;
+
     const activeRecognizer = transferRecognizer == null ? recognizer : transferRecognizer;
     populateCandidateWords(activeRecognizer.wordLabels());
 
@@ -581,6 +584,9 @@ startButton.addEventListener('click', () => {
 });
 
 stopButton.addEventListener('click', () => {
+    var _removeannot = document.getElementById('sendannotfill')
+    _removeannot.innerHTML = "";
+    document.getElementById('candidate-words').innerHTML = "";
     const activeRecognizer = transferRecognizer == null ? recognizer : transferRecognizer;
     activeRecognizer.stopListening()
     .then(() => {
@@ -591,9 +597,6 @@ stopButton.addEventListener('click', () => {
     .catch(err => {
         console.log("Failed to stop streaming display: ", err.message);
     });
-    const myNode = document.getElementById("cont4");
-    console.log("doesnt work check");
-    myNode.innerHTML = '';
 });
 
 
@@ -1079,8 +1082,6 @@ evalModelOnDatasetButton.addEventListener('click', async () => {
   
 async function populateSavedTransferModelsSelect() {
 
-    //aqui
-
     const savedModelKeys = await SpeechCommands.listSavedTransferModels();
     while (savedTransferModelsSelect.firstChild) {
       savedTransferModelsSelect.removeChild(savedTransferModelsSelect.firstChild);
@@ -1243,6 +1244,7 @@ let candidateWordSpans;
  */
 var _word, btnColor = false;
 function populateCandidateWords(words) {
+  document.getElementById("candidate-words").innerHTML = "";
     candidateWordSpans = {};
     _candidateWordSpans = {};
 
@@ -1283,8 +1285,6 @@ function populateCandidateWords(words) {
           _button.classList.remove("buttonBack1");
           _btnsArray = _btnsArray.filter(e => e !== _button.id);
         }
-
-
       };
 
       wordSpan.appendChild(_button);
@@ -1311,7 +1311,6 @@ function populateCandidateWords(words) {
       //_wordSpanDiv.appendChild(_wordSpan);
       document.getElementById("sendannotfill").appendChild(_wordSpanDiv);      
       document.getElementById("sendannotfill").style.height = "auto";      
-
     }
 }
 
@@ -1399,7 +1398,6 @@ async function plotSpectrogram(
       //`rgb(${0},${colorValue},${colorValue})`;
     }
   }
-  console.log("aaaaaaaa");
   console.log(config);
 
   if (config.markKeyFrame) {
@@ -1457,17 +1455,31 @@ function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiv
     var prob_ = wordsAndProbs[0][1].toFixed(2);
     document.getElementById('probabil').innerHTML = `"${topWord}" ${prob_}` //@ ` + new Date().toTimeString();
 
-    // check if the biggest probability has clicked button 
-    console.log(topWord);
-    console.log(_btnsArray);
+    const _recordDiv = document.createElement("div");
+    _recordDiv.style['width'] = "10%";
+    _recordDiv.style['font-size'] = "8px";
+    _recordDiv.style['border'] = "1px solid black";
+    _recordDiv.style['border-radius'] = "2px";
+    _recordDiv.style['padding-top'] = "1%";
+    _recordDiv.style['padding-left'] = "1%";
+    _recordDiv.style['padding-right'] = "1%";
+
+    _recordDiv.style['margin-top'] = "1%";
+    _recordDiv.style['margin-left'] = "1%";
+
+    _recordDiv.style['height'] = "78%";
+    _recordDiv.style['background-color'] = "#353535";
+    _recordDiv.style['float'] = "left";
+
+    _recordDiv.innerHTML = `Word: "${topWord}" <br> Prob: ${wordsAndProbs[0][1].toFixed(2)} <br> Time: ` + new Date().getHours() + ":" + new Date().getMinutes() + ":" + new Date().getSeconds()
+    const _directionArray = document.getElementById("detectionarray");
+    _directionArray.appendChild(_recordDiv);
 
     if (_btnsArray.includes(topWord)) {
       socket.emit("regionsocket", "__");
     }
 
     ///var hasButtonClick = candidateWordsContainer.querySelector(topWord) != null;
-
-
     if (prob_ > 0.9 && topWord == "one") {
       //document.getElementById("sequence1").style.backgroundColor = "green";
       truthChain[0] = true;
@@ -1488,6 +1500,7 @@ function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiv
     for (const word in candidateWordSpans) {
       if (word === topWord) {
         candidateWordSpans[word].classList.add('candidate-word-active');
+
         if (timeToLiveMillis != null) {
           setTimeout(() => {
             if (candidateWordSpans[word]) {
@@ -1811,8 +1824,16 @@ wavesurfer.on('region-in', function (region, e) {
   }
   document.getElementById("idval").value = region.id;
   document.getElementById("blink-when-region").style["background-color"] = "rgba(38,165,164,1)";
-  document.getElementById("blink-when-region").style["background-color"] = "rgba(0,0,0,1)";
+  setTimeout(function(){
+    document.getElementById("blink-when-region").style["background-color"] = "#353535";
+  }, 70)
+});
 
+wavesurfer.on('region-out', function(region, e) {
+  document.getElementById("blink-when-region").style["background-color"] = "rgba(38,165,164,1)";
+  setTimeout(function(){
+    document.getElementById("blink-when-region").style["background-color"] = "#353535";
+  }, 70)
 });
 
 wavesurfer.on('region-mouseenter', function (region, e) {
