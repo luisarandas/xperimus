@@ -14,12 +14,13 @@ if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(naviga
 var protocol = window.location.protocol;
 var socket = io.connect(protocol + '//' + document.domain + ":" + location.port); //port + namespace);
 
-socket.on('connect', function() {
-  console.log('connected');
+socket.on('connect', function(data) {
+  console.log('Connected', this);
 });
 
 socket.on('message', function(data) {
   interactionState.thisid = data;
+  console.log('Connected', interactionState);
 });
 
 socket.on('region-socket', function(data) {
@@ -1420,6 +1421,8 @@ async function plotSpectrogram(
   }
 }
 
+console.log("xperimus file");
+
 /**
  * Plot top-K predictions from a speech command recognizer.
  *
@@ -1740,8 +1743,17 @@ document.body.onkeyup = function(e){
         speechCommands.utils.playRawAudio(_rawAudio);
     }
     console.log(transferRecognizer);
-
-
+  }
+  if (e.keyCode == 81) {
+      $('div').not('#allPage').remove();
+      document.body.innerHTML = '';
+      var myCodeMirror = CodeMirror(document.body, {
+        lineNumbers: true,
+        matchBrackets: true,
+        value: "function myScript() { \n return 100;}\n",
+        mode:  "javascript",
+        theme: "mbo"
+      });      //$('body').append('<div id="performancemode"><br><br><br><div id="code"></div></div>');
   }
 }
 
@@ -1751,7 +1763,6 @@ function addAnnot(v){
   var _v = wavesurfer.getCurrentTime();
   var __e = wavesurfer.getDuration();
 
-  console.log(wavesurfer);
   if (v == 'add') {
     wavesurfer.addRegion({
       start: _v,
@@ -2191,10 +2202,7 @@ Plotly.newPlot('accuracy-plot', data, layout1);
 var isMobile = false;
 
 async function mobilePerformanceSetup() {
-  /*$('div').not('#allPage').remove();
-  document.body.innerHTML = '';
-  $('body').append('<div id="performancemode"><br><br><br>performance-mode<br><div id="roomSend"><input type="text" id="interroom" name="room" value="Connect"></input><br><button>Send</button></div></div>');
-  isMobile = true;*/
+
 }
 
 async function sendingDataSockets() {
@@ -2313,25 +2321,6 @@ window.onclick = function(event) {
   }
 }
 
-$( function() {
-  $("#draggable").draggable({containment: "parent"});
-  $('#draggable').animate({
-    'left' : "20%",
-    'top' : "5%"
-  });
-
-  $("#draggable1").draggable({containment: "parent"});
-  $('#draggable1').animate({
-    'left' : "65%",
-    'top' : "-5%"
-  });
-
-  $("#draggable2").draggable({containment: "parent"});
-  $('#draggable2').animate({
-    'left' : "45%",
-    'top' : "5%"
-  });
-});
 
 var c = document.getElementById("door");
 var ctx = c.getContext("2d");
@@ -2382,14 +2371,18 @@ sendRoom = document.getElementById("send-room");
 _enterRoom = document.getElementById("enter-room");
 
 sendRoom.addEventListener('click', () => {
-  socket.emit("enter-room", _enterRoom.value);
+  var _newClientnRoom = [_enterRoom.value, interactionState.thisid]
+  console.log(_newClientnRoom);
+  socket.emit("enter-room", _newClientnRoom);
 });
 
 socket.on("room-token", function(data) {
-  console.log(data);
-  if (data == interactionState.name) {
+  
+  if (data[0] == interactionState.name) {
     interactionState.players++
-
+    document.getElementById('number-connected-users').innerHTML = interactionState.players;
+    interactionState.playerIDS.push(data[1]);
+    console.log(interactionState);
   }
 });
 
@@ -2408,16 +2401,35 @@ newRoom.addEventListener('click', () => {
 var _bufwavesurfer = WaveSurfer.create({
   container: '#bufferplot',
   //waveColor: 'rgba(38,165,164,1)',
-  waveColor: 'white',
+  //waveColor: 'white',
   progressColor: 'rgba(38,165,164,1)',
   loaderColor: 'rgba(38,165,164,1)',
   cursorColor: 'rgba(38,165,164,0)',
   height: 60,
   normalize: true,
   minimap: true,
-  backend: 'MediaElement'
+  backend: 'MediaElement',
+  plugins: [
+    WaveSurfer.regions.create({
+      regions: [
+          {
+              start: 1,
+              end: 3,
+              loop: false,
+              color: 'hsla(400, 100%, 30%, 0.5)'
+          }, {
+              start: 5,
+              end: 7,
+              loop: false,
+              color: 'hsla(200, 50%, 70%, 0.4)'
+          }
+      ],
+      dragSelection: {
+          slop: 5
+      }
+  })]
 });
-
+//pensar como é que tu pões -- isto como e que cada pessoa pode criar o seu cliente de javascript sem que toda a gente - biblioteca p5js correr isto -- 
 
 const _fileInput = document.getElementById('audio-file');
 
@@ -2559,4 +2571,17 @@ socket.on("buffer-play", function(data) {
   //AudioBufferSourceNode.start([when][, offset][, duration]);
 });
 
+var currentNumberOfPlayers = null; 
+var addRoomPlayers = document.getElementById('add-room-players');
+
+addRoomPlayers.addEventListener('click', () => {
+  currentNumberOfPlayers = interactionState.players + 1;
+  for (i = 0; i < currentNumberOfPlayers; i++) {
+    var _newplayersdiv = document.createElement('div');
+    _newplayersdiv.className = "draggable"; 
+    _newplayersdiv.innerHTML = [i];
+    document.getElementById('room').appendChild(_newplayersdiv);  
+    $(_newplayersdiv).draggable({containment: "parent"});  
+  }
+});
 

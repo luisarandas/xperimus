@@ -20,6 +20,8 @@ from wtform_fields import *
 from models import *
 from main import *
 
+import numpy as np
+
 # python3 -m venv local_python_environment
 # source local_py_env/bin/activate
 # For (current machine env) pip install -r requirements.txt
@@ -175,10 +177,15 @@ s3.Bucket(BUCKET_NAME).download_file('teste.png', desktop+objectname_string)
 #print(desktop)
 '''
 
+#initclients = [[], []]
+#initnr = 0
+
 @socketio.on('connect')                                                         
-def connect():     
-    currentSocketID = request.sid                                                             
-    emit('message', currentSocketID)
+def connect():    
+    #initnr = initnr + 1 
+    #currentSocketID = np.append(initclients, [initnr, request.sid])
+    #print(currentSocketID)
+    emit('message', request.sid)
 
 @socketio.on('my-event')                                                         
 def newmsg(data):   
@@ -206,10 +213,12 @@ def __bufferdata(data):
 
 @socketio.on('enter-room')
 def enterRoom(data):
+    
     socketio.emit('room-token', data, broadcast=True, include_self=False) 
 
 @socketio.on('addRoom')
 def addRoom(data):
+    print(data)
     socketio.emit('new-room-added', data, broadcast=True) 
 
     

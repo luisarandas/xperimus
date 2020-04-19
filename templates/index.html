@@ -2,7 +2,12 @@
 <html lang="en">
 
 <head>
+  <title>Xperimus Sttera</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/codemirror.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/mbo.css') }}">
+    <script src="/static/scripts/libs/codemirror.js"></script>
+
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -13,6 +18,7 @@
 </head>
 
 <body>
+
   <div id="topmenu" class="navbar">
     <a href="#home">File</a>
     <div class="dropdown">
@@ -327,7 +333,7 @@
 
     </div>
     <div id="cont17">
-      Created Rooms
+      Created Rooms<br>
       <select id="created-rooms" style="position: absolute; left: 0px; bottom: 0px; border-radius: 2px;">
         <option value="1">Duration x1</option>
       </select>
@@ -350,12 +356,7 @@
         <div id="leftbottom" style="position: absolute; left: 0px; bottom: 0px; width: calc(35% - 2px); height: 26%; border-radius: 3px; background-color: rgba(32,32,32,1);"></div>
         <div id="rightbottom" style="position: absolute; right: 0px; bottom: 0px; width: calc(33% + 2px); height: 26%; border-radius: 3px; background-color: rgba(32,32,32,1);"></div>
 
-        <div id="room" style="width: calc(96% - 2px); height: 86%; position: absolute; left: 2%; top: 7%; border-radius: 3px; background-color: rgba(52,52,52,1); border: 1px solid rgba(72,72,72,1);">
-          <!--<div id="draggable" class="ui-widget-content">#1</div>
-       
-          <div id="draggable1" class="ui-widget-content">#2</div>
-
-          <div id="draggable2" class="ui-widget-content">#3</div>-->
+        <div id="room" style="width: calc(96% - 2px); height: 86%; position: absolute; left: 2%; top: 7%; border-radius: 3px; background-color: rgba(52,52,52,1); border: 1px solid rgba(72,72,72,1); overflow-y: auto;">
 
           </div>
         <canvas id="door" style="position: absolute; width: 20%; height: 25%; top: 55%; left: 2%;"></canvas>
@@ -385,7 +386,6 @@
   <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.spectrogram.min.js"></script>
   
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
 
   <script src="/static/scripts/xperimus.js"></script>
 
