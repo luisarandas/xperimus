@@ -1731,6 +1731,7 @@ document.getElementById("my_file").addEventListener('change', function(e){
 console.log("abrir waveform noutra janela");
 
 var li;
+var myCodeMirror;
 document.body.onkeyup = function(e){
   if(e.keyCode == 32){
     //space bar
@@ -1747,15 +1748,166 @@ document.body.onkeyup = function(e){
   if (e.keyCode == 81) {
       $('div').not('#allPage').remove();
       document.body.innerHTML = '';
-      var myCodeMirror = CodeMirror(document.body, {
-        lineNumbers: true,
-        matchBrackets: true,
-        value: "function myScript() { \n return 100;}\n",
-        mode:  "javascript",
-        theme: "mbo"
-      });      //$('body').append('<div id="performancemode"><br><br><br><div id="code"></div></div>');
+      
+      var editorDiv = document.createElement("div"); 
+      editorDiv.style["position"] = "absolute";
+      editorDiv.style["left"] = "1%";
+      editorDiv.style["top"] = "1%";
+      editorDiv.style["width"] = "48%";
+      editorDiv.style["height"] = "300px";
+      editorDiv.style["background-color"] = "red";
+
+      document.body.appendChild(editorDiv);
+
+      var codeRunDiv = document.createElement("div");
+      codeRunDiv.style["position"] = "absolute";
+      codeRunDiv.style["right"] = "1%";
+      codeRunDiv.style["top"] = "1%";
+      codeRunDiv.style["width"] = "48%";
+      codeRunDiv.style["height"] = "calc(46% + 310px)";
+      codeRunDiv.style["overflow"] = "auto";
+      codeRunDiv.style["background-color"] = "#2c2c2c";
+      codeRunDiv.id = "run-code-here";
+      document.body.appendChild(codeRunDiv);
+
+      //myCodeMirror = new CodeMirror(editorDiv, {
+      //  lineNumbers: true,
+      //  matchBrackets: true,
+      //  value: "/** Sttera Connection Editor */ \n\nfunction setup() { \n  createCanvas(400, 400);\n}\n\nfunction callback() {\n  background(200); \n}",
+      //  styleActiveLine: true,
+      //  mode:  "javascript",
+      //  theme: "mbo"
+      //});      //$('body').append('<div id="performancemode"><br><br><br><div id="code"></div></div>');*/
+      var s = document.createElement("script");
+      s.type = "text/p5";
+      s.src = "function setup() { \n createCanvas(100, 100); \n } function draw() { \n background(255, 0, 200); \n };"
+      document.body.appendChild(s);
+
+      var codeRunBtn = document.createElement("button");
+      codeRunBtn.innerHTML = "Run Code"
+      codeRunBtn.style["position"] = "absolute";
+      codeRunBtn.style["background-color"] = "#2c2c2c";
+      codeRunBtn.style["border-radius"] = "3px";
+      codeRunBtn.style["color"] = "rgba(200,200,200,1)";
+
+      codeRunBtn.style["left"] = "1%";
+      codeRunBtn.style["width"] = "10%";
+      codeRunBtn.style["height"] = "5%";
+      codeRunBtn.onclick = function() {
+        //var _e = myCodeMirror.getValue();
+        //runcode();
+        //CodeMirror.runMode(_e, "application/javascript", codeRunDiv);
+        //$(codeRunDiv).contents().find("body").html(_e);
+      }
+
+      codeRunBtn.style["top"] = "calc(1% + 310px)";
+      document.body.appendChild(codeRunBtn);
+
+      var terminaldiv = document.createElement("div");
+      terminaldiv.id = "consolediv";
+      terminaldiv.style["position"] = "absolute";
+      terminaldiv.style["background-color"] = "#2c2c2c";
+      //terminaldiv.style["border-radius"] = "3px";
+      terminaldiv.style["color"] = "rgba(200,200,200,1)";
+      terminaldiv.style["top"] = "calc(1% + 350px)";
+
+      terminaldiv.style["left"] = "1%";
+      terminaldiv.style["width"] = "48%";
+      terminaldiv.style["height"] = "40%";
+      terminaldiv.style["font-family"] = "monospace";
+      document.body.appendChild(terminaldiv);
+
+      var terminaltext = document.createElement("div");
+      terminaltext.id = "consoletext";
+      terminaltext.style["position"] = "absolute";
+      terminaltext.style["background-color"] = "#2c2c2c";
+      //terminaltext.style["border-radius"] = "3px";
+      terminaltext.style["color"] = "rgba(200,200,200,1)";
+      terminaltext.style["top"] = "1%";
+
+      terminaltext.style["left"] = "0px";
+      terminaltext.style["width"] = "100%";
+      terminaltext.style["height"] = "100%";
+      terminaltext.style["font-family"] = "monospace";
+
+      terminaltext.style["display"] = "flex";
+      terminaltext.style["align-items"] = "flex-start";
+      terminaltext.style["justify-content"] = "flex-end";
+      terminaltext.style["flex-direction"] = "column";
+      terminaltext.style["overflow-y"] = "auto";
+
+      terminaldiv.appendChild(terminaltext);
+
   }
 }
+
+function runcode() {
+  var __e = document.getElementById('run-code-here');
+  __e.innerHTML = '';
+  var _value = myCodeMirror.getValue();
+  console.log(_value);
+  const splitLines = _value => _value.split(/\r?\n/);
+  var listVal = splitLines(_value);
+  var setup1, setup2, call1, call2;
+
+  for (i = 0; i < listVal.length; i++) {
+    if (listVal[i].indexOf("function") >= 0) {
+      setup1 = listVal[i];
+      setup2 = [i];
+      console.log(listVal[i]);
+      console.log([i]);
+    }
+    if (listVal[i].indexOf("}") >= 0) {
+      call1 = listVal[i];
+      call2 = [i];
+      console.log(listVal[i]);
+      console.log([i]);
+    }
+    //if (listVal.length > setup2 && listVal.length < setup2) {
+    //  console.log(listVal[i]);
+    //}
+  }
+
+  var _setup = _value.substring(
+    _value.lastIndexOf("setup()") + 9, 
+    _value.indexOf("}")
+  );
+
+  var _callback = _value.substring(
+    _value.lastIndexOf("callback()") + 12,
+    _value.lastIndexOf("}")
+  );
+
+  var __a = _setup.split("\n");
+  console.log(__a);
+
+  var __setup = _setup.replace(/^\s+/g, '');
+  var __callback = _callback.replace(/^\s+/g, '');
+
+  let sketch = function(p) {
+    p.setup = function(){
+      eval("p." + __setup);
+      eval("p." + __callback);
+      // RUN ALL LINES
+      // START ROOM ALLOCATION
+    }
+  };
+  new p5(sketch, __e);
+}
+/*
+if (typeof console  != "undefined") 
+    if (typeof console.log != 'undefined')
+        console.olog = console.log;
+    else
+        console.olog = function() {};
+
+console.log = function(message) {
+    console.olog(message);
+    if ($('#consoletext') != null) {
+      $('#consoletext').append(message + '<br>');//'<p>' + message + '</p>');
+    }
+};
+console.error = console.debug = console.info =  console.log*/
 
 //https://github.com/katspaugh/wavesurfer.js/blob/master/example/annotation/app.js
 var annotationID = 0;

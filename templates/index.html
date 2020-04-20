@@ -3,10 +3,18 @@
 
 <head>
   <title>Xperimus Sttera</title>
+
+    <script src="/static/scripts/libs/codemirror.js"></script>
+    <script src="/static/scripts/libs/javascript.js"></script>
+    <script src="/static/scripts/libs/runmode.js"></script>
+    <script src="/static/scripts/libs/p5.min.js"></script>
+    <script src="/static/scripts/libs/p5jswidget.js"></script>
+
+    
+
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/codemirror.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/mbo.css') }}">
-    <script src="/static/scripts/libs/codemirror.js"></script>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
@@ -365,6 +373,15 @@
   </div>
   <a id="downloadAnchorElem" style="display:none"></a>
 
+  <script type="text/p5">
+    function setup() {
+      createCanvas(100, 100);
+    }
+    
+    function draw() {
+      background(255, 0, 200);
+    }
+    </script>
   <!-- The Modal -->
   <div id="amazonmodal" class="modal">
 
