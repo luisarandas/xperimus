@@ -18,9 +18,10 @@ socket.on('connect', function(data) {
   console.log('Connected', this);
 });
 
+var thisDeviceID;
 socket.on('message', function(data) {
   interactionState.thisid = data;
-  console.log('Connected', interactionState);
+  thisDeviceID = data;
 });
 
 socket.on('region-socket', function(data) {
@@ -40,8 +41,6 @@ function socketMusic() {
 async function removeAnnots() {
   wavesurfer.clearRegions();
 }
-
-console.log("change bk noise for automatic string trunc");
 
 window.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB,
     IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction,
@@ -1732,23 +1731,27 @@ console.log("abrir waveform noutra janela");
 
 var li;
 var myCodeMirror;
+var interfaceMode = true;
 document.body.onkeyup = function(e){
   if(e.keyCode == 32){
     //space bar
-    wavesurfer.play();
-
-    console.log(transferRecognizer.dataset.examples);
+    if (interfaceMode == true) {
+      wavesurfer.play();
+      console.log(transferRecognizer.dataset.examples);
     
-    for (const prop in transferRecognizer.dataset.examples) {
-      var _e = prop;
-        speechCommands.utils.playRawAudio(_rawAudio);
+      for (const prop in transferRecognizer.dataset.examples) {
+        var _e = prop;
+          speechCommands.utils.playRawAudio(_rawAudio);
+      }
+      console.log(transferRecognizer);
     }
-    console.log(transferRecognizer);
+
   }
   if (e.keyCode == 81) {
       $('div').not('#allPage').remove();
       document.body.innerHTML = '';
-      
+      interfaceMode = false;
+
       var editorDiv = document.createElement("div"); 
       editorDiv.style["position"] = "absolute";
       editorDiv.style["left"] = "1%";
@@ -1770,18 +1773,15 @@ document.body.onkeyup = function(e){
       codeRunDiv.id = "run-code-here";
       document.body.appendChild(codeRunDiv);
 
-      //myCodeMirror = new CodeMirror(editorDiv, {
-      //  lineNumbers: true,
-      //  matchBrackets: true,
-      //  value: "/** Sttera Connection Editor */ \n\nfunction setup() { \n  createCanvas(400, 400);\n}\n\nfunction callback() {\n  background(200); \n}",
-      //  styleActiveLine: true,
-      //  mode:  "javascript",
-      //  theme: "mbo"
-      //});      //$('body').append('<div id="performancemode"><br><br><br><div id="code"></div></div>');*/
-      var s = document.createElement("script");
-      s.type = "text/p5";
-      s.src = "function setup() { \n createCanvas(100, 100); \n } function draw() { \n background(255, 0, 200); \n };"
-      document.body.appendChild(s);
+      myCodeMirror = new CodeMirror(editorDiv, {
+        lineNumbers: true,
+        matchBrackets: true,
+        value: "/* Sttera Connection Editor */ \n",//"/** Sttera Connection Editor */ \n\nfunction setup() { \n  createCanvas(400, 400);\n}\n\nfunction callback() {\n  background(200); \n}",
+        styleActiveLine: true,
+        mode:  "javascript",
+        theme: "mbo"
+      });      //$('body').append('<div id="performancemode"><br><br><br><div id="code"></div></div>');*/
+
 
       var codeRunBtn = document.createElement("button");
       codeRunBtn.innerHTML = "Run Code"
@@ -1794,14 +1794,45 @@ document.body.onkeyup = function(e){
       codeRunBtn.style["width"] = "10%";
       codeRunBtn.style["height"] = "5%";
       codeRunBtn.onclick = function() {
-        //var _e = myCodeMirror.getValue();
-        //runcode();
+        var _e = myCodeMirror.getValue();
+        runcode();
         //CodeMirror.runMode(_e, "application/javascript", codeRunDiv);
         //$(codeRunDiv).contents().find("body").html(_e);
       }
 
       codeRunBtn.style["top"] = "calc(1% + 310px)";
       document.body.appendChild(codeRunBtn);
+
+      var stopBtn = document.createElement("button");
+      stopBtn.innerHTML = "Stop Audio"
+      stopBtn.style["position"] = "absolute";
+      stopBtn.style["background-color"] = "#2c2c2c";
+      stopBtn.style["border-radius"] = "3px";
+      stopBtn.style["color"] = "rgba(200,200,200,1)";
+
+      stopBtn.style["left"] = "12%";
+      stopBtn.style["width"] = "10%";
+      stopBtn.style["height"] = "5%";
+      stopBtn.onclick = function() {
+        Gibber.clear();
+      }
+      stopBtn.style["top"] = "calc(1% + 310px)";
+      document.body.appendChild(stopBtn);
+
+      var socketBlink = document.createElement("div");
+      socketBlink.innerHTML = ""
+      socketBlink.id = "socketblink"
+      socketBlink.style["position"] = "absolute";
+      socketBlink.style["background-color"] = "#2c2c2c";
+      socketBlink.style["border-radius"] = "3px";
+      socketBlink.style["color"] = "rgba(200,200,200,1)";
+      socketBlink.style["border"] = "1px solid rgba(200,200,200,1)";
+
+      socketBlink.style["left"] = "23%";
+      socketBlink.style["width"] = "3%";
+      socketBlink.style["height"] = "calc(5% - 2px)";
+      socketBlink.style["top"] = "calc(1% + 310px)";
+      document.body.appendChild(socketBlink);
 
       var terminaldiv = document.createElement("div");
       terminaldiv.id = "consolediv";
@@ -1838,62 +1869,50 @@ document.body.onkeyup = function(e){
 
       terminaldiv.appendChild(terminaltext);
 
+      Gibber.init(); //maybe wrap this elsewhere DIFFERENT WORKER or notand clear
+      //Gibber.Clock.rate = .5
+      //a = EDrums('xoxoxo');
+      /*
+      Gibber.scale.root.seq( ['c4','eb4'], 2)
+
+a = Mono('bass').note.seq( [0,7], 1/8 )
+
+b = EDrums('xoxo')
+b.snare.snappy = 1
+
+c = Mono('easyfx')
+  .note.seq( Rndi(0,12), [1/4,1/8,1/2,1,2].rnd( 1/8,4 ) )*/ 
+
   }
 }
 
 function runcode() {
   var __e = document.getElementById('run-code-here');
   __e.innerHTML = '';
-  var _value = myCodeMirror.getValue();
-  console.log(_value);
-  const splitLines = _value => _value.split(/\r?\n/);
-  var listVal = splitLines(_value);
-  var setup1, setup2, call1, call2;
 
-  for (i = 0; i < listVal.length; i++) {
-    if (listVal[i].indexOf("function") >= 0) {
-      setup1 = listVal[i];
-      setup2 = [i];
-      console.log(listVal[i]);
-      console.log([i]);
+
+  //eval(_value);
+  function evaluate(){
+    var script = document.createElement('script');
+    script.type = "text/javascript";
+    var code = myCodeMirror.getValue();
+    try {
+      script.appendChild(document.createTextNode(code));
+      document.body.appendChild(script);
+    } catch (e) {
+      script.text = code;
+      document.body.appendChild(script);
     }
-    if (listVal[i].indexOf("}") >= 0) {
-      call1 = listVal[i];
-      call2 = [i];
-      console.log(listVal[i]);
-      console.log([i]);
-    }
-    //if (listVal.length > setup2 && listVal.length < setup2) {
-    //  console.log(listVal[i]);
-    //}
   }
+  evaluate();
 
-  var _setup = _value.substring(
-    _value.lastIndexOf("setup()") + 9, 
-    _value.indexOf("}")
-  );
-
-  var _callback = _value.substring(
-    _value.lastIndexOf("callback()") + 12,
-    _value.lastIndexOf("}")
-  );
-
-  var __a = _setup.split("\n");
-  console.log(__a);
-
-  var __setup = _setup.replace(/^\s+/g, '');
-  var __callback = _callback.replace(/^\s+/g, '');
-
-  let sketch = function(p) {
-    p.setup = function(){
-      eval("p." + __setup);
-      eval("p." + __callback);
-      // RUN ALL LINES
-      // START ROOM ALLOCATION
-    }
-  };
-  new p5(sketch, __e);
 }
+
+async function plays(v) {
+  wavesurfer.play();
+}
+
+//just create the matrix now
 /*
 if (typeof console  != "undefined") 
     if (typeof console.log != 'undefined')
@@ -1907,7 +1926,7 @@ console.log = function(message) {
       $('#consoletext').append(message + '<br>');//'<p>' + message + '</p>');
     }
 };
-console.error = console.debug = console.info =  console.log*/
+console.error = console.debug = console.info = console.log*/
 
 //https://github.com/katspaugh/wavesurfer.js/blob/master/example/annotation/app.js
 var annotationID = 0;
@@ -2485,6 +2504,19 @@ ctx.lineTo(0, 130);
 ctx.strokeStyle = 'black';
 ctx.stroke();
 
+class Sttera {
+  constructor(name, players, playerIDS, thisid) {
+    this.name = name;
+    this.players = players;
+    this.playerIDS = playerIDS;
+    this.id = thisDeviceID;
+    name = "";
+    players = [];
+    playerIDS = [];
+    thisid = "";
+  }
+}
+
 const interactionState = {
   name: [],
   players: 0,
@@ -2508,6 +2540,7 @@ lockRoom.addEventListener('click', () => {
   socket.emit("addRoom", _room.value);
 });
 
+
 var controlTerminal = document.getElementById("control-terminal");
 
 socket.on('new-room-added', function(data) {
@@ -2517,7 +2550,6 @@ socket.on('new-room-added', function(data) {
 
   controlTerminal.appendChild(output_node);
 });
-
 
 sendRoom = document.getElementById("send-room");
 _enterRoom = document.getElementById("enter-room");
@@ -2536,6 +2568,13 @@ socket.on("room-token", function(data) {
     interactionState.playerIDS.push(data[1]);
     console.log(interactionState);
   }
+  if ($('#socketblink').length > 0) {
+    document.getElementById('socketblink').style['background-color'] = "red";
+  }
+  /*if (typeof maybeObject != "undefined") {
+    alert("GOT THERE");
+ }*/
+ 
 });
 
 /*lockRoom.backgroundColor = "rgba(72,72,72,1)";
@@ -2650,12 +2689,6 @@ async function aboutAudioFile(e,a) {
   document.getElementById('bufdur-audio-file-fill').innerHTML = _duration;
   document.getElementById('bufsamp-audio-file-fill').innerHTML = a.sampleRate;
   document.getElementById('bufnumc-audio-file-fill').innerHTML = a.numberOfChannels;
-
-
-
-  
-  console.log(a);
-
   //_bufwavesurfer.loadDecodedBuffer(blob);
   
 }
@@ -2686,7 +2719,18 @@ socket.on('buffer-qual', function(data) {
   newSongBufferToCopy = myArrayBuffer;
   _source.connect(_audioCtx.destination);
   _source.start();
+
+  blinkCodeEditor();
 });
+
+function blinkCodeEditor() {
+  if ($('#socketblink').length > 0) {
+    document.getElementById('socketblink').style['background-color'] = "red";
+    setTimeout(function(){
+      document.getElementById('socketblink').style['background-color'] = "#2c2c2c";
+    },100); 
+  }
+}
 
 navigator.mediaDevices.enumerateDevices().then((devices) => {
   devices.filter((d) => d.kind === 'audioinput');
@@ -2721,6 +2765,7 @@ socket.on("buffer-play", function(data) {
   _source.connect(_audioCtx.destination);
   _source.start();
   //AudioBufferSourceNode.start([when][, offset][, duration]);
+  blinkCodeEditor()
 });
 
 var currentNumberOfPlayers = null; 
@@ -2736,4 +2781,3 @@ addRoomPlayers.addEventListener('click', () => {
     $(_newplayersdiv).draggable({containment: "parent"});  
   }
 });
-
