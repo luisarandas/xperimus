@@ -1804,7 +1804,7 @@ document.body.onkeyup = function(e){
       document.body.appendChild(codeRunBtn);
 
       var stopBtn = document.createElement("button");
-      stopBtn.innerHTML = "Stop Audio"
+      stopBtn.innerHTML = "Stop Code"
       stopBtn.style["position"] = "absolute";
       stopBtn.style["background-color"] = "#2c2c2c";
       stopBtn.style["border-radius"] = "3px";
@@ -1833,6 +1833,32 @@ document.body.onkeyup = function(e){
       socketBlink.style["height"] = "calc(5% - 2px)";
       socketBlink.style["top"] = "calc(1% + 310px)";
       document.body.appendChild(socketBlink);
+
+      var selectOpt = ["Examples", "Emitter", "Receiver", "Document_1", "Document_2"];
+      var select = document.createElement("select");
+      select.id = "selectlist"
+      select.style["position"] = "absolute";
+      select.style["background-color"] = "#2c2c2c";
+      select.style["border-radius"] = "3px";
+      select.style["color"] = "rgba(200,200,200,1)";
+      select.style["border"] = "1px solid rgba(200,200,200,1)";
+      select.style["left"] = "27%";
+      select.style["width"] = "7%";
+      select.style["height"] = "5%";
+      select.style["top"] = "calc(1% + 305px)";
+      select.onchange = function() {
+        if (this.value == "Emitter") { 
+          myCodeMirror.setValue("/** Sttera Connection Editor  \n\n Emitter Example */ \n\n\nvar xperimus;\nxperimus = new Sttera('room404');\nxperimus.sendData('bang', 1000);");
+        }
+        //myCodeMirror.replaceRange("foo\nbar", {line: Infinity});
+      }
+      document.body.appendChild(select);
+      
+      for (var i = 0; i < selectOpt.length; i++) {
+        var option = document.createElement("option");
+        option.value, option.text = selectOpt[i];
+        select.appendChild(option);
+      }
 
       var terminaldiv = document.createElement("div");
       terminaldiv.id = "consolediv";
@@ -1869,7 +1895,7 @@ document.body.onkeyup = function(e){
 
       terminaldiv.appendChild(terminaltext);
 
-      Gibber.init(); //maybe wrap this elsewhere DIFFERENT WORKER or notand clear
+      //Gibber.init(); //maybe wrap this elsewhere DIFFERENT WORKER or notand clear
       //Gibber.Clock.rate = .5
       //a = EDrums('xoxoxo');
       /*
@@ -2504,18 +2530,70 @@ ctx.lineTo(0, 130);
 ctx.strokeStyle = 'black';
 ctx.stroke();
 
-class Sttera {
+var intervalOne, connectSpecificRoom, thisIdRoom;
+
+class Sttera { //change this for object
   constructor(name, players, playerIDS, thisid) {
     this.name = name;
     this.players = players;
     this.playerIDS = playerIDS;
     this.id = thisDeviceID;
-    name = "";
+    thisIdRoom = name;
     players = [];
     playerIDS = [];
-    thisid = "";
+  }
+  sendData(type, secs) {
+    if (type == 'bang') {
+      function _sendData() {
+        socket.emit("sttera-emitter-send", secs);
+      }
+      intervalOne = setInterval(_sendData, secs)
+    }
+  }
+  stopSend() {
+    clearInterval(intervalOne);
+    console.log("Stopped Bang Sender");
+  }
+
+  getPlayers(which) {
+    if (which != undefined) {
+      return this.playerIDS[which];
+    } else {
+      return this.playerIDS;
+    }
+  }
+  static addPlayers(id) {
+    this.playerIDS.push(id);
   }
 }
+async function StteraConnect(v) {
+  connectSpecificRoom = v;
+  var data = [connectSpecificRoom, thisDeviceID];
+  socket.emit("sttera-receiver-connect", data);
+}
+
+socket.on('sttera-receiver-receive', function(data) {
+  console.log("received");
+});
+
+var newclient;
+socket.on('sttera-emitter-newid', function(data) {
+  if (data[0] == thisIdRoom) {
+    newclient = data[1];
+  }
+})
+
+console.log("SEND ALL AND TEST AT ENTRANCE roomID")
+
+//https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Simple_synth
+var liveEditorCtx = new (window.AudioContext || window.webkitAudioContext);
+var oscillList = [];
+var masterGainNode = null;
+
+
+
+
+/* Interaction State starts-here-stop */ 
 
 const interactionState = {
   name: [],
@@ -2620,13 +2698,13 @@ var _bufwavesurfer = WaveSurfer.create({
       }
   })]
 });
-//pensar como é que tu pões -- isto como e que cada pessoa pode criar o seu cliente de javascript sem que toda a gente - biblioteca p5js correr isto -- 
 
 const _fileInput = document.getElementById('audio-file');
 
 console.log("check multiple audio contexts");
 
-var _audioCtx = new AudioContext(); 
+//var _audioCtx = new AudioContext(); 
+var _audioCtx = new (window.AudioContext || window.webkitAudioContext);
 var _sourceNode = _audioCtx.createBufferSource();
 var _dataSocketBuf = null;
 var _receiverBuffer = [];

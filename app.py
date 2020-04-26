@@ -221,6 +221,18 @@ def addRoom(data):
     print(data)
     socketio.emit('new-room-added', data, broadcast=True) 
 
+
+
+# The code editor part
+
+@socketio.on('sttera-emitter-send')
+def sttera_emitter_send(data):
+    socketio.emit('sttera-receiver-receive', data, broadcast=True, include_self=False)
+
+@socketio.on('sttera-receiver-connect')
+def sttera_receiver_connect(data):
+    socketio.emit('sttera-emitter-newid', data, broadcast=True, include_self=False)
+########
     
 
 if __name__ == "__main__":
