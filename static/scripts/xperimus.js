@@ -1730,7 +1730,7 @@ document.getElementById("my_file").addEventListener('change', function(e){
 console.log("abrir waveform noutra janela");
 
 var li;
-var myCodeMirror;
+var myCodeMirror, codeCanvas;
 var interfaceMode = true;
 document.body.onkeyup = function(e){
   if(e.keyCode == 32){
@@ -1747,7 +1747,7 @@ document.body.onkeyup = function(e){
     }
 
   }
-  if (e.keyCode == 81) {
+  if (e.keyCode == 192) {
       $('div').not('#allPage').remove();
       document.body.innerHTML = '';
       interfaceMode = false;
@@ -1771,6 +1771,7 @@ document.body.onkeyup = function(e){
       codeRunDiv.style["overflow"] = "auto";
       codeRunDiv.style["background-color"] = "#2c2c2c";
       codeRunDiv.id = "run-code-here";
+      codeCanvas = codeRunDiv;
       document.body.appendChild(codeRunDiv);
 
       myCodeMirror = new CodeMirror(editorDiv, {
@@ -1820,21 +1821,42 @@ document.body.onkeyup = function(e){
       document.body.appendChild(stopBtn);
 
       var socketBlink = document.createElement("div");
-      socketBlink.innerHTML = ""
+      socketBlink.innerHTML = "S"
       socketBlink.id = "socketblink"
       socketBlink.style["position"] = "absolute";
       socketBlink.style["background-color"] = "#2c2c2c";
       socketBlink.style["border-radius"] = "3px";
       socketBlink.style["color"] = "rgba(200,200,200,1)";
       socketBlink.style["border"] = "1px solid rgba(200,200,200,1)";
+      socketBlink.style["padding-top"] = "3px";
 
       socketBlink.style["left"] = "23%";
       socketBlink.style["width"] = "3%";
-      socketBlink.style["height"] = "calc(5% - 2px)";
+      socketBlink.style["text-align"] = "center";
+      socketBlink.style["height"] = "calc(4% + 2px)";
+
       socketBlink.style["top"] = "calc(1% + 310px)";
       document.body.appendChild(socketBlink);
 
-      var selectOpt = ["Examples", "Emitter", "Receiver", "Document_1", "Document_2"];
+      var socketblinkrcv = document.createElement("div");
+      socketblinkrcv.innerHTML = "R"
+      socketblinkrcv.id = "socketblinkrcv"
+      socketblinkrcv.style["position"] = "absolute";
+      socketblinkrcv.style["background-color"] = "#2c2c2c";
+      socketblinkrcv.style["border-radius"] = "3px";
+      socketblinkrcv.style["color"] = "rgba(200,200,200,1)";
+      socketblinkrcv.style["border"] = "1px solid rgba(200,200,200,1)";
+      socketblinkrcv.style["padding-top"] = "3px";
+
+      socketblinkrcv.style["left"] = "27%";
+      socketblinkrcv.style["text-align"] = "center";
+
+      socketblinkrcv.style["width"] = "3%";
+      socketblinkrcv.style["height"] = "calc(4% + 2px)";
+      socketblinkrcv.style["top"] = "calc(1% + 310px)";
+      document.body.appendChild(socketblinkrcv);
+
+      var selectOpt = ["Examples", "Emitter", "Receiver", "Generators", "Document"];
       var select = document.createElement("select");
       select.id = "selectlist"
       select.style["position"] = "absolute";
@@ -1842,13 +1864,22 @@ document.body.onkeyup = function(e){
       select.style["border-radius"] = "3px";
       select.style["color"] = "rgba(200,200,200,1)";
       select.style["border"] = "1px solid rgba(200,200,200,1)";
-      select.style["left"] = "27%";
+      select.style["left"] = "30%";
       select.style["width"] = "7%";
       select.style["height"] = "5%";
       select.style["top"] = "calc(1% + 305px)";
       select.onchange = function() {
         if (this.value == "Emitter") { 
-          myCodeMirror.setValue("/** Sttera Connection Editor  \n\n Emitter Example */ \n\n\nvar xperimus;\nxperimus = new Sttera('room404');\nxperimus.sendData('bang', 1000);");
+          myCodeMirror.setValue("/** Sttera Connection Editor  \n\n Emitter Example */ \n\n\n// Creating new Room\nSttera.NewRoom('xperimus-room');\n\n// Sending Impulses p/Sec\nSttera.SendData('bang', 1000);\n");
+        }
+        if (this.value == "Receiver") { 
+          myCodeMirror.setValue("/** Sttera Connection Editor  \n\n Receiver Example */ \n\n\n// Connect to Room\nSttera.Connect('xperimus-room');\n\n// Function Triggerd w Sockets\nfunction callback() {\n   // Code Here\n}");
+        }
+        if (this.value == "Generators") { 
+          myCodeMirror.setValue("/** Sttera Connection Editor  \n\n Generators Example */ \n\n\nSttGen.Setup();");
+        }
+        if (this.value == "Document") { 
+          myCodeMirror.setValue("/** Sttera Connection Editor  \n\n Document Example */ \n\n\n// Connect to Room\nSttera.Connect('xperimus-room');\n\n// Function Triggerd w Sockets\nfunction callback() {\n\n   var a = Math.floor(Math.random() * 256);\n   var bgColor = 'rgb(' + a + ',' + a + ',' + a + ')';\n   codeCanvas.style['background-color'] = bgColor;\n\n}");
         }
         //myCodeMirror.replaceRange("foo\nbar", {line: Infinity});
       }
@@ -1954,7 +1985,6 @@ console.log = function(message) {
 };
 console.error = console.debug = console.info = console.log*/
 
-//https://github.com/katspaugh/wavesurfer.js/blob/master/example/annotation/app.js
 var annotationID = 0;
 function addAnnot(v){
   var _v = wavesurfer.getCurrentTime();
@@ -2530,65 +2560,137 @@ ctx.lineTo(0, 130);
 ctx.strokeStyle = 'black';
 ctx.stroke();
 
-var intervalOne, connectSpecificRoom, thisIdRoom;
+var intervalOne, intervalTwo, connectSpecificRoom, thisIdRoom;
 
-class Sttera { //change this for object
-  constructor(name, players, playerIDS, thisid) {
-    this.name = name;
-    this.players = players;
-    this.playerIDS = playerIDS;
-    this.id = thisDeviceID;
-    thisIdRoom = name;
-    players = [];
-    playerIDS = [];
-  }
-  sendData(type, secs) {
+const Sttera = { 
+  name: '',
+  players: 0,
+  playerIDS: [],
+  thisid: thisDeviceID,
+  roomArr: [],
+  /* New Emitter */ 
+
+  NewRoom(room) {
+    this.name = room;
+  },
+
+  SendData(type, secs) {
+    let data = [this.name, secs];
     if (type == 'bang') {
       function _sendData() {
-        socket.emit("sttera-emitter-send", secs);
+        socket.emit("sttera-emitter-send", data);
+        blinkSender();
       }
       intervalOne = setInterval(_sendData, secs)
     }
-  }
-  stopSend() {
+  },
+
+  StopSend() {
     clearInterval(intervalOne);
     console.log("Stopped Bang Sender");
-  }
+  },
 
-  getPlayers(which) {
+  /*SendSpecific(clientid, type, secs) {
+    let data = [this.name, clientid, secs];
+    if (type == 'bang') {
+      function _sendSpecific() {
+        socket.emit("sttera-emitterwid-send", data);
+        blinkSender();
+      }
+      intervalTwo = setInterval(_sendSpecific, secs);
+    }
+  },
+
+  StopSpecific() {
+
+  },*/
+
+  GetPlayers(which) {
     if (which != undefined) {
       return this.playerIDS[which];
     } else {
       return this.playerIDS;
     }
-  }
-  static addPlayers(id) {
-    this.playerIDS.push(id);
+  },
+    
+  /* New Receiver */ 
+
+  Connect() {
+    
+    for (let i = 0; i < arguments.length; i++) {
+      if (typeof arguments[i] === 'string') {
+        this.roomArr.push(arguments[i]);
+      }
+    }
+    console.log(this.roomArr);
+  },
+
+  Disconnect() {
+    for (let i = 0; i < arguments.length; i++) {
+      if (typeof arguments[i] === 'string') {
+        var _index = this.roomArr.indexOf(arguments[i])
+        if (_index > -1) {
+          this.roomArr.splice(_index, 1);
+        }
+      }
+    }
+    console.log(this.roomArr);
+  },
+
+  ParticipateWithID() {
+
+    for (let i = 0; i < arguments.length; i++) {
+      if (typeof arguments[i] === 'string') {
+        //socket.emit("participate here");
+      }
+    }
   }
 }
-async function StteraConnect(v) {
-  connectSpecificRoom = v;
-  var data = [connectSpecificRoom, thisDeviceID];
-  socket.emit("sttera-receiver-connect", data);
+
+const SttGen = {
+  SttCtx: new (window.AudioContext || window.webkitAudioContext),
+  SttOsc: "",//: this.SttCtx.createOscillator(),
+  SttGain: "",//: this.SttCtx.createGainNode(),
+
+  Setup: function() {
+    this.SttOsc = this.SttCtx.createOscillator();
+    this.SttGain = this.SttCtx.createGain();
+
+    this.SttOsc.type = 'sine'; //set periodic for custom -- sine,square,sawtooth,triangle
+    this.SttGain.connect(this.SttCtx.destination);
+    this.SttOsc.connect(this.SttGain);
+
+    this.SttOsc.frequency.setValueAtTime(440, this.SttCtx.currentTime);
+    this.SttGain.gain.setValueAtTime(0, this.SttCtx.currentTime);
+    this.SttGain.gain.linearRampToValueAtTime(1, this.SttCtx.currentTime + 0.05);
+    this.SttOsc.start(0);
+
+    this.SttGain.gain.linearRampToValueAtTime(0, this.SttCtx.currentTime + 0.5);
+    //this.SttOsc.stop(this.SttCtx.currentTime + 0.5);
+  }
 }
 
 socket.on('sttera-receiver-receive', function(data) {
-  console.log("received");
-});
-
-var newclient;
-socket.on('sttera-emitter-newid', function(data) {
-  if (data[0] == thisIdRoom) {
-    newclient = data[1];
+  if (Sttera.roomArr.indexOf(data[0]) !== -1) {
+    console.log("received-meterLuz?");
+    blinkReceiver();
+    callback();
   }
-})
+});
+function callback() {}
+/*Sttera.Connect('xperimus-room');
 
-console.log("SEND ALL AND TEST AT ENTRANCE roomID")
+function callback() {
+  var x = Math.floor(Math.random() * 256);
+    var y = Math.floor(Math.random() * 256);
+    var z = Math.floor(Math.random() * 256);
+    var bgColor = "rgb(" + x + "," + y + "," + z + ")";
+	document.body.style['background-color'] = bgColor;
+}*/ 
 
 //https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Simple_synth
-var liveEditorCtx = new (window.AudioContext || window.webkitAudioContext);
-var oscillList = [];
-var masterGainNode = null;
+
+
 
 
 
@@ -2646,14 +2748,27 @@ socket.on("room-token", function(data) {
     interactionState.playerIDS.push(data[1]);
     console.log(interactionState);
   }
+});
+
+function blinkSender() {
   if ($('#socketblink').length > 0) {
     document.getElementById('socketblink').style['background-color'] = "red";
+    setTimeout(function(){
+      document.getElementById('socketblink').style['background-color'] = "#2c2c2c";
+    }, 70)
   }
-  /*if (typeof maybeObject != "undefined") {
-    alert("GOT THERE");
- }*/
- 
-});
+}
+
+function blinkReceiver() {
+  if ($('#socketblinkrcv').length > 0) {
+    document.getElementById('socketblinkrcv').style['background-color'] = "green";
+    setTimeout(function(){
+      document.getElementById('socketblinkrcv').style['background-color'] = "#2c2c2c";
+    }, 70)
+  }
+}
+
+
 
 /*lockRoom.backgroundColor = "rgba(72,72,72,1)";
 lockRoom.style.border = "1px solid grey";
@@ -2798,17 +2913,8 @@ socket.on('buffer-qual', function(data) {
   _source.connect(_audioCtx.destination);
   _source.start();
 
-  blinkCodeEditor();
 });
 
-function blinkCodeEditor() {
-  if ($('#socketblink').length > 0) {
-    document.getElementById('socketblink').style['background-color'] = "red";
-    setTimeout(function(){
-      document.getElementById('socketblink').style['background-color'] = "#2c2c2c";
-    },100); 
-  }
-}
 
 navigator.mediaDevices.enumerateDevices().then((devices) => {
   devices.filter((d) => d.kind === 'audioinput');
@@ -2843,7 +2949,6 @@ socket.on("buffer-play", function(data) {
   _source.connect(_audioCtx.destination);
   _source.start();
   //AudioBufferSourceNode.start([when][, offset][, duration]);
-  blinkCodeEditor()
 });
 
 var currentNumberOfPlayers = null; 

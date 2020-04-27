@@ -229,9 +229,6 @@ def addRoom(data):
 def sttera_emitter_send(data):
     socketio.emit('sttera-receiver-receive', data, broadcast=True, include_self=False)
 
-@socketio.on('sttera-receiver-connect')
-def sttera_receiver_connect(data):
-    socketio.emit('sttera-emitter-newid', data, broadcast=True, include_self=False)
 ########
     
 
