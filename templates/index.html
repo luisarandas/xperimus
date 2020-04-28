@@ -45,6 +45,7 @@
   <br><br><br>
 
   <!--<canvas id="viewport" height="512" width="700"></canvas>-->
+<div id="first-page" style="position: absolute; right: 0px; top: 0px; height: 100%; width: 100%; background-color: #2c2c2c; z-index: 99;">
 
   <div id="firstContainer">
   <div id="cont1">
@@ -144,50 +145,6 @@
       <div id="detectionarray" style="position: absolute; top: 2px; left: 2px; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: 92%;  width: 99%; overflow-y: auto;">
         
       </div>
-    </div>
-
-    <div id="cont10_">
-      <button id="audiofile" style="position: absolute; top: 2px; left: 3px; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: 20%;  width: 20%;">Stream Local Audio File</button>
-      <input type="file" id="audio-file" style="display: none">
-
-      <div id="trigger-when-play" style="position: absolute; padding-top: 1px; top: 2px; left: 21%; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: calc(18%);  width: 20%;">Trigger With <br>Region</div>
-      <div id="trigger-when-mic" style="position: absolute; padding-top: 1px; top: 2px; left: calc(42% - 2px); font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: calc(18%);  width: 20%;">Trigger With Microphone</div>
-
-
-      <div id="name-audio-file" style="position: absolute; padding-top: 2px; padding-left: 4px; top: 2px; width: 35%; height: calc(11% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Name 
-        <div id="name-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
-      </div>
-      <div id="type-audio-file" style="position: absolute; top: calc(12% + 4px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Type 
-        <div id="type-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
-      </div>
-
-      <div id="size-audio-file" style="position: absolute; top: calc(24% + 5px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Size 
-        <div id="size-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
-      </div>
-
-      <div id="buflen-audio-file" style="position: absolute; top: calc(36% + 19px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Buffer Len 
-        <div id="buflen-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
-      </div>
-
-      <div id="bufdur-audio-file" style="position: absolute; top: calc(50% + 17px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Buffer Dur 
-        <div id="bufdur-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
-      </div>
-
-      <div id="bufnumc-audio-file" style="position: absolute; top: calc(62% + 18px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(11% - 3px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Buffer NC 
-        <div id="bufnumc-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
-      </div>
-
-      <div id="bufsamp-audio-file" style="position: absolute; top: calc(74% + 18px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Buffer SR 
-        <div id="bufsamp-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
-      </div>
-      <button id="play-stream-socket" style="position: absolute; top: 66%; left: 3px; height: 10%; width: 20%; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; ">Play</button>
-      <br><br><br><br><br><br><br>
-      <br>add positions in inputs and draw bars in vis - maybe add a filler for the buffer or possibility of adding new one
-      <br>SEND  trained FILES?
-
-      <!--<div id="about-file-name" style="position: absolute; left: 1px; top: 1px; border-radius: 3px;  border: 1px solid black; width: 40%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 65%; text-align: center;"></div>-->  
-      
-      <div id="bufferplot" onmousedown="changeColor()" onmouseup="restoreColor()" style="position: absolute; top: 23%; left: 3px; background-color: rgba(32,32,32,1); border: 1px solid #646464; border-radius: 3px; width: calc(61% - 2px); height: 40%;"></div>
     </div>
 
   </div>
@@ -313,8 +270,28 @@
 
     
   </div>
+
+</div>
+<div id="second-page" style="position: absolute; right: 0px; top: 0px; height: 100%; width: 100%;">
+  <div id="editor-div" style="position: absolute; left: 5px; top: 30px; width: 49%; height: 50%; border-radius: 3px; background-color: grey;"></div>
+  <button id="run-code" style="position: absolute; background-color: #2c2c2c; border-radius: 3px; color: rgba(200,200,200,1); left: 5px; top: 55%; width: 7%; height: 3%;" onclick="runcode()">Run Code</button>
+  <button id="stop-button" style="position: absolute; background-color: #2c2c2c; border-radius: 3px; color: rgba(200,200,200,1); left: 8%; top: 55%; width: 7%; height: 3%;">Stop Code</button>
+
+  <div id="socketblink" style="position: absolute; background-color: #2c2c2c; border-radius: 3px; color: rgba(200,200,200,1); left: calc(16% - 4px); top: 55%; border: 1px solid rgba(200,200,200,1); padding-top: 2px; width: 3%; text-align: center; height: calc(2% + 3px);">S</div>
+  <div id="socketblinkrcv" style="position: absolute; background-color: #2c2c2c; border-radius: 3px; color: rgba(200,200,200,1); left: calc(20% - 5px); top: 55%; border: 1px solid rgba(200,200,200,1); padding-top: 2px; width: 3%; text-align: center; height: calc(2% + 3px);">R</div>
+  <select id="selectlist" onchange="populateCM()" style="position: absolute; background-color: #2c2c2c; border-radius: 3px; color: rgba(200,200,200,1); left: 23%; top: calc(54% + 2px); border: 1px solid rgba(200,200,200,1); padding-top: 2px; width: 6%; text-align: center; height:3%;">
+    <option value="Examples">Examples</option>
+    <option value="Emitter">Emitter</option>
+    <option value="Receiver">Receiver</option>
+    <option value="Generators">Generators</option>
+    <option value="Document">Document</option>
+    </select>
+
+  <div id="draw-canvas" style="position: absolute; left: calc(3px + 29%); top: calc(28px + 30%); width: 20%; height: 20%; border-radius: 3px; background-color: rgba(40,40,40,1);"></div>  
+  <!--<div id="console-text" style="position: absolute; right: 5px; top: 55%; width: 49%; height: 15%; border-radius: 3px; background-color: grey; display: flex; align-items: flex-start; justify-content: flex-end; flex-direction: column; overflow-y: auto;"></div>-->
+
   <div id="fifthContainer">
-    <div id="orques" style="position: absolute; padding-top: 8px; left: 1px; top: 1px; width: calc(99% + 2px); height: calc(3% + 5px); background-color: #202020; text-align: center; border-radius: 3px;">
+    <div id="orques" style="position: absolute; padding-top: 8px; left: 1px; top: 1px; width: calc(100% - 2px); height: calc(4% + 5px); background-color: #202020; text-align: center; border-radius: 3px;">
       Orquestrate and Interact
     </div>
     <div id="cont16">
@@ -336,19 +313,8 @@
 
 
     </div>
-    <div id="cont17">
-      Created Rooms<br>
-      <select id="created-rooms" style="position: absolute; left: 0px; bottom: 0px; border-radius: 2px;">
-        <option value="1">Duration x1</option>
-      </select>
 
-    </div>
-    <div id="cont18">
-        <div id="control-terminal" style="position: absolute; left: 2%; width: calc(96% - 2px); height: 86%; border-radius: 3px; background-color: rgba(52,52,52,1); border: 1px solid rgba(72,72,72,1); display: flex; align-items: flex-end; justify-content: flex-end; flex-direction: column; overflow-y: auto;">
-      </div>
-    </div>
-
-      <div id="house" style="width: calc(70% - 1px); height: 30%; position: absolute; right: 1px; top: calc(6% - 1px); border-radius: 3px; background-color: rgba(52,52,52,1);">
+      <div id="house" style="width: calc(70% - 1px); height: 30%; position: absolute; right: 1px; top: calc(7% + 3px); border-radius: 3px; background-color: rgba(52,52,52,1);">
         <pre style="position: absolute; top: -10px; left: 35%; border-radius: 3px; font-family: inherit;"><span style="background-color:rgba(32,32,32,1); color: rgba(200,200,200,1); border-radius: 3px;"></span></pre>
         <pre style="position: absolute; bottom: -10px; left: 35%; border-radius: 3px; font-family: inherit;"><span style="background-color:rgba(32,32,32,1); color: rgba(200,200,200,1); border-radius: 3px;"></span></pre>
         
@@ -367,6 +333,53 @@
 
       </div>
   </div>
+
+  <div id="cont10_">
+    <button id="audiofile" style="position: absolute; top: 2px; left: 3px; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: 20%;  width: 20%;">Stream Local Audio File</button>
+    <input type="file" id="audio-file" style="display: none">
+
+    <div id="trigger-when-play" style="position: absolute; padding-top: 1px; top: 2px; left: 21%; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: calc(18%);  width: 20%;">Trigger With <br>Region</div>
+    <div id="trigger-when-mic" style="position: absolute; padding-top: 1px; top: 2px; left: calc(42% - 2px); font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: calc(18%);  width: 20%;">Trigger With Microphone</div>
+
+
+    <div id="name-audio-file" style="position: absolute; padding-top: 2px; padding-left: 4px; top: 2px; width: 35%; height: calc(11% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Name 
+      <div id="name-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
+    </div>
+    <div id="type-audio-file" style="position: absolute; top: calc(12% + 4px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Type 
+      <div id="type-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
+    </div>
+
+    <div id="size-audio-file" style="position: absolute; top: calc(24% + 5px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Size 
+      <div id="size-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
+    </div>
+
+    <div id="buflen-audio-file" style="position: absolute; top: calc(36% + 19px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Buffer Len 
+      <div id="buflen-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
+    </div>
+
+    <div id="bufdur-audio-file" style="position: absolute; top: calc(50% + 17px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Buffer Dur 
+      <div id="bufdur-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
+    </div>
+
+    <div id="bufnumc-audio-file" style="position: absolute; top: calc(62% + 18px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(11% - 3px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Buffer NC 
+      <div id="bufnumc-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
+    </div>
+
+    <div id="bufsamp-audio-file" style="position: absolute; top: calc(74% + 18px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Buffer SR 
+      <div id="bufsamp-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
+    </div>
+    <button id="play-stream-socket" style="position: absolute; top: 66%; left: 3px; height: 10%; width: 20%; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; ">Play</button>
+    <br><br><br><br><br><br><br>
+    <br>add positions in inputs and draw bars in vis - maybe add a filler for the buffer or possibility of adding new one
+    <br>SEND  trained FILES?
+
+    <!--<div id="about-file-name" style="position: absolute; left: 1px; top: 1px; border-radius: 3px;  border: 1px solid black; width: 40%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 65%; text-align: center;"></div>-->  
+    
+    <div id="bufferplot" onmousedown="changeColor()" onmouseup="restoreColor()" style="position: absolute; top: 23%; left: 3px; background-color: rgba(32,32,32,1); border: 1px solid #646464; border-radius: 3px; width: calc(61% - 2px); height: 40%;"></div>
+  </div>
+</div>
+
+
   <a id="downloadAnchorElem" style="display:none"></a>
 
   <!-- The Modal -->

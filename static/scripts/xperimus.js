@@ -6,7 +6,18 @@
 // controlar o numero dos outros samples que não o background noise
 // jorge coelho -- plotly
 
-document.addEventListener('DOMContentLoaded', () => {});
+document.addEventListener('DOMContentLoaded', () => {
+  $("#second-page").css({left: $(window).width(), position:'absolute'}); // this will return the left and top
+    /*left = of.left, // this will return left 
+    right = $(window).width() - left - $(ele).width()
+
+    var _w = $(window).width();
+    $('#first-page').animate({right: _w}, "normal");
+    $('#first-page').each(function(){
+      $(this).animate({right: _w}, "normal");
+    });*/
+});
+
 if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
   mobilePerformanceSetup();
 }
@@ -1731,10 +1742,12 @@ console.log("abrir waveform noutra janela");
 
 var li;
 var myCodeMirror, codeCanvas;
+codeCanvas = document.getElementById('draw-canvas');
 var interfaceMode = true;
+
 document.body.onkeyup = function(e){
   if(e.keyCode == 32){
-    //space bar
+
     if (interfaceMode == true) {
       wavesurfer.play();
       console.log(transferRecognizer.dataset.examples);
@@ -1747,206 +1760,75 @@ document.body.onkeyup = function(e){
     }
 
   }
+
+  if (e.keyCode == 49) {
+
+    var _w = $(window).width();
+    if ($('#first-page').position().left == 0) {
+      $('#first-page').animate({right: _w}, "normal");
+      $('#first-page').each(function(){
+        $(this).animate({right: _w}, "normal");
+      });
+      $('#second-page').animate({left: 0}, "normal");
+      $('#second-page').each(function(){
+        $(this).animate({left: 0}, "normal");
+      });
+    } else {
+      $('#first-page').animate({right: 0}, "normal");
+      $('#first-page').each(function(){
+        $(this).animate({right: 0}, "normal");
+      });
+      $('#second-page').animate({left: _w}, "normal");
+      $('#second-page').each(function(){
+        $(this).animate({left: _w}, "normal");
+      });
+    }
+
+
+
+
+  }
+
   if (e.keyCode == 192) {
-      $('div').not('#allPage').remove();
+      /*$('div').not('#allPage').remove();
       document.body.innerHTML = '';
-      interfaceMode = false;
-
-      var editorDiv = document.createElement("div"); 
-      editorDiv.style["position"] = "absolute";
-      editorDiv.style["left"] = "1%";
-      editorDiv.style["top"] = "1%";
-      editorDiv.style["width"] = "48%";
-      editorDiv.style["height"] = "300px";
-      editorDiv.style["background-color"] = "red";
-
-      document.body.appendChild(editorDiv);
-
-      var codeRunDiv = document.createElement("div");
-      codeRunDiv.style["position"] = "absolute";
-      codeRunDiv.style["right"] = "1%";
-      codeRunDiv.style["top"] = "1%";
-      codeRunDiv.style["width"] = "48%";
-      codeRunDiv.style["height"] = "calc(46% + 310px)";
-      codeRunDiv.style["overflow"] = "auto";
-      codeRunDiv.style["background-color"] = "#2c2c2c";
-      codeRunDiv.id = "run-code-here";
-      codeCanvas = codeRunDiv;
-      document.body.appendChild(codeRunDiv);
-
-      myCodeMirror = new CodeMirror(editorDiv, {
-        lineNumbers: true,
-        matchBrackets: true,
-        value: "/* Sttera Connection Editor */ \n",//"/** Sttera Connection Editor */ \n\nfunction setup() { \n  createCanvas(400, 400);\n}\n\nfunction callback() {\n  background(200); \n}",
-        styleActiveLine: true,
-        mode:  "javascript",
-        theme: "mbo"
-      });      //$('body').append('<div id="performancemode"><br><br><br><div id="code"></div></div>');*/
-
-
-      var codeRunBtn = document.createElement("button");
-      codeRunBtn.innerHTML = "Run Code"
-      codeRunBtn.style["position"] = "absolute";
-      codeRunBtn.style["background-color"] = "#2c2c2c";
-      codeRunBtn.style["border-radius"] = "3px";
-      codeRunBtn.style["color"] = "rgba(200,200,200,1)";
-
-      codeRunBtn.style["left"] = "1%";
-      codeRunBtn.style["width"] = "10%";
-      codeRunBtn.style["height"] = "5%";
-      codeRunBtn.onclick = function() {
-        var _e = myCodeMirror.getValue();
-        runcode();
-        //CodeMirror.runMode(_e, "application/javascript", codeRunDiv);
-        //$(codeRunDiv).contents().find("body").html(_e);
-      }
-
-      codeRunBtn.style["top"] = "calc(1% + 310px)";
-      document.body.appendChild(codeRunBtn);
-
-      var stopBtn = document.createElement("button");
-      stopBtn.innerHTML = "Stop Code"
-      stopBtn.style["position"] = "absolute";
-      stopBtn.style["background-color"] = "#2c2c2c";
-      stopBtn.style["border-radius"] = "3px";
-      stopBtn.style["color"] = "rgba(200,200,200,1)";
-
-      stopBtn.style["left"] = "12%";
-      stopBtn.style["width"] = "10%";
-      stopBtn.style["height"] = "5%";
-      stopBtn.onclick = function() {
-        Gibber.clear();
-      }
-      stopBtn.style["top"] = "calc(1% + 310px)";
-      document.body.appendChild(stopBtn);
-
-      var socketBlink = document.createElement("div");
-      socketBlink.innerHTML = "S"
-      socketBlink.id = "socketblink"
-      socketBlink.style["position"] = "absolute";
-      socketBlink.style["background-color"] = "#2c2c2c";
-      socketBlink.style["border-radius"] = "3px";
-      socketBlink.style["color"] = "rgba(200,200,200,1)";
-      socketBlink.style["border"] = "1px solid rgba(200,200,200,1)";
-      socketBlink.style["padding-top"] = "3px";
-
-      socketBlink.style["left"] = "23%";
-      socketBlink.style["width"] = "3%";
-      socketBlink.style["text-align"] = "center";
-      socketBlink.style["height"] = "calc(4% + 2px)";
-
-      socketBlink.style["top"] = "calc(1% + 310px)";
-      document.body.appendChild(socketBlink);
-
-      var socketblinkrcv = document.createElement("div");
-      socketblinkrcv.innerHTML = "R"
-      socketblinkrcv.id = "socketblinkrcv"
-      socketblinkrcv.style["position"] = "absolute";
-      socketblinkrcv.style["background-color"] = "#2c2c2c";
-      socketblinkrcv.style["border-radius"] = "3px";
-      socketblinkrcv.style["color"] = "rgba(200,200,200,1)";
-      socketblinkrcv.style["border"] = "1px solid rgba(200,200,200,1)";
-      socketblinkrcv.style["padding-top"] = "3px";
-
-      socketblinkrcv.style["left"] = "27%";
-      socketblinkrcv.style["text-align"] = "center";
-
-      socketblinkrcv.style["width"] = "3%";
-      socketblinkrcv.style["height"] = "calc(4% + 2px)";
-      socketblinkrcv.style["top"] = "calc(1% + 310px)";
-      document.body.appendChild(socketblinkrcv);
-
-      var selectOpt = ["Examples", "Emitter", "Receiver", "Generators", "Document"];
-      var select = document.createElement("select");
-      select.id = "selectlist"
-      select.style["position"] = "absolute";
-      select.style["background-color"] = "#2c2c2c";
-      select.style["border-radius"] = "3px";
-      select.style["color"] = "rgba(200,200,200,1)";
-      select.style["border"] = "1px solid rgba(200,200,200,1)";
-      select.style["left"] = "30%";
-      select.style["width"] = "7%";
-      select.style["height"] = "5%";
-      select.style["top"] = "calc(1% + 305px)";
-      select.onchange = function() {
-        if (this.value == "Emitter") { 
-          myCodeMirror.setValue("/** Sttera Connection Editor  \n\n Emitter Example */ \n\n\n// Creating new Room\nSttera.NewRoom('xperimus-room');\n\n// Sending Impulses p/Sec\nSttera.SendData('bang', 1000);\n");
-        }
-        if (this.value == "Receiver") { 
-          myCodeMirror.setValue("/** Sttera Connection Editor  \n\n Receiver Example */ \n\n\n// Connect to Room\nSttera.Connect('xperimus-room');\n\n// Function Triggerd w Sockets\nfunction callback() {\n   // Code Here\n}");
-        }
-        if (this.value == "Generators") { 
-          myCodeMirror.setValue("/** Sttera Connection Editor  \n\n Generators Example */ \n\n\nSttGen.Setup();");
-        }
-        if (this.value == "Document") { 
-          myCodeMirror.setValue("/** Sttera Connection Editor  \n\n Document Example */ \n\n\n// Connect to Room\nSttera.Connect('xperimus-room');\n\n// Function Triggerd w Sockets\nfunction callback() {\n\n   var a = Math.floor(Math.random() * 256);\n   var bgColor = 'rgb(' + a + ',' + a + ',' + a + ')';\n   codeCanvas.style['background-color'] = bgColor;\n\n}");
-        }
-        //myCodeMirror.replaceRange("foo\nbar", {line: Infinity});
-      }
-      document.body.appendChild(select);
-      
-      for (var i = 0; i < selectOpt.length; i++) {
-        var option = document.createElement("option");
-        option.value, option.text = selectOpt[i];
-        select.appendChild(option);
-      }
-
-      var terminaldiv = document.createElement("div");
-      terminaldiv.id = "consolediv";
-      terminaldiv.style["position"] = "absolute";
-      terminaldiv.style["background-color"] = "#2c2c2c";
-      //terminaldiv.style["border-radius"] = "3px";
-      terminaldiv.style["color"] = "rgba(200,200,200,1)";
-      terminaldiv.style["top"] = "calc(1% + 350px)";
-
-      terminaldiv.style["left"] = "1%";
-      terminaldiv.style["width"] = "48%";
-      terminaldiv.style["height"] = "40%";
-      terminaldiv.style["font-family"] = "monospace";
-      document.body.appendChild(terminaldiv);
-
-      var terminaltext = document.createElement("div");
-      terminaltext.id = "consoletext";
-      terminaltext.style["position"] = "absolute";
-      terminaltext.style["background-color"] = "#2c2c2c";
-      //terminaltext.style["border-radius"] = "3px";
-      terminaltext.style["color"] = "rgba(200,200,200,1)";
-      terminaltext.style["top"] = "1%";
-
-      terminaltext.style["left"] = "0px";
-      terminaltext.style["width"] = "100%";
-      terminaltext.style["height"] = "100%";
-      terminaltext.style["font-family"] = "monospace";
-
-      terminaltext.style["display"] = "flex";
-      terminaltext.style["align-items"] = "flex-start";
-      terminaltext.style["justify-content"] = "flex-end";
-      terminaltext.style["flex-direction"] = "column";
-      terminaltext.style["overflow-y"] = "auto";
-
-      terminaldiv.appendChild(terminaltext);
-
-      //Gibber.init(); //maybe wrap this elsewhere DIFFERENT WORKER or notand clear
-      //Gibber.Clock.rate = .5
-      //a = EDrums('xoxoxo');
-      /*
-      Gibber.scale.root.seq( ['c4','eb4'], 2)
-
-a = Mono('bass').note.seq( [0,7], 1/8 )
-
-b = EDrums('xoxo')
-b.snare.snappy = 1
-
-c = Mono('easyfx')
-  .note.seq( Rndi(0,12), [1/4,1/8,1/2,1,2].rnd( 1/8,4 ) )*/ 
-
+      interfaceMode = false;*/
   }
 }
 
-function runcode() {
-  var __e = document.getElementById('run-code-here');
-  __e.innerHTML = '';
+myCodeMirror = new CodeMirror(document.getElementById('editor-div'), {
+  lineNumbers: true,
+  matchBrackets: true,
+  value: "/* Sttera Connection Editor */ \n",//"/** Sttera Connection Editor */ \n\nfunction setup() { \n  createCanvas(400, 400);\n}\n\nfunction callback() {\n  background(200); \n}",
+  styleActiveLine: true,
+  mode:  "javascript",
+  theme: "mbo",
+});      //$('body').append('<div id="performancemode"><br><br><br><div id="code"></div></div>');*/
 
+function populateCM(v) { 
+  var selectBox = document.getElementById("selectlist");
+  var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+  if (selectedValue == "Emitter") { 
+    myCodeMirror.setValue("/** Sttera Connection Editor  \n Emitter Example */ \n\n\n// Creating new Room\nSttera.NewRoom('xperimus-room');\n\n// Sending Impulses p/Sec\nSttera.SendData('bang', 1000);\n");
+  }
+  if (selectedValue == "Receiver") { 
+    myCodeMirror.setValue("/** Sttera Connection Editor  \n Receiver Example */ \n\n\n// Connect to Room\nSttera.Connect('xperimus-room');\n\n// Function Triggerd w Sockets\nfunction callback() {\n   // Code Here\n}");
+  }
+  if (selectedValue == "Generators") { 
+    myCodeMirror.setValue("/** Sttera Connection Editor  \n Generators Example */ \n\n\nSttGen.Setup();");
+  }
+  if (selectedValue == "Document") { 
+    myCodeMirror.setValue("/** Sttera Connection Editor  \n Document Example */ \n\n\n// Connect to Room\nSttera.Connect('xperimus-room');\n\n// Function Triggerd w Sockets\nfunction callback() {\n\n   var a = Math.floor(Math.random() * 256);\n   var bgColor = 'rgb(' + a + ',' + a + ',' + a + ')';\n   codeCanvas.style['background-color'] = bgColor;\n\n}");
+  }
+}
+
+var _run = document.getElementById('editor-div');
+
+_run.addEventListener('click', () => {
+  runcode();
+});
+
+function runcode() {
 
   //eval(_value);
   function evaluate(){
