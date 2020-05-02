@@ -931,7 +931,7 @@ button:disabled {
 }
 
 .navbar a:hover, .dropdown:hover .dropbtn {
-  background-color: red;
+  background-color: rgba(38,165,164,1);
 }
 
 .dropdown-content {
@@ -1159,11 +1159,44 @@ button:disabled {
   height: 100%;
 }
 
+#splashscreen {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(38,38,38,1);
+  display: block;
+  z-index: 999999;
+}
+#img {
+  position: absolute;
+  width: 20%;
+  height: 40%;
+  left: 40%;
+  top: 30%;
+  border: 1px solid black;
 
+  content: url("id_.png")
+}
 
+#top-splash {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 26px;
+  background-color: #202020;
+}
 
-
-
+#bottom-splash {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  width: 100%;
+  height: 26px;
+  background-color: #202020;
+}
 
 
 
