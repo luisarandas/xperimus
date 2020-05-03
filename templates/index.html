@@ -300,13 +300,11 @@
       Orquestrate and Interact
     </div>
     <div id="cont16">
-      Interaction Group
-      <input type="text" id="interroom" name="room" value="New Room" style="background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 78%; height: 14%; margin-top: 3px; margin-bottom: 3px;"><br>
-      
+      Current Room
+      <input type="text" id="interroom" name="room" value="New Room" style="background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 78%; height: 30%; margin-top: 3px; margin-bottom: 3px;"><br>
       <button id="lock-room" style="font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 39%; margin-bottom: 3px; margin-left: -1%;">Lock</button>
       <button id="new-room" style="font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 39%; ">New</button>
-    
-      <div id="number-connected-users" disabled="true" style="position: absolute; width: 37% !important; left: calc(1% - 2px); background-color: #353535; padding-bottom: 2px; border: 1px solid black; width: 10%; border-radius: 3px; margin-left: 10%; height: calc(8% - 1px); margin-top: 0px;">0</div>
+    <!--      
       <button id="stop-room-connect" style="position: absolute; right: 10%; top: 42%; background-color: #353535; padding-top: 0px; border: 1px solid black; border-radius: 3px; color: rgba(220,220,220,1); width: 40%; margin-left: 10%; height: calc(10% + 0px); margin-top: 3px;">Stop</button>
       <button id="refresh-room-connect" style="position: absolute; left: calc(1% - 2px); top: 54%; background-color: #353535; border: 1px solid black; border-radius: 3px; color: rgba(220,220,220,1); width: calc(38% + 1px); margin-left: 10%; height: calc(10% + 1px); margin-top: 3px;  text-align: center;">Refrsh</button>
       <button id="add-room-players" style="position: absolute; text-align: center; right: calc(8% + 3px); top: calc(54% - 0px); background-color: #353535; padding-top: 1px; border: 1px solid black; border-radius: 3px; color: rgba(220,220,220,1); width: calc(40% - 1px); margin-left: 10%; height: calc(10% + 1px); margin-top: 3px;">Add</button>
@@ -314,12 +312,16 @@
       <input type="text" id="enter-room" value="Find Room" style="background-color: #353535; position: absolute; top: calc(66% + 1px); left: calc(10% - 1px); text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: calc(78% - 1px); height: 14%; margin-top: 3px; margin-bottom: 3px;"><br>
       <button id="send-room" style="position: absolute; top: 87%; left: calc(10% - 1px); font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 39%; margin-bottom: 3px; height: calc(10% + 1px);">Send</button>
       <button id="new-send-room" style="position: absolute; top: 87%; font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 39%; height: calc(10% + 1px);">Other</button>
-
-
-
+    -->
+    </div>
+    <div id="cont17">
+      Users in Room
+      <div id="number-connected-users" disabled="true" style="position: absolute; top: 25%; width: 39%; background-color: #353535; padding-top: 3px; border: 1px solid black; border-radius: 3px; left: 10%; height: 20%;">0</div>
+      <button id="ping-connected-users" onclick="Sttera.PingConnectedUsers()" style="position: absolute; top: 25%; right: 10%; width: 39%; background-color: #353535; color: rgba(200,200,200,1); padding-top: 3px; border: 1px solid black; border-radius: 3px; height: 27%;">Ping</button>
     </div>
 
-      <div id="house" style="width: calc(70% - 1px); height: 30%; position: absolute; right: 1px; top: calc(7% + 3px); border-radius: 3px; background-color: rgba(52,52,52,1);">
+
+      <div id="house" style="width: calc(70% - 1px); height: 55%; position: absolute; right: 1px; top: 8%; border-radius: 3px; background-color: rgba(52,52,52,1);">
         <pre style="position: absolute; top: -10px; left: 35%; border-radius: 3px; font-family: inherit;"><span style="background-color:rgba(32,32,32,1); color: rgba(200,200,200,1); border-radius: 3px;"></span></pre>
         <pre style="position: absolute; bottom: -10px; left: 35%; border-radius: 3px; font-family: inherit;"><span style="background-color:rgba(32,32,32,1); color: rgba(200,200,200,1); border-radius: 3px;"></span></pre>
         

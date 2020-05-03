@@ -177,26 +177,14 @@ s3.Bucket(BUCKET_NAME).download_file('teste.png', desktop+objectname_string)
 #print(desktop)
 '''
 
-#initclients = [[], []]
-#initnr = 0
-
 @socketio.on('connect')                                                         
 def connect():    
-    #initnr = initnr + 1 
-    #currentSocketID = np.append(initclients, [initnr, request.sid])
-    #print(currentSocketID)
     emit('message', request.sid)
 
 @socketio.on('my-event')                                                         
 def newmsg(data):   
     print(data)                                                               
     socketio.emit('message', {'heldslo': "Helldso"})    
-
-@socketio.on('regionsocket')                                                         
-def _newmsg(data):   
-    print(data)                                                               
-    socketio.emit('region-socket', 'change_color')    
-    #emit('my response', data, broadcast=True)
 
 @socketio.on('new-buffer')                                                         
 def _bufferdata(data):   
@@ -211,25 +199,32 @@ def __bufferdata(data):
 def __bufferdata(data):
     socketio.emit('buffer-play', data, broadcast=True, include_self=False) 
 
-@socketio.on('enter-room')
-def enterRoom(data):
-    
-    socketio.emit('room-token', data, broadcast=True, include_self=False) 
-
-@socketio.on('addRoom')
-def addRoom(data):
-    print(data)
-    socketio.emit('new-room-added', data, broadcast=True) 
 
 
+###############################################################################################
 
-# The code editor part
+#####  THE MASTER
 
 @socketio.on('sttera-emitter-send')
 def sttera_emitter_send(data):
     socketio.emit('sttera-receiver-receive', data, broadcast=True, include_self=False)
 
-########
+@socketio.on('sttera-emitter-ping')
+def sttera_emitter_ping(data):
+    print("ccccccccc")
+    print(request.sid)
+    socketio.emit('sttera-ping-receive', "this", data[0])
+
+
+#####  THE CLIENT
+
+@socketio.on('sttera-mobile-send')
+def sttera_mobile_send(data):
+    print(data)
+    socketio.emit('sttera-frommobile', data, broadcast=True, include_self=False)
+
+###############################################################################################
+
     
 
 if __name__ == "__main__":

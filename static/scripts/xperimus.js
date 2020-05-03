@@ -5,6 +5,178 @@
 // fader controlar o threshold caso possivel dinamicamente
 // controlar o numero dos outros samples que não o background noise
 // jorge coelho -- plotly
+var protocol = window.location.protocol;
+var socket = io.connect(protocol + '//' + document.domain + ":" + location.port); //port + namespace);
+
+socket.on('connect', function(data) {
+  console.log('Connected', this);
+});
+
+var thisDeviceID;
+socket.on('message', function(data) {
+  thisDeviceID = data;
+});
+
+var intervalOne, intervalTwo, connectSpecificRoom, thisIdRoom;
+
+const Sttera = { 
+
+  name: "",
+  players: 0,
+  playerIDS: [],
+  thisid: thisDeviceID,
+  roomArr: [],
+
+  /* New Emitter */ 
+
+  NewRoom(room) {
+
+    this.name = room;
+    this.thisid = thisDeviceID;
+  
+    _room.value = room;
+    _room.disabled = true;
+    _room.style.backgroundColor = "rgba(72,72,72,1)";
+    _room.style.border = "1px solid grey";
+    
+    lock_Room.disabled = true;
+    lock_Room.backgroundColor = "rgba(72,72,72,1)";
+    lock_Room.style.border = "1px solid grey";
+    
+  },
+
+  DeleteRoom() {
+
+    this.name = "";
+
+    _room.value = "New Room";
+    _room.disabled = false;
+    _room.style.backgroundColor = "rgba(52,52,52,1)";
+    _room.style.border = "1px solid black";
+  
+    lock_Room.disabled = false;
+    lock_Room.backgroundColor = "rgba(52,52,52,1)";
+    lock_Room.style.border = "1px solid black";
+
+  },
+
+  SendData(type, secs) {
+
+    let data = [this.name, secs];
+    if (type == 'bang') {
+      function _sendData() {
+        socket.emit("sttera-emitter-send", data);
+        blinkSender();
+      }
+      intervalOne = setInterval(_sendData, secs)
+    }
+
+  },
+
+  StopSend() {
+
+    clearInterval(intervalOne);
+    console.log("Stopped Bang Sender");
+
+  },
+
+  PingConnectedUsers() {
+    socket.emit("sttera-emitter-ping", this.playerIDS);
+  },
+
+  /*SendSpecific(clientid, type, secs) {
+    let data = [this.name, clientid, secs];
+    if (type == 'bang') {
+      function _sendSpecific() {
+        socket.emit("sttera-emitterwid-send", data);
+        blinkSender();
+      }
+      intervalTwo = setInterval(_sendSpecific, secs);
+    }
+  },
+
+  StopSpecific() {
+
+  },*/
+
+  GetPlayers(which) {
+    if (which != undefined) {
+      return this.playerIDS[which];
+    } else {
+      return this.playerIDS;
+    }
+  },
+    
+  /* New Receiver */ 
+
+  Connect() {
+    
+    for (let i = 0; i < arguments.length; i++) {
+      if (typeof arguments[i] === 'string') {
+        this.roomArr.push(arguments[i]);
+      }
+    }
+    console.log(this.roomArr);
+  },
+
+  Disconnect() {
+    for (let i = 0; i < arguments.length; i++) {
+      if (typeof arguments[i] === 'string') {
+        var _index = this.roomArr.indexOf(arguments[i])
+        if (_index > -1) {
+          this.roomArr.splice(_index, 1);
+        }
+      }
+    }
+    console.log(this.roomArr);
+  },
+
+  ParticipateWithID() {
+
+    for (let i = 0; i < arguments.length; i++) {
+      if (typeof arguments[i] === 'string') {
+        //socket.emit("participate here");
+      }
+    }
+  }
+}
+
+const SttGen = {
+  SttCtx: new (window.AudioContext || window.webkitAudioContext),
+  SttOsc: "",//: this.SttCtx.createOscillator(),
+  SttGain: "",//: this.SttCtx.createGainNode(),
+
+  Setup: function() {
+    this.SttOsc = this.SttCtx.createOscillator();
+    this.SttGain = this.SttCtx.createGain();
+
+    this.SttOsc.type = 'sine'; //set periodic for custom -- sine,square,sawtooth,triangle
+    this.SttGain.connect(this.SttCtx.destination);
+    this.SttOsc.connect(this.SttGain);
+
+    this.SttOsc.frequency.setValueAtTime(440, this.SttCtx.currentTime);
+    this.SttGain.gain.setValueAtTime(0, this.SttCtx.currentTime);
+    this.SttGain.gain.linearRampToValueAtTime(1, this.SttCtx.currentTime + 0.05);
+    this.SttOsc.start(0);
+
+    this.SttGain.gain.linearRampToValueAtTime(0, this.SttCtx.currentTime + 0.5);
+    //this.SttOsc.stop(this.SttCtx.currentTime + 0.5);
+  }
+}
+
+socket.on('sttera-receiver-receive', function(data) {
+  if (Sttera.roomArr.indexOf(data[0]) !== -1) {
+    console.log("received-meterLuz?");
+    blinkReceiver();
+    callback();
+  }
+});
+
+socket.on('sttera-ping-receive', function(data) {
+  SttGen.Setup();  
+});
+
+function callback() {}
 
 var isMobile = false; 
 
@@ -25,19 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
   $("#second-page").css({left: $(window).width(), position:'absolute'}); // this will return the left and top
 });
 
-var protocol = window.location.protocol;
-var socket = io.connect(protocol + '//' + document.domain + ":" + location.port); //port + namespace);
-
-socket.on('connect', function(data) {
-  console.log('Connected', this);
-});
-
-var thisDeviceID;
-socket.on('message', function(data) {
-  interactionState.thisid = data;
-  thisDeviceID = data;
-});
-
 socket.on('region-socket', function(data) {
   console.log("receiving");
   var x = Math.floor(Math.random() * 256);
@@ -55,13 +214,13 @@ function socketMusic() {
 async function removeAnnots() {
   wavesurfer.clearRegions();
 }
-console.log("init mobile");
+console.log("add protect for new script in sttera editor");
 
 async function mobilePerformanceSetup() {
   document.body.innerHTML = "";
   $('body').append("<div id='connect' style='position: absolute; left: 2%; top: 2%; width: 96%; height: 40%; opacity: 0.3; background-color: #000'>" + 
-                      "<div><input placeholder='Specify Room' style='color: white; background-color: #2c2c2c; height: 30px;'></input></div>" +
-                      "<button>connect</button>" + 
+                      "<div><input id='mobile-room' placeholder='Specify Room' style='color: white; background-color: #2c2c2c; height: 30px;'></input></div>" +
+                      "<button onclick='initMobile()'>connect</button>" + 
                     "</div>" + 
                     "<div id='hasbuffer' style='position: absolute; left: 2%; top: 44%; width: 96%; height: 12%; opacity: 0.3; background-color: #000'>has buff</div>" +
                     "<div id='panel' style='position:absolute; left: 2%; bottom: 2%; width: 96%;height:40%;opacity:0.3;z-index:100;background:#000;'>" + 
@@ -72,6 +231,23 @@ async function mobilePerformanceSetup() {
 async function executeMobile() {
   //if div exists and mobile is true
 }
+
+async function initMobile() {
+  if (isMobile == true) {
+    var _e = document.getElementById('mobile-room').value;
+    var mobile_values = [_e, thisDeviceID];
+    socket.emit('sttera-mobile-send', mobile_values);
+  }
+}
+
+socket.on('sttera-frommobile', function(data) {
+  if (data[0] == Sttera.name && Sttera.playerIDS.includes(data[1]) != true) {
+    Sttera.playerIDS.push(data[1]);
+    Sttera.players++;
+    document.getElementById('number-connected-users').innerHTML++
+    console.log(Sttera);
+  }
+});
 
 window.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB,
     IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction,
@@ -1509,7 +1685,7 @@ function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiv
     _directionArray.appendChild(_recordDiv);
 
     if (_btnsArray.includes(topWord)) {
-      socket.emit("regionsocket", "__");
+      //socket.emit("regionsocket", "__"); send color
     }
 
     ///var hasButtonClick = candidateWordsContainer.querySelector(topWord) != null;
@@ -1816,7 +1992,7 @@ console.log("make splash screen");
 myCodeMirror = new CodeMirror(document.getElementById('editor-div'), {
   lineNumbers: true,
   matchBrackets: true,
-  value: "/* Sttera Connection Editor */ \n",//"/** Sttera Connection Editor */ \n\nfunction setup() { \n  createCanvas(400, 400);\n}\n\nfunction callback() {\n  background(200); \n}",
+  value: "/* Sttera Connection Editor */ \n\n/*\n * Sttera.NewRoom('rooms');\n * Sttera.DeleteRoom('rooms');\n * Sttera.SendData('type', secs);\n * Sttera.StopSend();\n * Sttera.PingConnectedUsers();\n * Sttera.GetPlayers();\n * Sttera.SendSpecific(clientid, type, secs);\n\n * Sttera.Connect('rooms')\n * Sttera.Disconnect('rooms')\n * Sttera.ParticipateWithID()\n*/",//"/** Sttera Connection Editor */ \n\nfunction setup() { \n  createCanvas(400, 400);\n}\n\nfunction callback() {\n  background(200); \n}",
   styleActiveLine: true,
   mode:  "javascript",
   theme: "mbo",
@@ -1840,14 +2016,12 @@ function populateCM(v) {
 }
 
 var _run = document.getElementById('editor-div');
-
 _run.addEventListener('click', () => {
   runcode();
 });
 
 function runcode() {
 
-  //eval(_value);
   function evaluate(){
     var script = document.createElement('script');
     script.type = "text/javascript";
@@ -2455,195 +2629,7 @@ ctx.lineTo(0, 130);
 ctx.strokeStyle = 'black';
 ctx.stroke();
 
-var intervalOne, intervalTwo, connectSpecificRoom, thisIdRoom;
 
-const Sttera = { 
-  name: '',
-  players: 0,
-  playerIDS: [],
-  thisid: thisDeviceID,
-  roomArr: [],
-  /* New Emitter */ 
-
-  NewRoom(room) {
-    this.name = room;
-  },
-
-  SendData(type, secs) {
-    let data = [this.name, secs];
-    if (type == 'bang') {
-      function _sendData() {
-        socket.emit("sttera-emitter-send", data);
-        blinkSender();
-      }
-      intervalOne = setInterval(_sendData, secs)
-    }
-  },
-
-  StopSend() {
-    clearInterval(intervalOne);
-    console.log("Stopped Bang Sender");
-  },
-
-  /*SendSpecific(clientid, type, secs) {
-    let data = [this.name, clientid, secs];
-    if (type == 'bang') {
-      function _sendSpecific() {
-        socket.emit("sttera-emitterwid-send", data);
-        blinkSender();
-      }
-      intervalTwo = setInterval(_sendSpecific, secs);
-    }
-  },
-
-  StopSpecific() {
-
-  },*/
-
-  GetPlayers(which) {
-    if (which != undefined) {
-      return this.playerIDS[which];
-    } else {
-      return this.playerIDS;
-    }
-  },
-    
-  /* New Receiver */ 
-
-  Connect() {
-    
-    for (let i = 0; i < arguments.length; i++) {
-      if (typeof arguments[i] === 'string') {
-        this.roomArr.push(arguments[i]);
-      }
-    }
-    console.log(this.roomArr);
-  },
-
-  Disconnect() {
-    for (let i = 0; i < arguments.length; i++) {
-      if (typeof arguments[i] === 'string') {
-        var _index = this.roomArr.indexOf(arguments[i])
-        if (_index > -1) {
-          this.roomArr.splice(_index, 1);
-        }
-      }
-    }
-    console.log(this.roomArr);
-  },
-
-  ParticipateWithID() {
-
-    for (let i = 0; i < arguments.length; i++) {
-      if (typeof arguments[i] === 'string') {
-        //socket.emit("participate here");
-      }
-    }
-  }
-}
-
-const SttGen = {
-  SttCtx: new (window.AudioContext || window.webkitAudioContext),
-  SttOsc: "",//: this.SttCtx.createOscillator(),
-  SttGain: "",//: this.SttCtx.createGainNode(),
-
-  Setup: function() {
-    this.SttOsc = this.SttCtx.createOscillator();
-    this.SttGain = this.SttCtx.createGain();
-
-    this.SttOsc.type = 'sine'; //set periodic for custom -- sine,square,sawtooth,triangle
-    this.SttGain.connect(this.SttCtx.destination);
-    this.SttOsc.connect(this.SttGain);
-
-    this.SttOsc.frequency.setValueAtTime(440, this.SttCtx.currentTime);
-    this.SttGain.gain.setValueAtTime(0, this.SttCtx.currentTime);
-    this.SttGain.gain.linearRampToValueAtTime(1, this.SttCtx.currentTime + 0.05);
-    this.SttOsc.start(0);
-
-    this.SttGain.gain.linearRampToValueAtTime(0, this.SttCtx.currentTime + 0.5);
-    //this.SttOsc.stop(this.SttCtx.currentTime + 0.5);
-  }
-}
-
-socket.on('sttera-receiver-receive', function(data) {
-  if (Sttera.roomArr.indexOf(data[0]) !== -1) {
-    console.log("received-meterLuz?");
-    blinkReceiver();
-    callback();
-  }
-});
-function callback() {}
-/*Sttera.Connect('xperimus-room');
-
-function callback() {
-  var x = Math.floor(Math.random() * 256);
-    var y = Math.floor(Math.random() * 256);
-    var z = Math.floor(Math.random() * 256);
-    var bgColor = "rgb(" + x + "," + y + "," + z + ")";
-	document.body.style['background-color'] = bgColor;
-}*/ 
-
-//https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Simple_synth
-
-
-
-
-
-
-/* Interaction State starts-here-stop */ 
-
-const interactionState = {
-  name: [],
-  players: 0,
-  playerIDS: [],
-  thisid: ""
-}
-
-var _room = document.getElementById("interroom");
-
-lockRoom.addEventListener('click', () => {
-  _room.disabled = true;
-  console.log(_room.value);
-  interactionState.name = [];
-  interactionState.name.push(_room.value);
-
-  lockRoom.backgroundColor = "rgba(72,72,72,1)";
-  lockRoom.style.border = "1px solid grey";
-  _room.style.backgroundColor = "rgba(72,72,72,1)";
-  _room.style.border = "1px solid grey";
-
-  socket.emit("addRoom", _room.value);
-});
-
-
-var controlTerminal = document.getElementById("control-terminal");
-
-socket.on('new-room-added', function(data) {
-  var output_node = document.createElement("div");
-  output_node.innerHTML = `${data}`;
-  output_node.style["padding-right"] = "10px";
-
-  controlTerminal.appendChild(output_node);
-});
-
-sendRoom = document.getElementById("send-room");
-_enterRoom = document.getElementById("enter-room");
-
-sendRoom.addEventListener('click', () => {
-  var _newClientnRoom = [_enterRoom.value, interactionState.thisid]
-  console.log(_newClientnRoom);
-  socket.emit("enter-room", _newClientnRoom);
-});
-
-socket.on("room-token", function(data) {
-  
-  if (data[0] == interactionState.name) {
-    interactionState.players++
-    document.getElementById('number-connected-users').innerHTML = interactionState.players;
-    interactionState.playerIDS.push(data[1]);
-    console.log(interactionState);
-  }
-});
 
 function blinkSender() {
   if ($('#socketblink').length > 0) {
@@ -2663,19 +2649,6 @@ function blinkReceiver() {
   }
 }
 
-
-
-/*lockRoom.backgroundColor = "rgba(72,72,72,1)";
-lockRoom.style.border = "1px solid grey";
-_room.style.backgroundColor = "rgba(72,72,72,1)";
-_room.style.border = "1px solid grey";
-_room.value = data;*/
-
-newRoom.addEventListener('click', () => {
-  _room.style.backgroundColor = "#353535";
-  _room.style.border = "1px solid black";
-  _room.disabled = false;
-});
 
 var _bufwavesurfer = WaveSurfer.create({
   container: '#bufferplot',
@@ -2848,7 +2821,20 @@ socket.on("buffer-play", function(data) {
 
 var currentNumberOfPlayers = null; 
 var addRoomPlayers = document.getElementById('add-room-players');
+var lock_Room = document.getElementById('lock-room');
+var new_Room = document.getElementById('new-room');
+var _room = document.getElementById("interroom");
 
+lock_Room.addEventListener('click', () => {
+  Sttera.NewRoom(_room.value);
+  console.log(Sttera);
+});
+
+new_Room.addEventListener('click', () => {
+  Sttera.DeleteRoom();
+  console.log(Sttera);
+});
+/*
 addRoomPlayers.addEventListener('click', () => {
   currentNumberOfPlayers = interactionState.players + 1;
   for (i = 0; i < currentNumberOfPlayers; i++) {
@@ -2859,3 +2845,4 @@ addRoomPlayers.addEventListener('click', () => {
     $(_newplayersdiv).draggable({containment: "parent"});  
   }
 });
+*/
