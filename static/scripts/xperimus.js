@@ -48,7 +48,7 @@ const Sttera = {
   DeleteRoom() {
 
     this.name = "";
-
+    this.playerIDS = [];
     _room.value = "New Room";
     _room.disabled = false;
     _room.style.backgroundColor = "rgba(52,52,52,1)";
@@ -82,6 +82,7 @@ const Sttera = {
 
   PingConnectedUsers() {
     socket.emit("sttera-emitter-ping", this.playerIDS);
+    //socket.emit("sttera-emitter-ping-graphics", this.playerIDS);
   },
 
   /*SendSpecific(clientid, type, secs) {
@@ -174,7 +175,40 @@ socket.on('sttera-receiver-receive', function(data) {
 
 socket.on('sttera-ping-receive', function(data) {
   SttGen.Setup();  
+  document.getElementById("mobile-panel").style["background-color"] = "white";
+  setTimeout(function(){
+    document.getElementById("mobile-panel").style["background-color"] = "#353535";
+  }, 70)
 });
+
+var currentNumberOfPlayers = null; 
+var addRoomPlayers = document.getElementById('add-room-players');
+var lock_Room = document.getElementById('lock-room');
+var new_Room = document.getElementById('new-room');
+var _room = document.getElementById("interroom");
+
+lock_Room.addEventListener('click', () => {
+  Sttera.NewRoom(_room.value);
+  console.log(Sttera);
+});
+
+new_Room.addEventListener('click', () => {
+  Sttera.DeleteRoom();
+  console.log(Sttera);
+});
+
+/*
+addRoomPlayers.addEventListener('click', () => {
+  currentNumberOfPlayers = interactionState.players + 1;
+  for (i = 0; i < currentNumberOfPlayers; i++) {
+    var _newplayersdiv = document.createElement('div');
+    _newplayersdiv.className = "draggable"; 
+    _newplayersdiv.innerHTML = [i];
+    document.getElementById('room').appendChild(_newplayersdiv);  
+    $(_newplayersdiv).draggable({containment: "parent"});  
+  }
+});
+*/
 
 function callback() {}
 
@@ -218,12 +252,12 @@ console.log("add protect for new script in sttera editor");
 
 async function mobilePerformanceSetup() {
   document.body.innerHTML = "";
-  $('body').append("<div id='connect' style='position: absolute; left: 2%; top: 2%; width: 96%; height: 40%; opacity: 0.3; background-color: #000'>" + 
-                      "<div><input id='mobile-room' placeholder='Specify Room' style='color: white; background-color: #2c2c2c; height: 30px;'></input></div>" +
+  $('body').append("<div id='mobile-connect' style='position: absolute; left: 2%; top: 2%; width: 96%; height: 40%; background-color: rgba(30,30,30,1)'>" + 
+                      "<div><input id='mobile-room' placeholder='Specify Room' style='color: white; background-color: #2c2c2c; border: 1px solid black; height: 30px;'></input></div>" +
                       "<button onclick='initMobile()'>connect</button>" + 
                     "</div>" + 
-                    "<div id='hasbuffer' style='position: absolute; left: 2%; top: 44%; width: 96%; height: 12%; opacity: 0.3; background-color: #000'>has buff</div>" +
-                    "<div id='panel' style='position:absolute; left: 2%; bottom: 2%; width: 96%;height:40%;opacity:0.3;z-index:100;background:#000;'>" + 
+                    "<div id='mobile-hasbuffer' style='position: absolute; left: 2%; top: 44%; width: 96%; height: 12%; background-color: rgba(30,30,30,1)'>has buff</div>" +
+                    "<div id='mobile-panel' style='position:absolute; left: 2%; bottom: 2%; width: 96%;height:40%;z-index:100;background:rgba(30,30,30,1);'>" + 
                     "</div>");
 }
 
@@ -284,47 +318,48 @@ function sortUsingNestedText(parent, childSelector, keySelector) {
 }
 
 function listAmazonObjects() {
-  document.getElementById("cont11").innerHTML = "Trained Models<br>";
-  var __main = document.getElementById('cont11');
-
-  s3.listObjects(function (err, data) {
-    if(err)throw err;
-    //var e = data.Contents[0].Key;
-    var e = data.Contents
-    var _e = JSON.stringify(e);
+  if (isMobile != true) {
+    document.getElementById("cont11").innerHTML = "Trained Models<br>";
+    var __main = document.getElementById('cont11');
   
-    Object.keys(e).forEach((key, index) => {
-      //for (i = 0; i < e.length; i++) {}
+    s3.listObjects(function (err, data) {
+      if(err)throw err;
+      //var e = data.Contents[0].Key;
+      var e = data.Contents
+      var _e = JSON.stringify(e);
+    
+      Object.keys(e).forEach((key, index) => {
+        //for (i = 0; i < e.length; i++) {}
+    
+        if (e[key].Key.includes("Model") == true && e[key].Key.length > 7) {
+          var button = document.createElement("button");
+          button.className = "amazonClass"; 
+          button.innerHTML = e[key].Key;
   
-      if (e[key].Key.includes("Model") == true && e[key].Key.length > 7) {
-        var button = document.createElement("button");
-        button.className = "amazonClass"; 
-        button.innerHTML = e[key].Key;
-        // append seguido aqui
-
-        __main.appendChild(document.createElement("br"));    
-        __main.appendChild(button);        
-
-
-      } 
-      if (e[key].Key.includes("Dataset") == true && e[key].Key.length > 9) {
-        //console.log(e[key].Key);
-        //console.log("wa");
-        var _button = document.createElement("button");
-        _button.className = "amazonClass"; 
-        _button.innerHTML = e[key].Key;
-        document.getElementById('cont12').appendChild(document.createElement("br"));    
-        document.getElementById('cont12').appendChild(_button);
+          __main.appendChild(document.createElement("br"));    
+          __main.appendChild(button);        
+  
+        } 
+        if (e[key].Key.includes("Dataset") == true && e[key].Key.length > 9) {
+          //console.log(e[key].Key);
+          //console.log("wa");
+          var _button = document.createElement("button");
+          _button.className = "amazonClass"; 
+          _button.innerHTML = e[key].Key;
+          document.getElementById('cont12').appendChild(document.createElement("br"));    
+          document.getElementById('cont12').appendChild(_button);
+        }
+    
+      });
+    
+      for (i = 0; i < __main.children.length; i++) {
+        if (!__main.children[i].innerHTML.includes('metadata') && !__main.children[i].innerHTML.includes('weights')) {
+          console.log(__main.children[i].innerHTML); // works
+        }
       }
-  
     });
-  
-    for (i = 0; i < __main.children.length; i++) {
-      if (!__main.children[i].innerHTML.includes('metadata') && !__main.children[i].innerHTML.includes('weights')) {
-        console.log(__main.children[i].innerHTML); // works
-      }
-    }
-  });
+  }
+
 }
 
 listAmazonObjects();
@@ -341,9 +376,6 @@ const predictionCanvas = document.getElementById('prediction-canvas');
 const probaThresholdInput = document.getElementById('proba-threshold');
 const epochsInput = document.getElementById('epochs');
 const fineTuningEpochsInput = document.getElementById('fine-tuning-epochs');
-
-const lockRoom = document.getElementById('lock-room');
-const newRoom = document.getElementById('new-room');
 
 
 const datasetIOButton = document.getElementById('dataset-io');
@@ -1992,7 +2024,7 @@ console.log("make splash screen");
 myCodeMirror = new CodeMirror(document.getElementById('editor-div'), {
   lineNumbers: true,
   matchBrackets: true,
-  value: "/* Sttera Connection Editor */ \n\n/*\n * Sttera.NewRoom('rooms');\n * Sttera.DeleteRoom('rooms');\n * Sttera.SendData('type', secs);\n * Sttera.StopSend();\n * Sttera.PingConnectedUsers();\n * Sttera.GetPlayers();\n * Sttera.SendSpecific(clientid, type, secs);\n\n * Sttera.Connect('rooms')\n * Sttera.Disconnect('rooms')\n * Sttera.ParticipateWithID()\n*/",//"/** Sttera Connection Editor */ \n\nfunction setup() { \n  createCanvas(400, 400);\n}\n\nfunction callback() {\n  background(200); \n}",
+  value: "/* Sttera Connection Editor */ \n\n/*\n * Sttera.NewRoom('rooms');\n * Sttera.DeleteRoom('rooms');\n * Sttera.SendData('type', secs);\n * Sttera.StopSend();\n * Sttera.PingConnectedUsers();\n * Sttera.GetPlayers();\n\n * Sttera.Connect('rooms')\n * Sttera.Disconnect('rooms')\n * Sttera.ParticipateWithID()\n*/",//"/** Sttera Connection Editor */ \n\nfunction setup() { \n  createCanvas(400, 400);\n}\n\nfunction callback() {\n  background(200); \n}",
   styleActiveLine: true,
   mode:  "javascript",
   theme: "mbo",
@@ -2692,11 +2724,10 @@ var _sourceNode = _audioCtx.createBufferSource();
 var _dataSocketBuf = null;
 var _receiverBuffer = [];
 
-
 _fileInput.addEventListener("change", function(event) {
   var evtAttrs = event.srcElement.files[0];
   var reader = new FileReader();
-  //
+  
   reader.onload = function (evt) {
 
     var blob = new window.Blob([new Uint8Array(evt.target.result)]);
@@ -2718,9 +2749,6 @@ _fileInput.addEventListener("change", function(event) {
       var _channeldata = buffer.getChannelData(0);
       var arrayBuffer = new Float32Array(_channeldata);
 
-      //var __e = new Uint8Array(_channeldata);
-      //console.log(__e);
-      //
       
       bufAttrs.push(buffer.length, buffer.duration, buffer.sampleRate, buffer.numberOfChannels);
 
@@ -2783,6 +2811,15 @@ socket.on('buffer-qual', function(data) {
 
 });
 
+socket.on("buffer-play", function(data) {
+  console.log(data);
+  var _source = _audioCtx.createBufferSource();
+  _source.buffer = newSongBufferToCopy;
+  _source.connect(_audioCtx.destination);
+  _source.start();
+  //AudioBufferSourceNode.start([when][, offset][, duration]);
+});
+
 
 navigator.mediaDevices.enumerateDevices().then((devices) => {
   devices.filter((d) => d.kind === 'audioinput');
@@ -2810,39 +2847,6 @@ button1.addEventListener('click', () => {
   socket.emit("play-buffer", "play");
 });
 
-socket.on("buffer-play", function(data) {
-  console.log(data);
-  var _source = _audioCtx.createBufferSource();
-  _source.buffer = newSongBufferToCopy;
-  _source.connect(_audioCtx.destination);
-  _source.start();
-  //AudioBufferSourceNode.start([when][, offset][, duration]);
-});
 
-var currentNumberOfPlayers = null; 
-var addRoomPlayers = document.getElementById('add-room-players');
-var lock_Room = document.getElementById('lock-room');
-var new_Room = document.getElementById('new-room');
-var _room = document.getElementById("interroom");
 
-lock_Room.addEventListener('click', () => {
-  Sttera.NewRoom(_room.value);
-  console.log(Sttera);
-});
 
-new_Room.addEventListener('click', () => {
-  Sttera.DeleteRoom();
-  console.log(Sttera);
-});
-/*
-addRoomPlayers.addEventListener('click', () => {
-  currentNumberOfPlayers = interactionState.players + 1;
-  for (i = 0; i < currentNumberOfPlayers; i++) {
-    var _newplayersdiv = document.createElement('div');
-    _newplayersdiv.className = "draggable"; 
-    _newplayersdiv.innerHTML = [i];
-    document.getElementById('room').appendChild(_newplayersdiv);  
-    $(_newplayersdiv).draggable({containment: "parent"});  
-  }
-});
-*/

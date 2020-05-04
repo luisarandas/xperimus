@@ -211,10 +211,8 @@ def sttera_emitter_send(data):
 
 @socketio.on('sttera-emitter-ping')
 def sttera_emitter_ping(data):
-    print("ccccccccc")
-    print(request.sid)
-    socketio.emit('sttera-ping-receive', "this", data[0])
-
+    for val in data:
+        socketio.emit('sttera-ping-receive', "this", val)
 
 #####  THE CLIENT
 
