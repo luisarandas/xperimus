@@ -175,11 +175,15 @@ socket.on('sttera-receiver-receive', function(data) {
 
 socket.on('sttera-ping-receive', function(data) {
   SttGen.Setup();  
+  blinkMobilePanel();
+});
+
+async function blinkMobilePanel() {
   document.getElementById("mobile-panel").style["background-color"] = "white";
   setTimeout(function(){
-    document.getElementById("mobile-panel").style["background-color"] = "#353535";
+    document.getElementById("mobile-panel").style["background-color"] = "#202020";
   }, 70)
-});
+}
 
 var currentNumberOfPlayers = null; 
 var addRoomPlayers = document.getElementById('add-room-players');
@@ -211,6 +215,113 @@ addRoomPlayers.addEventListener('click', () => {
 */
 
 function callback() {}
+
+
+const _fileInput = document.getElementById('audio-file');
+
+console.log("check multiple audio contexts");
+
+//var _audioCtx = new AudioContext(); 
+var _audioCtx = new (window.AudioContext || window.webkitAudioContext);
+var _sourceNode = _audioCtx.createBufferSource();
+var _dataSocketBuf = null;
+var _receiverBuffer = [];
+
+_fileInput.addEventListener("change", function(event) {
+  var evtAttrs = event.srcElement.files[0];
+  var reader = new FileReader();
+  
+  reader.onload = function (evt) {
+
+    var blob = new window.Blob([new Uint8Array(evt.target.result)]);
+
+    let audio = new Audio();
+    audio.src = URL.createObjectURL(blob);
+    _bufwavesurfer.load(audio);
+  };
+
+  reader.addEventListener("loadend", function(e) {
+
+    arrayBuffer = reader.result;
+
+
+    _audioCtx.decodeAudioData(reader.result, function(buffer) {
+
+      var bufAttrs = [];
+      var _channeldata = buffer.getChannelData(0);
+      var arrayBuffer = new Float32Array(_channeldata);
+
+      
+      bufAttrs.push(buffer.length, buffer.duration, buffer.sampleRate, buffer.numberOfChannels);
+
+      socket.emit("new-buffer", bufAttrs);
+      socket.emit("buffer-qual", arrayBuffer.buffer);
+
+      var _bufAttrs = buffer;
+      aboutAudioFile(evtAttrs, _bufAttrs);
+
+      //socket.emit("buffer-qual", arrayBuffer.buffer);
+
+    });
+  });
+
+	reader.readAsArrayBuffer(this.files[0]);
+}, false);
+
+
+async function aboutAudioFile(e,a) {
+  console.log(e);
+  document.getElementById('name-audio-file-fill').innerHTML = e.name;
+  document.getElementById('type-audio-file-fill').innerHTML = e.type;
+  document.getElementById('size-audio-file-fill').innerHTML = e.size;
+
+  document.getElementById('buflen-audio-file-fill').innerHTML = a.length;
+  var _duration = parseFloat(a.length).toFixed(3);
+  document.getElementById('bufdur-audio-file-fill').innerHTML = _duration;
+  document.getElementById('bufsamp-audio-file-fill').innerHTML = a.sampleRate;
+  document.getElementById('bufnumc-audio-file-fill').innerHTML = a.numberOfChannels;
+  //_bufwavesurfer.loadDecodedBuffer(blob);
+  
+}
+
+var _newSongData;
+socket.on('new-buffer', function(data) {
+  console.log(data);
+  _newSongData = data
+});
+
+var newSongBufferToCopy;
+
+socket.on('buffer-qual', function(data) {
+  console.log(_newSongData);
+  var __arrayBuffer = new Float32Array(data);
+  console.log(__arrayBuffer);
+  var myArrayBuffer = _audioCtx.createBuffer(_newSongData[3], _newSongData[0], _newSongData[2]);
+  myArrayBuffer.copyToChannel(__arrayBuffer, 0, 0); 
+  if (_newSongData[3] != 1) {
+    myArrayBuffer.copyToChannel(__arrayBuffer, 1, 0);
+  } 
+  //myArrayBuffer.duration = _newSongData[1];
+  var _source = _audioCtx.createBufferSource();
+  _source.buffer = myArrayBuffer;
+  newSongBufferToCopy = myArrayBuffer;
+  _source.connect(_audioCtx.destination);
+  _source.start();
+  document.getElementById("mobile-hasbuffer").style["background-color"] = "white";
+  setTimeout(function(){
+    document.getElementById("mobile-hasbuffer").style["background-color"] = "rgba(38,165,164,1)";
+  }, 70);  
+
+});
+
+socket.on("buffer-play", function(data) {
+  console.log(data);
+  var _source = _audioCtx.createBufferSource();
+  _source.buffer = newSongBufferToCopy;
+  _source.connect(_audioCtx.destination);
+  _source.start();
+  blinkMobilePanel();
+});
 
 var isMobile = false; 
 
@@ -256,7 +367,7 @@ async function mobilePerformanceSetup() {
                       "<div><input id='mobile-room' placeholder='Specify Room' style='color: white; background-color: #2c2c2c; border: 1px solid black; height: 30px;'></input></div>" +
                       "<button onclick='initMobile()'>connect</button>" + 
                     "</div>" + 
-                    "<div id='mobile-hasbuffer' style='position: absolute; left: 2%; top: 44%; width: 96%; height: 12%; background-color: rgba(30,30,30,1)'>has buff</div>" +
+                    "<div id='mobile-hasbuffer' style='position: absolute; left: 2%; top: 44%; width: 96%; height: 12%; background-color: rgba(30,30,30,1)'></div>" +
                     "<div id='mobile-panel' style='position:absolute; left: 2%; bottom: 2%; width: 96%;height:40%;z-index:100;background:rgba(30,30,30,1);'>" + 
                     "</div>");
 }
@@ -2714,111 +2825,6 @@ var _bufwavesurfer = WaveSurfer.create({
   })]
 });
 
-const _fileInput = document.getElementById('audio-file');
-
-console.log("check multiple audio contexts");
-
-//var _audioCtx = new AudioContext(); 
-var _audioCtx = new (window.AudioContext || window.webkitAudioContext);
-var _sourceNode = _audioCtx.createBufferSource();
-var _dataSocketBuf = null;
-var _receiverBuffer = [];
-
-_fileInput.addEventListener("change", function(event) {
-  var evtAttrs = event.srcElement.files[0];
-  var reader = new FileReader();
-  
-  reader.onload = function (evt) {
-
-    var blob = new window.Blob([new Uint8Array(evt.target.result)]);
-
-    let audio = new Audio();
-    audio.src = URL.createObjectURL(blob);
-    _bufwavesurfer.load(audio);
-  };
-
-  reader.addEventListener("loadend", function(e) {
-
-    arrayBuffer = reader.result;
-    //plotWaveformBuf(arrayBuffer);
-
-
-    _audioCtx.decodeAudioData(reader.result, function(buffer) {
-
-      var bufAttrs = [];
-      var _channeldata = buffer.getChannelData(0);
-      var arrayBuffer = new Float32Array(_channeldata);
-
-      
-      bufAttrs.push(buffer.length, buffer.duration, buffer.sampleRate, buffer.numberOfChannels);
-
-      socket.emit("new-buffer", bufAttrs);
-      socket.emit("buffer-qual", arrayBuffer.buffer);
-
-      var _bufAttrs = buffer;
-      aboutAudioFile(evtAttrs, _bufAttrs);
-
-      //socket.emit("buffer-qual", arrayBuffer.buffer);
-
-    });
-  });
-
-	reader.readAsArrayBuffer(this.files[0]);
-}, false);
-
-
-async function aboutAudioFile(e,a) {
-  console.log(e);
-  document.getElementById('name-audio-file-fill').innerHTML = e.name;
-  document.getElementById('type-audio-file-fill').innerHTML = e.type;
-  document.getElementById('size-audio-file-fill').innerHTML = e.size;
-
-  document.getElementById('buflen-audio-file-fill').innerHTML = a.length;
-  var _duration = parseFloat(a.length).toFixed(3);
-  document.getElementById('bufdur-audio-file-fill').innerHTML = _duration;
-  document.getElementById('bufsamp-audio-file-fill').innerHTML = a.sampleRate;
-  document.getElementById('bufnumc-audio-file-fill').innerHTML = a.numberOfChannels;
-  //_bufwavesurfer.loadDecodedBuffer(blob);
-  
-}
-
-async function plotWaveformBuf(v) {
-  console.log(v);
-}
-
-var _newSongData;
-socket.on('new-buffer', function(data) {
-  console.log(data);
-  _newSongData = data
-});
-
-var newSongBufferToCopy;
-socket.on('buffer-qual', function(data) {
-  console.log(_newSongData);
-  var __arrayBuffer = new Float32Array(data);
-  console.log(__arrayBuffer);
-  var myArrayBuffer = _audioCtx.createBuffer(_newSongData[3], _newSongData[0], _newSongData[2]);
-  myArrayBuffer.copyToChannel(__arrayBuffer, 0, 0); 
-  if (_newSongData[3] != 1) {
-    myArrayBuffer.copyToChannel(__arrayBuffer, 1, 0);
-  }
-  //myArrayBuffer.duration = _newSongData[1];
-  var _source = _audioCtx.createBufferSource();
-  _source.buffer = myArrayBuffer;
-  newSongBufferToCopy = myArrayBuffer;
-  _source.connect(_audioCtx.destination);
-  _source.start();
-
-});
-
-socket.on("buffer-play", function(data) {
-  console.log(data);
-  var _source = _audioCtx.createBufferSource();
-  _source.buffer = newSongBufferToCopy;
-  _source.connect(_audioCtx.destination);
-  _source.start();
-  //AudioBufferSourceNode.start([when][, offset][, duration]);
-});
 
 
 navigator.mediaDevices.enumerateDevices().then((devices) => {
