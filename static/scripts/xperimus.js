@@ -323,6 +323,23 @@ socket.on("buffer-play", function(data) {
   blinkMobilePanel();
 });
 
+var button1 = document.querySelector('#play-stream-socket');
+button1.addEventListener("mousedown", function(){ 
+  button1.style.backgroundColor = 'rgba(38,165,164,1)';
+});
+
+button1.addEventListener("mouseup", function() {
+  button1.style.backgroundColor = '#353535';
+});
+
+button1.addEventListener("click", function() {
+  button1.style.backgroundColor = '#353535';
+});
+
+button1.addEventListener('click', () => {
+  socket.emit("play-buffer", "play");
+});
+
 var isMobile = false; 
 
 if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent) 
@@ -2836,22 +2853,7 @@ navigator.mediaDevices.enumerateDevices().then((devices) => {
   }); 
 });
 
-var button1 = document.querySelector('#play-stream-socket');
-button1.addEventListener("mousedown", function(){ 
-  button1.style.backgroundColor = 'rgba(38,165,164,1)';
-});
 
-button1.addEventListener("mouseup", function() {
-  button1.style.backgroundColor = '#353535';
-});
-
-button1.addEventListener("click", function() {
-  button1.style.backgroundColor = '#353535';
-});
-
-button1.addEventListener('click', () => {
-  socket.emit("play-buffer", "play");
-});
 
 
 
