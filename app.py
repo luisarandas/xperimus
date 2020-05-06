@@ -186,6 +186,8 @@ def newmsg(data):
     print(data)                                                               
     socketio.emit('message', {'heldslo': "Helldso"})    
 
+##### Buffers - MOVE TO DOWN CTEX
+
 @socketio.on('new-buffer')                                                         
 def _bufferdata(data):   
     socketio.emit('new-buffer', data, broadcast=True, include_self=False)    
@@ -199,6 +201,11 @@ def __bufferdata(data):
 def __bufferdata(data):
     socketio.emit('buffer-play', data, broadcast=True, include_self=False) 
 
+
+
+@socketio.on('play-on-detect')
+def __bufferdata(data):
+    socketio.emit('play-on-detected', data, broadcast=True, include_self=False) 
 
 
 ###############################################################################################

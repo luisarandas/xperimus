@@ -359,14 +359,13 @@ document.addEventListener('DOMContentLoaded', () => {
   $("#second-page").css({left: $(window).width(), position:'absolute'}); // this will return the left and top
 });
 
-socket.on('region-socket', function(data) {
-  console.log("receiving");
-  var x = Math.floor(Math.random() * 256);
-    var y = Math.floor(Math.random() * 256);
-    var z = Math.floor(Math.random() * 256);
-    var bgColor = "rgb(" + x + "," + y + "," + z + ")";
-  document.body.style.backgroundColor = bgColor;
-  console.log("if clicked TRIGGER W REGION bang play");
+socket.on('play-on-detected', function(data) {
+  console.log(data, "exactly the same as Play btn");
+  var _source = _audioCtx.createBufferSource();
+  _source.buffer = newSongBufferToCopy;
+  _source.connect(_audioCtx.destination);
+  _source.start();
+  blinkMobilePanel();
 });
 
 function socketMusic() {
@@ -1844,8 +1843,8 @@ function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiv
     const _directionArray = document.getElementById("detectionarray");
     _directionArray.appendChild(_recordDiv);
 
-    if (_btnsArray.includes(topWord)) {
-      //socket.emit("regionsocket", "__"); send color
+    if (_btnsArray.includes(topWord) && isStreamingOnDetect == true) {
+      socket.emit("play-on-detect", "-")
     }
 
     ///var hasButtonClick = candidateWordsContainer.querySelector(topWord) != null;
@@ -1884,6 +1883,8 @@ function plotPredictions( canvas, candidateWords, probabilities, topK, timeToLiv
     }
   }
 }
+
+console.log("add sttera class as cortex of these candidate words streaming");
 
 function includewavform() {
   if (includeAudioWaveformSpec == false) {
@@ -2853,8 +2854,22 @@ navigator.mediaDevices.enumerateDevices().then((devices) => {
   }); 
 });
 
+var isStreamingOnDetect = false;
 
+var _triggerOnDetect = document.getElementById('trigger-when-mic');
+_triggerOnDetect.addEventListener('click', () => {
+  if (isStreamingOnDetect == true) {
+    isStreamingOnDetect = false;
+    _triggerOnDetect.style["background-color"] = "rgba(52,52,52,1)";
+    _triggerOnDetect.style["color"] = "rgba(200,200,200,1)";
+  } else if (isStreamingOnDetect == false){
+    isStreamingOnDetect = true;
+    _triggerOnDetect.style["background-color"] = "rgba(38,165,164,1)";
+    _triggerOnDetect.style["color"] = "black";
 
+  }
+  console.log(isStreamingOnDetect);
+});
 
 
 
