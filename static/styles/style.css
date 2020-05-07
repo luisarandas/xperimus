@@ -447,7 +447,7 @@ button:disabled {
   top: calc(29% + 2px);
   text-align: center;
   padding-top: 4px;
-  height: 20%;
+  height: 18%;
   width: calc(30% - 2px);
 }
 

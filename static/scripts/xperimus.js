@@ -178,6 +178,15 @@ socket.on('sttera-ping-receive', function(data) {
   blinkMobilePanel();
 });
 
+socket.on('play-on-regions', function(data) {
+  SttGen.Setup();
+  blinkMobilePanel();
+});
+
+if (isStreamingOnWavesurfer == true) {
+  socket.emit("play-on-region", "-");
+}
+
 async function blinkMobilePanel() {
   document.getElementById("mobile-panel").style["background-color"] = "white";
   setTimeout(function(){
@@ -186,7 +195,6 @@ async function blinkMobilePanel() {
 }
 
 var currentNumberOfPlayers = null; 
-var addRoomPlayers = document.getElementById('add-room-players');
 var lock_Room = document.getElementById('lock-room');
 var new_Room = document.getElementById('new-room');
 var _room = document.getElementById("interroom");
@@ -201,8 +209,9 @@ new_Room.addEventListener('click', () => {
   console.log(Sttera);
 });
 
-/*
-addRoomPlayers.addEventListener('click', () => {
+var _addToPlayersPool = document.getElementById('add-room-players');
+
+/*addRoomPlayers.addEventListener('click', () => {
   currentNumberOfPlayers = interactionState.players + 1;
   for (i = 0; i < currentNumberOfPlayers; i++) {
     var _newplayersdiv = document.createElement('div');
@@ -211,8 +220,8 @@ addRoomPlayers.addEventListener('click', () => {
     document.getElementById('room').appendChild(_newplayersdiv);  
     $(_newplayersdiv).draggable({containment: "parent"});  
   }
-});
-*/
+});*/
+
 
 function callback() {}
 
@@ -366,18 +375,20 @@ socket.on('play-on-detected', function(data) {
   _source.connect(_audioCtx.destination);
   _source.start();
   blinkMobilePanel();
+  SttGen.Setup();
 });
 
 function socketMusic() {
   socket.emit("my-event", "username");
 }
 
-async function removeAnnots() {
+function removeAnnots() {
   wavesurfer.clearRegions();
 }
+
 console.log("add protect for new script in sttera editor");
 
-async function mobilePerformanceSetup() {
+function mobilePerformanceSetup() {
   document.body.innerHTML = "";
   $('body').append("<div id='mobile-connect' style='position: absolute; left: 2%; top: 2%; width: 96%; height: 40%; background-color: rgba(30,30,30,1)'>" + 
                       "<div><input id='mobile-room' placeholder='Specify Room' style='color: white; background-color: #2c2c2c; border: 1px solid black; height: 30px;'></input></div>" +
@@ -400,9 +411,9 @@ async function initMobile() {
     socket.emit('sttera-mobile-send', mobile_values);
   }
 }
-
+var isRecruiting = true;
 socket.on('sttera-frommobile', function(data) {
-  if (data[0] == Sttera.name && Sttera.playerIDS.includes(data[1]) != true) {
+  if (data[0] == Sttera.name && Sttera.playerIDS.includes(data[1]) != true && isRecruiting == true) {
     Sttera.playerIDS.push(data[1]);
     Sttera.players++;
     document.getElementById('number-connected-users').innerHTML++
@@ -1997,12 +2008,6 @@ function playStopFile(v) {
   }
 }
 
-wavesurfer.on('ready', function () {
-});
-
-
-
-
 document.getElementById('file-input').onclick = function() {
   document.getElementById('my_file').click();
 };
@@ -2290,9 +2295,10 @@ wavesurfer.on('region-updated', function(region, e) {
 wavesurfer.on('region-in', function (region, e) {
   annotObject = region;
 
-  if (isMobile == true) {
-    socket.emit("regionsocket", "_olaola_");
+  if (isStreamingOnWavesurfer == true) {
+    socket.emit("play-on-region", "-");
   }
+
   document.getElementById("idval").value = region.id;
   document.getElementById("blink-when-region").style["background-color"] = "rgba(38,165,164,1)";
   setTimeout(function(){
@@ -2855,6 +2861,7 @@ navigator.mediaDevices.enumerateDevices().then((devices) => {
 });
 
 var isStreamingOnDetect = false;
+var isStreamingOnWavesurfer = false;
 
 var _triggerOnDetect = document.getElementById('trigger-when-mic');
 _triggerOnDetect.addEventListener('click', () => {
@@ -2866,9 +2873,34 @@ _triggerOnDetect.addEventListener('click', () => {
     isStreamingOnDetect = true;
     _triggerOnDetect.style["background-color"] = "rgba(38,165,164,1)";
     _triggerOnDetect.style["color"] = "black";
-
   }
-  console.log(isStreamingOnDetect);
+});
+
+var _triggerWaveOnDetect = document.getElementById('trigger-when-play');
+_triggerWaveOnDetect.addEventListener('click', () => {
+  if (isStreamingOnWavesurfer == true) {
+    isStreamingOnWavesurfer = false;
+    _triggerWaveOnDetect.style["background-color"] = "rgba(52,52,52,1)";
+    _triggerWaveOnDetect.style["color"] = "rgba(200,200,200,1)";
+  } else if (isStreamingOnWavesurfer == false){
+    isStreamingOnWavesurfer = true;
+    _triggerWaveOnDetect.style["background-color"] = "rgba(38,165,164,1)";
+    _triggerWaveOnDetect.style["color"] = "black";
+  }
+});
+
+var _stopConnect = document.getElementById('stop-room-connect');
+_stopConnect.addEventListener('click', () => {
+  if (isRecruiting == false) {
+    isRecruiting = true;
+    _stopConnect.style["background-color"] = "rgba(52,52,52,1)";
+    _stopConnect.style["color"] = "rgba(200,200,200,1)";
+  } else if (isRecruiting == true){
+    isRecruiting = false;
+    _stopConnect.style["background-color"] = "rgba(38,165,164,1)";
+    _stopConnect.style["color"] = "black";
+  }
+  console.log(isRecruiting);
 });
 
 

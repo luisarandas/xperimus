@@ -207,6 +207,10 @@ def __bufferdata(data):
 def __bufferdata(data):
     socketio.emit('play-on-detected', data, broadcast=True, include_self=False) 
 
+@socketio.on('play-on-region')
+def __bufferdata(data):
+    socketio.emit('play-on-regions', data, broadcast=True, include_self=False) 
+
 
 ###############################################################################################
 
