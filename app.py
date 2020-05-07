@@ -225,6 +225,12 @@ def sttera_emitter_ping(data):
     for val in data:
         socketio.emit('sttera-ping-receive', "this", val)
 
+@socketio.on('sttera-emitter-user-pool')
+def sttera_emitter_ping(data):
+    socketio.emit('sttera-user-pool-receive', "this", data)
+
+
+
 #####  THE CLIENT
 
 @socketio.on('sttera-mobile-send')

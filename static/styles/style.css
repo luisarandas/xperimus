@@ -1084,15 +1084,28 @@ button:disabled {
 
 .draggable { 
   width: 10%; 
-  height: 12%; 
+  height: 10%; 
   border: 1px solid rgba(22,22,22,1); 
   background-color: rgba(32,32,32,1);
   border-radius: 3px;
   text-align: center;
   cursor: move;
   vertical-align: middle;
-  padding-top: 3px;
+  padding-top: 4px;
   z-index: 9999;
+}
+
+.draggableImpulse {
+  position: absolute;
+  width: 25%;
+  right: -30%;
+  top: -1px;
+  height: calc(100% + 2px);
+  border: 1px solid rgba(22,22,22,1); 
+
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  background-color: rgba(38,165,164,1);
 }
 
 .rotate1 {

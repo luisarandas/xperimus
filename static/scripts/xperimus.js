@@ -85,6 +85,10 @@ const Sttera = {
     //socket.emit("sttera-emitter-ping-graphics", this.playerIDS);
   },
 
+  StreamSinglerUserPool(id) {
+    socket.emit("sttera-emitter-user-pool", id);
+  },
+
   /*SendSpecific(clientid, type, secs) {
     let data = [this.name, clientid, secs];
     if (type == 'bang') {
@@ -178,6 +182,11 @@ socket.on('sttera-ping-receive', function(data) {
   blinkMobilePanel();
 });
 
+socket.on('sttera-user-pool-receive', function(data) {
+  SttGen.Setup();
+  blinkMobilePanel();
+});
+
 socket.on('play-on-regions', function(data) {
   SttGen.Setup();
   blinkMobilePanel();
@@ -211,17 +220,30 @@ new_Room.addEventListener('click', () => {
 
 var _addToPlayersPool = document.getElementById('add-room-players');
 
-/*addRoomPlayers.addEventListener('click', () => {
-  currentNumberOfPlayers = interactionState.players + 1;
-  for (i = 0; i < currentNumberOfPlayers; i++) {
-    var _newplayersdiv = document.createElement('div');
-    _newplayersdiv.className = "draggable"; 
-    _newplayersdiv.innerHTML = [i];
-    document.getElementById('room').appendChild(_newplayersdiv);  
-    $(_newplayersdiv).draggable({containment: "parent"});  
-  }
-});*/
+_addToPlayersPool.addEventListener('click', () => {
+  console.log(Sttera);
+  for (i = 0; i < Sttera.players; i++) {
+    var _newplayerDiv = document.createElement('div');
+    _newplayerDiv.className = "draggable";
+    _newplayerDiv.innerHTML = [i];
+    _newplayerDiv.id = Sttera.playerIDS[i]; 
+    
+    document.getElementById('room').appendChild(_newplayerDiv);
+    $(_newplayerDiv).draggable({containment: "parent", cancel: 'button'});  
 
+    var _newplayerImpulse = document.createElement('button');
+    _newplayerImpulse.className = "draggableImpulse";
+    _newplayerImpulse.onclick = function() {
+      Sttera.StreamSinglerUserPool(this.parentNode.id);
+    }
+    _newplayerDiv.appendChild(_newplayerImpulse);
+  
+  }
+  console.log(document.getElementById('room'));
+  console.log(Sttera);
+});
+
+console.log("send the connected users to the users just like p2p")
 
 function callback() {}
 
