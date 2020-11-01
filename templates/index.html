@@ -4,39 +4,58 @@
 <head>
   <title>Xperimus Sttera</title>
 
-    <script src="/static/scripts/libs/codemirror.js"></script>
-    <script src="/static/scripts/libs/javascript.js"></script>
-    <script src="/static/scripts/libs/runmode.js"></script>
-
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/codemirror.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/mbo.css') }}">
+    <link rel="shortcut icon" href="#"/>
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
-    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
-    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="/static/scripts/ext/socket.io.js"></script>
+    <script src="/static/scripts/ext/aws-sdk-2.283.1.min.js"></script>
+    <script src="/static/scripts/ext/jquery-1.12.4.min.js"></script>
+    <script src="/static/scripts/ext/codemirror.js"></script>
+    <script src="/static/scripts/ext/javascript.js"></script>
+    <script src="/static/scripts/ext/runmode.js"></script>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="/static/scripts/ml/tf.min.js"></script>
+    <script src="/static/scripts/ml/speech-commands.min.js"></script>
+
+    <!--<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/speech-commands@0.4.2/dist/speech-commands.min.js"></script>-->
+
+    <script src="/static/scripts/ext/wavesurfer.min.js"></script>
+    <script src="/static/scripts/ext/wavesurfer.regions.min.js"></script>
+    <script src="/static/scripts/ext/wavesurfer.minimap.min.js"></script>
+    <script src="/static/scripts/ext/wavesurfer.cursor.min.js"></script>
+    <script src="/static/scripts/ext/wavesurfer.timeline.min.js"></script>
+    <script src="/static/scripts/ext/wavesurfer.spectrogram.min.js"></script>
+
+    <script src="/static/scripts/faust/index.min.js"></script>
+    <script type="module" src="/static/scripts/main/main.js"></script>
 
 </head>
 
-<body onload="splash(2500)">
+<body>
   <div id="splashscreen">
     <div id="top-splash"></div>
-    <div id="img"></div>
+    <div id="img"><span style="font-size: 23px;"><br><br><br>Sttera</span><br><br>A ML powered software for instrument detection and orchestration<br><br>© 2020 Luís Arandas and Rui Penha </div>
     <div id="bottom-splash"></div>
   </div>
 
   <div id="topmenu" class="navbar">
-    <a href="#home">File</a>
+    <div class="dropdown">
+      <button class="dropbtn">File
+        <!--<i class="fa fa-caret-down"></i>-->
+      </button>
+      <div class="dropdown-content">
+        <button class="dropdown-btns" onclick="console.log('ola');">Change Windows</button>
+      </div>
+    </div> 
     <div class="dropdown">
       <button class="dropbtn">Edit 
         <!--<i class="fa fa-caret-down"></i>-->
       </button>
       <div class="dropdown-content">
         <button onclick="mobilePerformanceSetup()">test player</button>
-        <a href="">Load</a>
+        <a href="">Clean everything - maybe file?</a>
         <a href="">Open Separate Window</a>
         <a href="">Spectrogram</a>
         <a href="">ML New Window</a>
@@ -53,22 +72,24 @@
 <div id="first-page" style="position: absolute; right: 0px; top: 0px; height: 100%; width: 100%; background-color: #2c2c2c; z-index: 99;">
 
   <div id="firstContainer">
+  
+  <div id="title1">Detection Panel</div>
+  
   <div id="cont1">
-    <!--<div class="start-stop">-->
-      <!--<span>Listen</span><br>-->
+      Microphone<br>
       <button id="start" class="startstop">Start</button>
       <button id="stop" class="startstop">Stop</button>
-      <br><br><br><br>
+
     </div>
     <div id="cont2">
-
-      <div id="probabil">Probability</div>
+      Probability<br>
+      <div id="probabil"></div>
     </div>
 
     <div id="cont3">
         <!--<span style="display:block">Prob. threshold:</span>-->
         <span>Threshold</span>
-        <input style="display:block" class="thresh" size="5" id="proba-threshold" value="0.75">
+        <input class="thresh" size="5" id="proba-threshold" value="0.75">
     </div>
   
     <!--</div>-->
@@ -77,84 +98,56 @@
       <div id="candidate-words" class="candidate-words"></div>
     </div>
 
-    <div id="cont5">
-    </div>
-    <!--<div id="cont5_">
-    </div>-->
-
-    <div id="cont6" style="display: hidden">
-    </div>
-
-    <div id="cont7">
-      <button style="font-size:14px; width: 13%; height: 80%;" onclick="playStopFile('play')" class="btnsFile"><i class="fa fa-play"></i></button>
-      <button style="font-size:14px; width: 13%; height: 80%;" onclick="playStopFile('pause')" class="btnsFile"><i class="fa fa-pause"></i></button>
-      <button style="font-size:14px; width: 13%; height: 80%;" onclick="playStopFile('stop')" class="btnsFile"><i class="fa fa-stop"></i></button>
-      <button style="font-size:14px; width: 13%; height: 80%;" type="button" id="file-input" onclick="readSingleFile()" class="btnsFile"><i class="fa fa-bars"></i></button>
-      <input type="file" id="my_file">
-      <button style="font-size:14px; width: 13%; height: 80%;" onclick="addAnnot('add')" class="btnsFile"><i class='fa fa-indent'></i></button>
-      <button style="font-size:14px; width: 13%; height: 80%;" onclick="removeAnnots()" class="btnsFile"><i class="fa fa-undo"></i></button>
-      <button style="font-size:14px; width: 13%; height: 80%;" onclick="spectrogramNewWindow()" class="btnsFile"><i class="fa fa-copy"></i></button>
-
-    </div>
-
-    <div id="cont9">
-      <div id="blink-when-region" style="position: absolute; width: calc(27% - 3px); height: 59%; border-radius: 3px; border: 1px solid black; top: 20%; left: 5%; color: rgba(200,200,200,1); background-color: #353535;"></div>
-      <!--::-webkit-scrollbar-corner {
-        background: rgba(0,0,0,0);
-      }-->
-    </div>
-
-    <div id="sockettimeline1">
-      <div id="aboutAnnot" style="text-align: left; vertical-align: auto;">
-        <div id="annotID" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid black; top: 1px; left: 0px; color: rgba(200,200,200,1); background-color: #353535;">
-          <span style="position: absolute; left: 3%; top: 11%;">Annotation ID</span>
-          <input id="idval" onclick="" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid black; width: 40%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 65%; text-align: center;" value="ID Value">
-        </div>
-        <div id="annotSeconds" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid black; top: calc(17% + 4px); left: 0px; color: rgba(200,200,200,1); background-color: #353535">
-          <span style="position: absolute; left: 3%; top: 11%;">Length in Secs</span>
-          <input id="idlength" onclick="" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid black; width: 40%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); text-align: center; height: 65%;" value="00:000-00:000">
-        </div>
-
-        <div id="annotTrained" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid black; top: calc(34% + 7px); left: 0px; color: rgba(200,200,200,1); background-color: #353535">
-          <span style="position: absolute; left: 3%; top: 11%;">Trigger when Detect</span>
-          <input id="triggerspace" onclick="" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid black; width: 40%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); text-align: center; height: 65%;" value="00:000-00:000">
-        </div>
-        
-        <div id="annotSocket" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid black; top: calc(51% + 10px); left: 0px; color: rgba(200,200,200,1); background-color: #353535">
-          <span style="position: absolute; left: 3%; top: 11%;">Stream Region</span>
-          <button onclick="sendingDataSockets()" id="streamButton" style="position: absolute; right: 1px; top: 1px; border-radius: 3px; height: 98%; border: 1px solid black; color: rgba(200,200,200,1); width: calc(41% + 0px); background-color: rgba(32,32,32,1); z-index: 5; text-align: center; height: 90%;" >Send Users</button>
-        </div>
-        <div id="annotPlay" style="position: absolute; width: calc(100% - 3px); height: 17%; border-radius: 3px; border: 1px solid black; top: calc(68% + 13px); left: 0px; color: rgba(200,200,200,1); background-color: #353535">
-          <span style="position: absolute; left: 3%; top: 11%;">P-S-E Region</span>
-        <button  id="playRegionButton1" onclick="playstopRegion('play')" style="position: absolute; right: calc(26% + 7px); top: 1px; border-radius: 3px;  border: 1px solid black; width: 13%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 85%; z-index: 5;">P</button>
-        <button  id="playRegionButton2" onclick="playstopRegion('stop')" style="position: absolute; right: calc(13% + 4px); top: 1px; border-radius: 3px;  border: 1px solid black; width: 13%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 85%; z-index: 5;">S</button>
-        <button  id="playRegionButton3" onclick="playstopRegion('close')" style="position: absolute; right: 1px; top: 1px; border-radius: 3px;  border: 1px solid black; width: 13%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 85%; z-index: 5;">X</button>
-        </div>
-
-      </div>
-      <div id="sendAnnot">
-
-        <div id="sendmanual" style="position: absolute; width: calc(100% - 4px); height: 17%; border-radius: 3px; border: 1px solid black; top: 1px; left: 1px; color: rgba(200,200,200,1); background-color: #202020; text-align: center; height: 17%; padding-top: 5px;">
-          Send Manually
-        </div>
-        <div id="sendannotfill" style="position: absolute; width: calc(100% - 4px); height: 17%; border-radius: 3px; border: 1px solid black; top: calc(28% - 2px); left: 1px; color: rgba(200,200,200,1); background-color: #353535; text-align: center; height: calc(67% - 1px); padding-top: 5px;"></div>
-
-      </div>
-
-
-    </div>
+    
 
     <!--<div id="micspec" style="width: 100%; height: 20%; position: absolute; bottom: 0px; background-color: red;"></div>-->
     
     <div id="cont9_">
-      <div id="detectionarray" style="position: absolute; top: 2px; left: 2px; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: 92%;  width: 99%; overflow-y: auto;">
+      <div id="detection-array">
         
       </div>
+      <button id="detect-trigger-file">Trigger File</button>
+      <button id="detect-trigger-worklet">Trigger Worklet</button>
+      <button id="save-detection-to-file">Save to File</button>
     </div>
 
   </div>
+  <div id="firstContainer2">
+
+    
+  </div>
 
   <br>
+
+  <div id="_secondContainer">
+      <div id="title2">
+        IO Methods Panel<br>
+      </div>
+  
+      <div id="cont14">
+        Current Model
+        <br>
+        <button id="save-transfer-model" disabled="true" class="amazonClass" style="text-align: center; display: none; font-size: 11px;">Save Model to Cloud</button>
+        <button id="save-transfer-model-disk"  disabled="true" class="amazonClass" style="text-align: center; margin-top: 3px; width: 98%; height: 22px; margin-bottom: 2px; font-size: 11px; margin-top: 8px;">Save Model to Disk</button>
+        <button id="delete-transfer-model" class="amazonClass" style="text-align: center; width: 98%; margin-bottom: 2px; height: 22px; font-size: 11px;">Delete Model</button>
+        
+        <input type="file" id="modeldiskload" onchange="loadFile(this.files[0])" class="amazonClass" style="display: none;">
+        <button id="load-transfer-model" class="amazonClass" style="text-align: center; width: 98%; height: 22px; font-size: 11px;">Load Model from Cloud</button>
+  
+        <select id="saved-transfer-models" class="select1">
+        <option value="1"></option>
+        </select>
+      </div>
+
+      <div id="cont15">
+        Current Dataset<br>
+        <button id="download-dataset" disabled="true" class="amazonClass" style="text-align: center; margin-top: 3px; width: 98%; margin-bottom: 2px; margin-left: -1px; height: 22px; font-size: 11px; margin-top: 8px;"><!--↓ -->Download Dataset as File</button>
+        <button id="upload-dataset" class="amazonClass" style="text-align: center;  width: 98%; margin-bottom: 2px; margin-left: -1px;  height: 22px; font-size: 11px; "><!--↑ -->Upload Dataset from File</button>
+        <input type="file" id="dataset-file-input" class="amazonClass" style="display: none; width: 98%;">
+        <button id="eval-model-on-dataset" class="amazonClass" style="text-align: center; width: 98%; margin-left: -1px; height: 22px; font-size: 11px; ">Evaluate Model on Dataset</button>
+      </div>
+  </div>
+  
   <div id="secondContainer">
 
     <div id="cont10">
@@ -170,33 +163,33 @@
   </div>
 
   <div id="thirdContainer">
-  <!--<div class="footer" style="display: block;">
-    <textarea id="status-display" style="display: block" cols="80" readonly="true"></textarea>
-  </div>-->
-  <div class="transfer-learn-section">
+    <div id="title3">Transfer Panel</div>
     <div id="modelname">
       Model Name
-      <input id="transfer-model-name" size="20" placeholder="Model Name" style="text-align: center;">
+      <input id="transfer-model-name" size="20" placeholder="Model Name" style="text-align: center; margin-top: 5px;">
     </div>
+
     <div id="_worddiv">
       Sound Names
-      <input id="learn-words" style="text-align: center;"size="36" value="Guitar, Piano">
+      <input id="learn-words" style="text-align: center; margin-top: 5px;"size="36" value="Guitar, Piano">
     </div>
+
     <div id="attrs1">
       Sound Properties <br>
-      <select id="duration-multiplier">
+      <select id="duration-multiplier" style="margin-top: 5px;">
         <option value="1">Duration x1</option>
         <option value="2">Duration x2</option>
         <option value="3" selected="true">Duration x3</option>
         <option value="4">Duration x4</option>
       </select>
-      <button id="includewav" onclick="includewavform()">Include Sound</button>
+      
+      <button id="include-wav" style="margin-top: 5px;">Include Sound</button>
 
       <!--<input type="checkbox" id="include-audio-waveform">
       <span id="include-audio-waveform-label"></span>Include audio waveform</span>
       Include audio waveform-->
   
-      <button id="enter-learn-words">Start Transfer</button>
+      <button id="enter-learn-words" style="margin-top: 5px;">Start Transfer</button>
     </div>
 
     <div id="specplot">
@@ -204,128 +197,145 @@
       <div id="collect-words"></div>
     </div>
     <div id="barprog"></div>
-    </div>
   </div>
 
   <div id="fourthContainer">
-
+    <div id="title4">Train Model</div>
     <div id="fourthdiv1">
       <span>Epochs</span><br>
-      <input class="settings" size="5" id="epochs" value="15">
+      <input class="settings" size="5" id="epochs" value="15" style="margin-top: 3px;">
     </div>
     <div id="fourthdiv2">
       <span>Fine-T Epochs</span>
       <!--<span>Fine-Tuning (FT) Epochs</span>-->
-      <input class="settings" size="5" id="fine-tuning-epochs" value="0">
+      <input class="settings" size="5" id="fine-tuning-epochs" value="0" style="margin-top: 3px;">
     </div>
     <div id="fourthdiv3">
       <span>Mix Noise</span>
-      <button id="mixnoise" onclick="augmentnoisemix()">Augment</button>
+      <button id="mixnoise" style="margin-top: 3px;">Augment</button>
       <!--<input type="checkbox" id="augment-by-mixing-noise">-->
     </div>
     <div id="fourthdiv4">
       <span>Train</span>
-      <button id="start-transfer-learn" disabled="true">Start Training</button>
-    </div>
-    <div id="fourthdiv5">
-      <span>Clean Graph</span>
-      <button id="clean-graph-data">---</button>
-    </div>
-    <div id="fourthdiv6">
-      <div id="cont13">
-        IO Methods<br>
-      </div>
-  
-      <div id="cont14">
-        Current Model
-        <button id="save-transfer-model" disabled="true" class="amazonClass" style="text-align: center; display: none;">Save Model to Cloud</button>
-        <button id="save-transfer-model-disk"  disabled="true" class="amazonClass" style="text-align: center; margin-top: 3px; width: 98%; margin-bottom: 2px;">Save Model to Disk</button>
-        <button id="delete-transfer-model" class="amazonClass" style="text-align: center; width: 98%; margin-bottom: 2px;">Delete Model</button>
-        
-        <input type="file" id="modeldiskload" onchange="loadFile(this.files[0])" class="amazonClass" style="display: none;">
-        <button id="load-transfer-model" class="amazonClass" style="text-align: center; width: 98%;">Load Model from Cloud</button>
-  
-        <select id="saved-transfer-models" class="select1">
-        <option value="1"></option>
-        </select>
-      </div>
-      <div id="cont15">
-        Current Dataset<br>
-        <button id="download-dataset" disabled="true" class="amazonClass" style="text-align: center; margin-top: 3px; width: 98%; margin-bottom: 2px; margin-left: -1px"><!--↓ -->Download Dataset as File</button>
-        <button id="upload-dataset" class="amazonClass" style="text-align: center;  width: 98%; margin-bottom: 2px; margin-left: -1px"><!--↑ -->Upload Dataset from File</button>
-        <input type="file" id="dataset-file-input" class="amazonClass" style="display: none; width: 98%;">
-        <button id="eval-model-on-dataset" class="amazonClass" style="text-align: center; width: 98%; margin-left: -1px">Evaluate Model on Dataset</button>
-      </div>
+      <button id="start-transfer-learn" disabled="true" style="margin-top: 3px;">Start Training</button>
     </div>
 
-    <div id="plots">
-      <div id="loss-plot" class="plots"></div>
-    </div>
-    <div id="plots1">
-      <div id="accuracy-plot" class="plots"></div>
-
-    </div>
+    <div id="baner" style="position: absolute; width: calc(100% - 2px); height: 23px; left: 1px; bottom: 1px; background-color: #202020; border-radius: 3px;;"></div>
       <!--<div>
         <div>
           <span id="eval-results" class="eval-results"></span>
         </div>
         <div id="roc-plot" class="plots"></div>
       </div>-->
-
-
     
+  </div>
+
+  <div id="sixthContainer">
+    <div id="title5">Audio File Streaming</div>
+
+    <div id="cont10_">
+
+      <button id="audiofile" style="position: absolute; top: 2px; left: 2px; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: 35px;  width: 175px;">Load Local Audio File</button>
+      <input type="file" id="audio-file" multiple="multiple" style="display: none">
+      
+      <button id="stream-audio-file" style="position: absolute; top: 2px; left: 180px; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: 35px;  width: 175px;">Stream Last Loaded Audio File</button>
+      
+      <button id="play-buffer-devices" style="position: absolute; top: 2px; right: 180px; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: 35px;  width: 175px;">Play Current Buffer on Devices</button>
+      
+      <button id="send-full-metabuffer" style="position: absolute; top: 2px; right: 2px; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: 35px;  width: 175px;">Stream Full Buffer Struct</button>
+
+      <!--<div id="trigger-when-mic" style="position: absolute; padding-top: 1px; top: 2px; left: calc(62% - 2px); font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: calc(18%);  width: 20%;">SEND PARTS OF FILE OR SEND WORKLET - Trigger With Microphone</div>
+
+      <button id="play-stream-socket" style="position: absolute; top: 66%; left: 3px; height: 10%; width: 20%; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; ">Play</button>-->
+  
+      <div id="bufferplot"></div>
+    </div>
+
+
+
+    <div id="cont5" style="display: none;">
+    </div>
+
+    <div id="cont6">
+    </div>
+
+    <div id="cont7">
+      <button id="playstop1" style="font-size:14px; width: 51px; height: 80%;" class="btnsFile"><img src="/static/styles/svgs/play-solid.svg" class="svgs" style="position: absolute; top: 13px; left: 25px; height: 15px;"></button>
+      <button id="playstop2" style="font-size:14px; width: 51px; height: 80%;" class="btnsFile"><img src="/static/styles/svgs/pause-solid.svg" class="svgs" style="position: absolute; top: 13px; left: 78px; height: 15px;"></button>
+      <button id="playstop3" style="font-size:14px; width: 51px; height: 80%;" class="btnsFile"><img src="/static/styles/svgs/stop-solid.svg" class="svgs" style="position: absolute; top: 13px; left: 132px; height: 15px;"></button>
+
+      <button id="playstop5" style="font-size:14px; width: 51px; height: 80%;" class="btnsFile"><img src="/static/styles/svgs/indent-solid.svg" class="svgs" style="position: absolute; top: 13px; left: 187px; height: 15px;"></button>
+      <button id="playstop6" style="font-size:14px; width: 51px; height: 80%;" class="btnsFile"><img src="/static/styles/svgs/undo-solid.svg" class="svgs" style="position: absolute; top: 13px; left: 240px; height: 15px;"></button>
+      <button id="playstop7" style="font-size:14px; width: 51px; height: 80%;" class="btnsFile"><img src="/static/styles/svgs//copy-solid.svg" class="svgs" style="position: absolute; top: 13px; left: 295px; height: 15px;"></button>
+      <div id="blink-when-region" style="position: absolute; right: 5px; top: 20%; height: 60% !important; width: 64px; height: 80%;" class="btnsFile"></div>
+
+    </div>
+
+    <div id="cont9">
+      <button id="navigate-buffer-minus" style="font-size:14px; width: 26px; height: 80%;" class="btnsFile"><img src="/static/styles/svgs//arrow-left-solid.svg" class="svgs" style="position: absolute; top: 13px; left: 12px; height: 15px;"></button>
+      <button id="navigate-buffer-plus" style="font-size:14px; width: 26px; height: 80%;" class="btnsFile"><img src="/static/styles/svgs//arrow-right-solid.svg" class="svgs" style="position: absolute; top: 13px; left: 40px; height: 15px;"></button>
+
+      <div id="wav-buffer-display" style="position: absolute; left: 65px; width: 64px; height: 47%; top: 20%; padding-top: 5px;" class="btnsFile">Buffer: -</div>
+
+    </div>
+
+    <div id="cont9_2">
+      
+    </div>
+
+    <div id="contMapping">
+      Detection-Buffer Mapping <br><br>
+      <div id="micdiv" style="position: absolute; left: 5px; height: 85%; width: 96%; overflow-y: auto; overflow-x: hidden;"></div>
+
+    </div>
   </div>
 
 </div>
 <div id="second-page" style="position: absolute; right: 0px; top: 0px; height: 100%; width: 100%;">
-  <div id="editor-div" style="position: absolute; left: 5px; top: 30px; width: 49%; height: 50%; border-radius: 3px; background-color: grey;"></div>
   
-  <div id="editor-div-btns" style="position: absolute; left: 5px; top: 55%; background-color: #202020; border-radius: 3px; width: 49%; height: 5%;"></div>
-
-  <button id="run-code" style="position: absolute; background-color: #2c2c2c; border-radius: 3px; color: rgba(200,200,200,1); left: 5px; top: 55%; width: 7%; height: 3%;" onclick="runcode()">Run Code</button>
-  <button id="stop-button" style="position: absolute; background-color: #2c2c2c; border-radius: 3px; color: rgba(200,200,200,1); left: 8%; top: 55%; width: 7%; height: 3%;">Stop Code</button>
-
-  <div id="socketblink" style="position: absolute; background-color: #2c2c2c; border-radius: 3px; color: rgba(200,200,200,1); left: calc(16% - 4px); top: 55%; border: 1px solid rgba(200,200,200,1); padding-top: 2px; width: 3%; text-align: center; height: calc(2% + 3px);">S</div>
-  <div id="socketblinkrcv" style="position: absolute; background-color: #2c2c2c; border-radius: 3px; color: rgba(200,200,200,1); left: calc(20% - 5px); top: 55%; border: 1px solid rgba(200,200,200,1); padding-top: 2px; width: 3%; text-align: center; height: calc(2% + 3px);">R</div>
-  <select id="selectlist" onchange="populateCM()" style="position: absolute; background-color: #2c2c2c; border-radius: 3px; color: rgba(200,200,200,1); left: 23%; top: calc(54% + 2px); border: 1px solid rgba(200,200,200,1); padding-top: 2px; width: 6%; text-align: center; height:3%;">
-    <option value="Examples">Examples</option>
-    <option value="Emitter">Emitter</option>
-    <option value="Receiver">Receiver</option>
-    <option value="Generators">Generators</option>
-    <option value="Document">Document</option>
+  <div id="editor-div"></div>
+  
+  <div id="editor-div-btns" style="position: absolute; left: 5px; border: 1px solid #646464; bottom: 28px; background-color: #202020; border-radius: 3px; width: 650px; height: 5%;">
+    <button id="run-code" style="position: absolute; left: 3px; top: 3px; font-size: 10px; bottom: 5px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 125px; height: 30px;">Run Code</button>
+    <button id="stop-button" style="position: absolute; left: 131px; top: 3px; font-size: 10px; bottom: 5px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 125px; height: 30px;">Stop Code</button>
+  
+    <div id="socketblink" style="position: absolute; left: 261px; top: 3px; padding-top: 7px; font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 125px; height: 21px;">S</div>
+    
+    <div id="socketblinkrcv" style="position: absolute; right: 131px; top: 3px; padding-top: 7px; font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 125px; height: 21px;">R</div>
+    
+    <select id="selectlist" style="position: absolute; right: 3px; top: 3px; font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 125px; height: 30px;">
+      <option  value="Examples">Examples</option>
+      <option id="selectlist2" value="Emitter">Emitter</option>
+      <option id="selectlist3" value="Receiver">Receiver</option>
+      <option id="selectlist4" value="Generators">Generators</option>
+      <option id="selectlist5" value="Document">Document</option>
     </select>
+  
+  </div>
 
-  <div id="draw-canvas" style="position: absolute; left: calc(3px + 29%); top: calc(28px + 30%); width: 20%; height: 20%; border-radius: 3px; background-color: rgba(40,40,40,1);"></div>  
-  <!--<div id="console-text" style="position: absolute; right: 5px; top: 55%; width: 49%; height: 15%; border-radius: 3px; background-color: grey; display: flex; align-items: flex-start; justify-content: flex-end; flex-direction: column; overflow-y: auto;"></div>-->
+  <div id="euclidean" style="position: absolute; right: 5px; border: 1px solid #646464; bottom: 28px; background-color: #202020; border-radius: 3px; width: 774px; height: 305px;"></div>
+
 
   <div id="fifthContainer">
-    <div id="orques" style="position: absolute; padding-top: 8px; left: 1px; top: 1px; width: calc(100% - 2px); height: calc(4% + 5px); background-color: #202020; text-align: center; border-radius: 3px;">
+    <div id="orques" style="position: absolute; padding-top: 8px; left: 1px; top: 1px; width: calc(100% - 2px); height: 22px; background-color: #202020; text-align: center; border-radius: 3px;">
       Orquestrate and Interact
     </div>
     <div id="cont16">
-      Current Room
-      <input type="text" id="interroom" name="room" value="New Room" style="background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 78%; height: 30%; margin-top: 3px; margin-bottom: 3px;"><br>
-      <button id="lock-room" style="font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 39%; margin-bottom: 3px; margin-left: -1%;">Lock</button>
-      <button id="new-room" style="font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 39%; ">New</button>
-    <!--      
-      <button id="refresh-room-connect" style="position: absolute; left: calc(1% - 2px); top: 54%; background-color: #353535; border: 1px solid black; border-radius: 3px; color: rgba(220,220,220,1); width: calc(38% + 1px); margin-left: 10%; height: calc(10% + 1px); margin-top: 3px;  text-align: center;">Refrsh</button>
-
-      <input type="text" id="enter-room" value="Find Room" style="background-color: #353535; position: absolute; top: calc(66% + 1px); left: calc(10% - 1px); text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: calc(78% - 1px); height: 14%; margin-top: 3px; margin-bottom: 3px;"><br>
-      <button id="send-room" style="position: absolute; top: 87%; left: calc(10% - 1px); font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 39%; margin-bottom: 3px; height: calc(10% + 1px);">Send</button>
-      <button id="new-send-room" style="position: absolute; top: 87%; font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 39%; height: calc(10% + 1px);">Other</button>
-    -->
+      Current Room<br>
+      <input type="text" id="interroom" name="room" value="" style="background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 75px; height: 20px; margin-top: 3px; margin-bottom: 3px;">
+      <button id="lock-room" style="font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 75px; height: 24px;">Lock</button>
+      <button id="new-room" style="font-size: 10px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 75px; height: 24px;">New</button>
     </div>
     <div id="cont17">
-      Users in Room
-      <div id="number-connected-users" disabled="true" style="position: absolute; top: 28%; width: 39%; background-color: #353535; padding-top: 3px; border: 1px solid black; border-radius: 3px; left: 10%; height: 22%;">0</div>
-      <button id="ping-connected-users" onclick="Sttera.PingConnectedUsers()" style="position: absolute; top: 28%; right: 10%; width: 39%; background-color: #353535; color: rgba(200,200,200,1); padding-top: 3px; border: 1px solid black; border-radius: 3px; height: 29%;">Ping</button>
-      <button id="stop-room-connect" style="position: absolute; height: 29%; width: 40%; left: 10%; top: 62%; background-color: #353535; padding-top: 0px; border: 1px solid black; border-radius: 3px; color: rgba(220,220,220,1);">Stop</button>
-      <button id="add-room-players" style="position: absolute; height: 29%; width: 39%; right: 10%; text-align: center; right: calc(8% + 3px); top: 62%; background-color: #353535; padding-top: 1px; border: 1px solid black; border-radius: 3px; color: rgba(220,220,220,1);">Add</button>
+      Users in Room<br>
+      <div id="number-connected-users" disabled="true" style="position: absolute; left: 20px; padding-top: 5px; bottom: 5px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 105px; font-size: 10px; height: 17px;">0</div>
+      <button id="ping-connected-users" style="font-size: 10px; bottom: 5px; position: absolute; left: 130px; background-color: #353535; text-align: center; border-radius: 3px; border: 1px solid black; color: rgba(220,220,220,1); width: 107px; height: 24px;">Ping</button>
+      <button id="stop-room-connect" style="position: absolute; left: 240px; bottom: 5px; font-size: 10px; height: 24px; width: 107px; background-color: #353535; border: 1px solid black; border-radius: 3px; color: rgba(220,220,220,1);">Stop</button>
+      <button id="add-room-players" style="position: absolute; left: 350px; bottom: 5px; font-size: 10px; height: 24px; width: 107px; text-align: center; background-color: #353535; border: 1px solid black; border-radius: 3px; color: rgba(220,220,220,1);">Add</button>
 
     </div>
 
-
-      <div id="house" style="width: calc(70% - 1px); height: 55%; position: absolute; right: 1px; top: 8%; border-radius: 3px; background-color: rgba(52,52,52,1);">
+      <div id="house" style="width: 774px; height: 279px; position: absolute; right: 1px; bottom: 1px; border-radius: 3px; background-color: rgba(52,52,52,1);">
         <pre style="position: absolute; top: -10px; left: 35%; border-radius: 3px; font-family: inherit;"><span style="background-color:rgba(32,32,32,1); color: rgba(200,200,200,1); border-radius: 3px;"></span></pre>
         <pre style="position: absolute; bottom: -10px; left: 35%; border-radius: 3px; font-family: inherit;"><span style="background-color:rgba(32,32,32,1); color: rgba(200,200,200,1); border-radius: 3px;"></span></pre>
         
@@ -345,47 +355,7 @@
       </div>
   </div>
 
-  <div id="cont10_">
-    <button id="audiofile" style="position: absolute; top: 2px; left: 3px; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: 20%;  width: 20%;">Stream Local Audio File</button>
-    <input type="file" id="audio-file" style="display: none">
-
-    <div id="trigger-when-play" style="position: absolute; padding-top: 1px; top: 2px; left: 21%; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: calc(18%);  width: 20%;">Trigger With <br>Region</div>
-    <div id="trigger-when-mic" style="position: absolute; padding-top: 1px; top: 2px; left: calc(42% - 2px); font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; height: calc(18%);  width: 20%;">Trigger With Microphone</div>
-
-
-    <div id="name-audio-file" style="position: absolute; padding-top: 2px; padding-left: 4px; top: 2px; width: 35%; height: calc(11% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Name 
-      <div id="name-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
-    </div>
-    <div id="type-audio-file" style="position: absolute; top: calc(12% + 4px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Type 
-      <div id="type-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
-    </div>
-
-    <div id="size-audio-file" style="position: absolute; top: calc(24% + 5px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Size 
-      <div id="size-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
-    </div>
-
-    <div id="buflen-audio-file" style="position: absolute; top: calc(36% + 19px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Buffer Len 
-      <div id="buflen-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
-    </div>
-
-    <div id="bufdur-audio-file" style="position: absolute; top: calc(50% + 17px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Buffer Dur 
-      <div id="bufdur-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
-    </div>
-
-    <div id="bufnumc-audio-file" style="position: absolute; top: calc(62% + 18px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(11% - 3px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Buffer NC 
-      <div id="bufnumc-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
-    </div>
-
-    <div id="bufsamp-audio-file" style="position: absolute; top: calc(74% + 18px); padding-top: 2px; padding-left: 4px; width: 35%; height: calc(10% - 1px); right: 2px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px;"> Buffer SR 
-      <div id="bufsamp-audio-file-fill" style="position: absolute; padding-left: 2px; top: 1px; width:60%; height: calc(74% - 0px); right: 1px; background-color: rgba(33,33,33,1); color: rgba(200,200,200,1); border: 1px solid black; text-align: center; border-radius: 3px;"></div>
-    </div>
-    <button id="play-stream-socket" style="position: absolute; top: 66%; left: 3px; height: 10%; width: 20%; font-size: 10px; background-color: rgba(53,53,53,1); color: rgba(200,200,200,1); border: 1px solid black; border-radius: 3px; text-align: center; ">Play</button>
-    <br><br><br><br><br><br><br>
-
-    <!--<div id="about-file-name" style="position: absolute; left: 1px; top: 1px; border-radius: 3px;  border: 1px solid black; width: 40%; background-color: rgba(32,32,32,1); color: rgba(200,200,200,1); height: 65%; text-align: center;"></div>-->  
-    
-    <div id="bufferplot" onmousedown="changeColor()" onmouseup="restoreColor()" style="position: absolute; top: 23%; left: 3px; background-color: rgba(32,32,32,1); border: 1px solid #646464; border-radius: 3px; width: calc(61% - 2px); height: 40%;"></div>
-  </div>
+  
 </div>
 
 
@@ -400,20 +370,6 @@
     </div>
 
   </div>
-
-  <script src="https://unpkg.com/@tensorflow/tfjs"></script>
-  <script src="https://unpkg.com/@tensorflow-models/speech-commands"></script>
-
-  <script src="https://unpkg.com/wavesurfer.js"></script>
-  <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.regions.min.js"></script>
-  <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.minimap.min.js"></script>
-  <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.cursor.js"></script>
-  <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.timeline.js"></script>
-  <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.spectrogram.min.js"></script>
-  
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
-  <script src="/static/scripts/xperimus.js"></script>
 
 </body>
 </html>

@@ -16,9 +16,9 @@ from flask_login import (
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from passlib.hash import pbkdf2_sha256
 
-from wtform_fields import *
-from models import *
-from main import *
+#from wtform_fields import *
+#from models import *
+#from main import *
 
 import numpy as np
 
@@ -48,7 +48,7 @@ app.config[
     "SQLALCHEMY_DATABASE_URI"
 ] = "postgres://eajdbtaoaffwhp:c9e4b7ffa763731fffdd0af7ccd9c9888d78d1c29f1664d582d1a885e99779fa@ec2-54-217-243-19.eu-west-1.compute.amazonaws.com:5432/d8eaj48551fat3"
 # os.environ.get("DATABASE_URL")
-db = SQLAlchemy(app)
+#db = SQLAlchemy(app)
 
 # Initialize Flask-SocketIO
 socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
@@ -68,70 +68,26 @@ def load_user(id):
 @app.route("/", methods=["GET", "POST"])
 def index():
 
-    reg_form = RegistrationForm()
+    #reg_form = RegistrationForm()
 
     # Update database if validation success
 
-    if reg_form.validate_on_submit():
-        username = reg_form.username.data
-        password = reg_form.password.data
+    #if reg_form.validate_on_submit():
+        #username = reg_form.username.data
+        #password = reg_form.password.data
 
         # Hash password
-        hashed_pswd = pbkdf2_sha256.hash(password)
+        #hashed_pswd = pbkdf2_sha256.hash(password)
 
         # Add user to DB
-        user = User(username=username, password=hashed_pswd)
-        db.session.add(user)
-        db.session.commit()
+        #user = User(username=username, password=hashed_pswd)
+        #db.session.add(user)
+        #db.session.commit()
 
-        flash("Registered Succesfully. Please Login.", "success")
-        return redirect(url_for("login"))
-    print("HEHEHE: {}".format(request.headers))
-    return render_template("index.html", form=reg_form)
-
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-
-    login_form = LoginForm()
-
-    # Allow user to login if validation success
-
-    if login_form.validate_on_submit():
-        user_object = User.query.filter_by(username=login_form.username.data).first()
-        login_user(user_object)
-        return redirect(url_for("chat"))
-
-    return render_template("login.html", form=login_form)
-
-
-@app.route("/chat", methods=["GET", "POST"])
-# @login_required
-def chat():
-    # if not current_user.is_authenticated:
-    #    flash("Please login.", "danger")
-    #    return redirect(url_for("login"))
-
-    return render_template(
-        "chat.html", username=current_user.username, rooms=ROOMS
-    )  # "Chat with me"
-
-
-@app.route("/logout", methods=["GET"])
-def logout():
-    logout_user()
-    flash("You have logged our successfully", "success")
-    return redirect(url_for("login"))
-
-
-################################ Testing
-
-# Background process happening without any refreshing
-# Now only printing
-@app.route('/background_process')
-def background_process_test():
-    print("Hello")
-    return "nothing"
+        #flash("Registered Succesfully. Please Login.", "success")
+        #return redirect(url_for("login"))
+    #print("yes: {}".format(request.headers))
+    return render_template("index.html")#, form=reg_form)
 
 
 ### testing amazon
@@ -201,15 +157,21 @@ def __bufferdata(data):
 def __bufferdata(data):
     socketio.emit('buffer-play', data, broadcast=True, include_self=False) 
 
+@socketio.on('struct-buffer-obj')
+def metabuffer(data):
+    socketio.emit('struct-buffer-obj', data, broadcast=True, include_self=False) 
 
-
-@socketio.on('play-on-detect')
+@socketio.on('play-on-detect-file')
 def __bufferdata(data):
-    socketio.emit('play-on-detected', data, broadcast=True, include_self=False) 
+    socketio.emit('play-on-detected-file', data, broadcast=True, include_self=False) 
 
-@socketio.on('play-on-region')
+@socketio.on('play-on-detect-worklet')
 def __bufferdata(data):
-    socketio.emit('play-on-regions', data, broadcast=True, include_self=False) 
+    socketio.emit('play-on-detected-worklet', data, broadcast=True, include_self=False) 
+
+#@socketio.on('play-on-region')
+#def __bufferdata(data):
+#    socketio.emit('play-on-regions', data, broadcast=True, include_self=False) 
 
 
 ###############################################################################################
