@@ -10,12 +10,7 @@ import { DatasetViz, removeNonFixedChildrenFromWordDiv, plotSpectrogram, blinkBu
 //import { FluidSynthProcessor_ } from '../worklet/worklet.js';
 
 /* Init Sockets */
-console.log("check multiple audio contexts");
-console.log("clearning complete with color");
-console.log("color and size of learners");
-console.log("include sound to blue");
-console.log("factor oracle and supervizd metadata")
-//https://web.dev/profiling-web-audio-apps-in-chrome/
+console.log("nd to rmv multiple audio contexts, clearning complete with color");
 //brave://tracing/
 
 var protocol = window.location.protocol;
