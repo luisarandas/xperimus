@@ -43,13 +43,6 @@ import numpy as np
 app = Flask(__name__)
 app.secret_key = "replace later"  # os.environ.get("SECRET")
 
-# Configure database
-app.config[
-    "SQLALCHEMY_DATABASE_URI"
-] = "postgres://eajdbtaoaffwhp:c9e4b7ffa763731fffdd0af7ccd9c9888d78d1c29f1664d582d1a885e99779fa@ec2-54-217-243-19.eu-west-1.compute.amazonaws.com:5432/d8eaj48551fat3"
-# os.environ.get("DATABASE_URL")
-#db = SQLAlchemy(app)
-
 # Initialize Flask-SocketIO
 socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
 ROOMS = ["1", "2", "3", "4"]
