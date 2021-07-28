@@ -22,22 +22,11 @@ from passlib.hash import pbkdf2_sha256
 
 import numpy as np
 
-# python3 -m venv local_python_environment
-# source local_py_env/bin/activate
-# For (current machine env) pip install -r requirements.txt
-# Get all dependencies pip3 freeze > requirements.txt
-
 # ~ heroku git:remote -a <name> // git push heroku master [on env]
 # ~ heroku ps:scale web=1
 
 # Check entrances => psql postgres://eajdbtaoaffwhp:c9e4b7ffa763731fffdd0af7ccd9c9888d78d1c29f1664d582d1a885e99779fa@ec2-54-217-243-19.eu-west-1.compute.amazonaws.com:5432/d8eaj48551fat3
 # \dt - \d name - if not CREATE TABLE _tablenamevar_( -
-
-# Make the allocation part in rooms and then try webassembly
-# Turn connection to secure, continue with python bindings
-# https://github.com/sicklincoln/MMLL/tree/master/Examples
-
-# If you want to execute your function without generating a request to the server, then your function must be defined in JavaScript. Otherwise, you need to fire an HTTP request.
 
 # Configure app
 app = Flask(__name__)

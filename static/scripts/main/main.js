@@ -10,11 +10,13 @@ import { DatasetViz, removeNonFixedChildrenFromWordDiv, plotSpectrogram, blinkBu
 //import { FluidSynthProcessor_ } from '../worklet/worklet.js';
 
 /* Init Sockets */
-console.log("nd to rmv multiple audio contexts, clearning complete with color");
-//brave://tracing/
+// next UPDATE: limit multiple audio contexts");
+// brave://tracing/
 
 var protocol = window.location.protocol;
 var socket = io.connect(protocol + '//' + document.domain + ":" + location.port); //port + namespace);
+//var socket = io.connect(window.location.origin);
+console.log("SOCKET ", socket);
 
 socket.on('connect', function(data) {
   console.log('init', this);
@@ -157,7 +159,6 @@ const Sttera = {
   StopSend() {
 
     clearInterval(intervalOne);
-    console.log("Stopped Bang Sender");
 
   },
 
@@ -291,7 +292,6 @@ const SttGen = {
 
 socket.on('sttera-receiver-receive', function(data) {
   if (Sttera.roomArr.indexOf(data[0]) !== -1) {
-    console.log("received-meterLuz?");
     blinkReceiver();
     callback();
   }
@@ -465,7 +465,7 @@ window.addEventListener("keydown", function(e) {
     }
   }
 });
-console.log("wrap region functions and gui");
+// console.log("wrap region functions and gui");
 
 var annotationID = 0;
 var annotObject;
@@ -549,7 +549,6 @@ var annotObject;
         wavBufDisplay.innerHTML = `Buffer: ${currentBufferUpload+1}`;
         _bufwavesurfer.load(bufferStruct[currentBufferUpload][1]);
         for (i = 0; i < bufferStruct[currentBufferUpload]; i++) {
-          console.log(i);
         }
       } 
       storeAndReadAnnotations(); 
@@ -567,7 +566,6 @@ var annotObject;
         wavBufDisplay.innerHTML = `Buffer: ${currentBufferUpload+1}`;
         _bufwavesurfer.load(bufferStruct[currentBufferUpload][1]);
         for (i = 0; i < bufferStruct[currentBufferUpload]; i++) {
-          console.log(i);
         }
       } 
       storeAndReadAnnotations();
@@ -582,7 +580,6 @@ var annotObject;
       function evaluate() {
         var code = myCodeMirror.getValue();
         eval(code); // add new protot with security solve
-        console.log(Sttera); 
       }
       evaluate();
      }
@@ -769,7 +766,7 @@ playBufferDevices.addEventListener("click", function(event) {
   console.log(bufferStruct);
 });
 
-console.log("avoidmultiple streaming on button click");
+//console.log("avoidmultiple streaming on button click");
 
 
 function storeAndReadAnnotations() {
@@ -824,12 +821,14 @@ socket.on('buffer-qual', function(data) {
 
 });
 
-console.log("STREAM MULTIPLE FILES to array");
+// check streaming multiple files to array
 
 socket.on("buffer-play", function(data) {
 
+  console.log("data ", data);
   var _source = _audioCtx.createBufferSource();
   _source.buffer = newSongBufferToCopy;
+  console.log("buff ", _source.buffer)
 
   _source.connect(_audioCtx.destination);
   _source.start();
@@ -895,56 +894,59 @@ socket.on('sttera-frommobile', function(data) {
   }
 });
 
+var _bufwavesurfer;
 
-const _bufwavesurfer = WaveSurfer.create({
-  container: '#bufferplot',
-  waveColor: 'rgba(200,200,200,1)',
-  progressColor: 'rgba(38,165,164,1)',
-  loaderColor: 'rgba(38,165,164,1)',
-  cursorColor: 'rgba(38,165,164,1)',
-  height: 75,
-  normalize: true,
-  minimap: true,
-  backend: 'MediaElement',
-  plugins: [
-    WaveSurfer.regions.create(/*{
-      regions: [
-          {
-              start: 1,
-              end: 3,
-              loop: false,
-              color: 'hsla(400, 100%, 30%, 0.5)'
-          }, {
-              start: 5,
-              end: 7,
-              loop: false,
-              color: 'hsla(200, 50%, 70%, 0.4)'
-          }
-      ],
-      dragSelection: {
-          slop: 5
-      }
-  }*/),
-    WaveSurfer.timeline.create({
-      container: '#cont6',
-      primaryColor: 'white',
-      secondaryColor: 'white',
-      primaryFontColor: 'white',
-      secondaryFontColor: 'white'
-    }),
-
-    WaveSurfer.cursor.create({
-      showTime: true,
-      opacity: 1,
-      customShowTimeStyle: {
-        'background-color': '#000',
-        color: 'rgba(38,165,164,1)',
-        padding: '2px',
-        'font-size': '10px'
-      }
-    }),
-  ]
-});
+if (_isMobile != true) {
+   _bufwavesurfer = WaveSurfer.create({
+    container: '#bufferplot',
+    waveColor: 'rgba(200,200,200,1)',
+    progressColor: 'rgba(38,165,164,1)',
+    loaderColor: 'rgba(38,165,164,1)',
+    cursorColor: 'rgba(38,165,164,1)',
+    height: 75,
+    normalize: true,
+    minimap: true,
+    backend: 'MediaElement',
+    plugins: [
+      WaveSurfer.regions.create(/*{
+        regions: [
+            {
+                start: 1,
+                end: 3,
+                loop: false,
+                color: 'hsla(400, 100%, 30%, 0.5)'
+            }, {
+                start: 5,
+                end: 7,
+                loop: false,
+                color: 'hsla(200, 50%, 70%, 0.4)'
+            }
+        ],
+        dragSelection: {
+            slop: 5
+        }
+    }*/),
+      WaveSurfer.timeline.create({
+        container: '#cont6',
+        primaryColor: 'white',
+        secondaryColor: 'white',
+        primaryFontColor: 'white',
+        secondaryFontColor: 'white'
+      }),
+  
+      WaveSurfer.cursor.create({
+        showTime: true,
+        opacity: 1,
+        customShowTimeStyle: {
+          'background-color': '#000',
+          color: 'rgba(38,165,164,1)',
+          padding: '2px',
+          'font-size': '10px'
+        }
+      }),
+    ]
+  });  
+}
 
 var xhr = new XMLHttpRequest();
 xhr.open('GET','./static/scripts/audio/drum-loop.wav', true);
@@ -958,7 +960,10 @@ xhr.onload = function(e) {
   var blob = new window.Blob([responseArray]);
   var URLObject = window.webkitURL || window.URL;
   blob_url = URLObject.createObjectURL(blob);
-  _bufwavesurfer.load(blob_url);
+  if (_isMobile != true){
+    _bufwavesurfer.load(blob_url);
+  }
+  
   
   var audioData = responseArray;
 
@@ -989,28 +994,37 @@ _currentBufferUpload++;
   // var reader = new FileReader();
 
 
+if (_isMobile != true) {
+  _bufwavesurfer.on('region-click', function(region, e) {
+    e.stopPropagation();
+    annotObject = region;
+    e.shiftKey ? region.playLoop() : region.play();
+  });
+  
+  _bufwavesurfer.on('region-in', function (region, e) {
+    annotObject = region;
+  
+    document.getElementById("blink-when-region").style["background-color"] = "rgba(38,165,164,1)";
+    setTimeout(function(){
+      document.getElementById("blink-when-region").style["background-color"] = "#353535";
+    }, 70)
+  });
+  _bufwavesurfer.on('region-out', function(region, e) {
+    document.getElementById("blink-when-region").style["background-color"] = "rgba(38,165,164,1)";
+    setTimeout(function(){
+      document.getElementById("blink-when-region").style["background-color"] = "#353535";
+    }, 70)
+  });
+  _bufwavesurfer.on('region-play', function(region) {
+    region.once('out', function() {
+      _bufwavesurfer.play(region.start);
+      _bufwavesurfer.pause();
+    });
+  });
+}
 
-_bufwavesurfer.on('region-click', function(region, e) {
-  e.stopPropagation();
-  annotObject = region;
-  e.shiftKey ? region.playLoop() : region.play();
-});
 
-_bufwavesurfer.on('region-in', function (region, e) {
-  annotObject = region;
 
-  document.getElementById("blink-when-region").style["background-color"] = "rgba(38,165,164,1)";
-  setTimeout(function(){
-    document.getElementById("blink-when-region").style["background-color"] = "#353535";
-  }, 70)
-});
-
-_bufwavesurfer.on('region-out', function(region, e) {
-  document.getElementById("blink-when-region").style["background-color"] = "rgba(38,165,164,1)";
-  setTimeout(function(){
-    document.getElementById("blink-when-region").style["background-color"] = "#353535";
-  }, 70)
-});
 
 
 
@@ -1055,16 +1069,6 @@ async function playstopRegion(v) {
 }
 
 
-_bufwavesurfer.on('region-play', function(region) {
-  region.once('out', function() {
-    _bufwavesurfer.play(region.start);
-    _bufwavesurfer.pause();
-  });
-});
-
-
-
-
 
 
 //window.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB;
@@ -1077,65 +1081,66 @@ if (isIndexDbTransactionPossible) {
         isIndexDbTransactionPossible.READ_ONLY = isIndexDbTransactionPossible.READ_ONLY || 'readonly';
 }    
 
+// amazon aws connection code here
 
-var albumBucketName = "xperimusmodels";
-var bucketRegion = "eu-west-2";
-var IdentityPoolId = "eu-west-2:52abaf84-383f-4377-8e8f-3bc8ca05c8fd";
+// var albumBucketName = "xperimusmodels";
+// var bucketRegion = "eu-west-2";
+// var IdentityPoolId = "eu-west-2:52abaf84-383f-4377-8e8f-3bc8ca05c8fd";
 
-AWS.config.region = 'eu-west-2'; 
-AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: IdentityPoolId,
-});
+// AWS.config.region = 'eu-west-2'; 
+// AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+//     IdentityPoolId: IdentityPoolId,
+// });
 
-var s3 = new AWS.S3({
-  apiVersion: "2006-03-01",
-  params: { Bucket: albumBucketName }
-});
+// var s3 = new AWS.S3({
+//   apiVersion: "2006-03-01",
+//   params: { Bucket: albumBucketName }
+// });
 
-function listAmazonObjects() {
-  if (_isMobile != true) {
-    document.getElementById("cont11").innerHTML = "Trained Models<br>";
-    var __main = document.getElementById('cont11');
+// function listAmazonObjects() {
+//   if (_isMobile != true) {
+//     document.getElementById("cont11").innerHTML = "Trained Models<br>";
+//     var __main = document.getElementById('cont11');
   
-    s3.listObjects(function (err, data) {
-      if(err)throw err;
-      //var e = data.Contents[0].Key;
-      var e = data.Contents
-      var _e = JSON.stringify(e);
+//     s3.listObjects(function (err, data) {
+//       if(err)throw err;
+//       //var e = data.Contents[0].Key;
+//       var e = data.Contents
+//       var _e = JSON.stringify(e);
     
-      Object.keys(e).forEach((key, index) => {
+//       Object.keys(e).forEach((key, index) => {
     
-        if (e[key].Key.includes("Model") == true && e[key].Key.length > 7) {
-          var button = document.createElement("button");
-          button.className = "amazonClass"; 
-          button.innerHTML = e[key].Key;
+//         if (e[key].Key.includes("Model") == true && e[key].Key.length > 7) {
+//           var button = document.createElement("button");
+//           button.className = "amazonClass"; 
+//           button.innerHTML = e[key].Key;
   
-          __main.appendChild(document.createElement("br"));    
-          __main.appendChild(button);        
+//           __main.appendChild(document.createElement("br"));    
+//           __main.appendChild(button);        
   
-        } 
-        if (e[key].Key.includes("Dataset") == true && e[key].Key.length > 9) {
+//         } 
+//         if (e[key].Key.includes("Dataset") == true && e[key].Key.length > 9) {
 
-          var _button = document.createElement("button");
-          _button.className = "amazonClass"; 
-          _button.innerHTML = e[key].Key;
-          document.getElementById('cont12').appendChild(document.createElement("br"));    
-          document.getElementById('cont12').appendChild(_button);
-        }
+//           var _button = document.createElement("button");
+//           _button.className = "amazonClass"; 
+//           _button.innerHTML = e[key].Key;
+//           document.getElementById('cont12').appendChild(document.createElement("br"));    
+//           document.getElementById('cont12').appendChild(_button);
+//         }
     
-      });
+//       });
     
-      for (i = 0; i < __main.children.length; i++) {
-        if (!__main.children[i].innerHTML.includes('metadata') && !__main.children[i].innerHTML.includes('weights')) {
-          console.log(__main.children[i].innerHTML); // works
-        }
-      }
-    });
-  }
+//       for (i = 0; i < __main.children.length; i++) {
+//         if (!__main.children[i].innerHTML.includes('metadata') && !__main.children[i].innerHTML.includes('weights')) {
+//           console.log(__main.children[i].innerHTML); // works
+//         }
+//       }
+//     });
+//   }
 
-}
+// }
 
-listAmazonObjects();
+// listAmazonObjects();
 
 const tensorflow = tf; // check later
 const SpeechCommands = speechCommands;
@@ -1147,7 +1152,7 @@ var transferWords;
 var transferRecognizer;
 var transferDurationMultiplier;
 
-console.log("search for batch size - save with epochs");
+// search for batch size - save with epochs
 
 
 (async function() {
@@ -1677,8 +1682,6 @@ async function populateSavedTransferModelsSelect() {
     }
 }
 
-console.log("supervizd metadata");
-
 saveTransferModelButton.addEventListener('click', async () => {
     
     //await transferRecognizer.save();
@@ -1692,7 +1695,6 @@ saveTransferModelButton.addEventListener('click', async () => {
 });
 
 saveTransferModelButtonDisk.addEventListener('click', async () => {
-  console.log("well");
   await transferRecognizer.save(`downloads://${document.getElementById('transfer-model-name').value}`);
   var _a = transferRecognizer.words;
   downloadObjectAsJson(_a, `${document.getElementById('transfer-model-name').value}-metadata`);
@@ -1739,16 +1741,12 @@ async function indexddb() {
           var myRecord = objectStoreRequest.result;
           loadedmodel = myRecord;
           loadedmodel.metadata = transferRecognizer.wordLabels();
-          console.log(loadedmodel);
 
           localStorage.setItem(document.getElementById("transfer-model-name").value, JSON.stringify(loadedmodel));
-          console.log(myRecord);
           
           var modelStringify = JSON.stringify(myRecord);
-          console.log(modelStringify);
         
           var _parse = JSON.parse(modelStringify);
-          console.log(_parse);
           
           /*var _modelStringify = JSON.stringify(Array.from(new Int32Array(myRecord.modelArtifacts.weightData)));
           console.log(_modelStringify);
@@ -1817,7 +1815,6 @@ function populateCandidateWords(words) {
     _candidateWordSpans = {};
 
     var existingDirectChildrenDivCount = $('#cont4 > div').size();
-    console.log(existingDirectChildrenDivCount);
   
     for (const word of words) {
       if (word === BACKGROUND_NOISE_TAG || word === UNKNOWN_TAG) {
@@ -1841,12 +1838,10 @@ function populateCandidateWords(words) {
       _button.style['width'] = '20%';
       _button.style['height'] = 'calc(100% + 2px)';
       _button.setAttribute("id", word);
-      console.log(_button.style.backgroundColor);
       var newColor;
       _button.onclick = function() { 
         if (_button.classList.contains("buttonBack1") != true) {
           _button.classList.add("buttonBack1");
-          console.log(_button.id);
           _btnsArray.push(_button.id);
 
         } else {
@@ -1876,7 +1871,6 @@ function populateCandidateWords(words) {
           option.text = bufferStruct[i];
           _wordDivBuffer.add(option);
           if (bufferStruct[i].length > 3) {
-            console.log(bufferStruct[i]);
             for (let j = 3; j < bufferStruct[i].length; j++) {
               var newopt = document.createElement("option");
               newopt.text = "Time Slice " + bufferStruct[i][0] + " + " + bufferStruct[i][j];
@@ -2016,13 +2010,16 @@ mixNoiseDataset.addEventListener('click', () => {
   }
 });
 
-document.getElementById('upload-dataset').onclick = function() {
-  document.getElementById('dataset-file-input').click();
-};
+if (_isMobile != true) {
+  document.getElementById('upload-dataset').onclick = function() {
+    document.getElementById('dataset-file-input').click();
+  };
+  
+  document.getElementById('audiofile').onclick = function() {
+    document.getElementById('audio-file').click();
+  };
+}
 
-document.getElementById('audiofile').onclick = function() {
-  document.getElementById('audio-file').click();
-};
 
 
 var newModelWords;
@@ -2030,7 +2027,6 @@ async function loadFile(file) {
   let text = await file.text();
   var e_ = file.name;
   var e__ = e_.replace('-metadata', '');
-  console.log(e__);
   newModelWords = text;
   loadNewModelAfterWords(newModelWords, e__);
 }
@@ -2043,38 +2039,39 @@ async function loadNewModelAfterWords(v, v_) {
   transferModelNameInput.value = loadedModelName;
 
   var obj = JSON.parse(v);
-  console.log(obj);
   //obj = transferRecognizer.wordLabels().join(',');
   transferRecognizer.words = obj;
-  console.log(transferRecognizer);
   
   //learnWordsInput.value = transferRecognizer.wordLabels().join(',');
   loadTransferModelButton.textContent = 'Model loaded!';  
 }
 
-document.getElementById("dataset-file-input").addEventListener('change', function(e){ 
-  const files = datasetFileInput.files;
-  if (files == null || files.length !== 1) {
-      throw new Error('Must select exactly one file.');
-  }
-  const datasetFileReader = new FileReader();
-  datasetFileReader.onload = async event => {
-      try {
-          await loadDatasetInTransferRecognizer(event.target.result);
-      } catch (err) {
-          const originalTextContent = uploadFilesButton.textContent;
-          uploadFilesButton.textContent = err.message;
-          setTimeout(() => {
-              uploadFilesButton.textContent = originalTextContent;
-          }, 2000);
-      }
-      durationMultiplierSelect.value = `${transferDurationMultiplier}`;
-      durationMultiplierSelect.disabled = true;
-      enterLearnWordsButton.disabled = true;
-  };
-  datasetFileReader.onerror = () => console.error(`Failed to binary data from file '${dataFile.name}'.`);
-  datasetFileReader.readAsArrayBuffer(files[0]);
-}, false);
+if (_isMobile != true) {
+  document.getElementById("dataset-file-input").addEventListener('change', function(e){ 
+    const files = datasetFileInput.files;
+    if (files == null || files.length !== 1) {
+        throw new Error('Must select exactly one file.');
+    }
+    const datasetFileReader = new FileReader();
+    datasetFileReader.onload = async event => {
+        try {
+            await loadDatasetInTransferRecognizer(event.target.result);
+        } catch (err) {
+            const originalTextContent = uploadFilesButton.textContent;
+            uploadFilesButton.textContent = err.message;
+            setTimeout(() => {
+                uploadFilesButton.textContent = originalTextContent;
+            }, 2000);
+        }
+        durationMultiplierSelect.value = `${transferDurationMultiplier}`;
+        durationMultiplierSelect.disabled = true;
+        enterLearnWordsButton.disabled = true;
+    };
+    datasetFileReader.onerror = () => console.error(`Failed to binary data from file '${dataFile.name}'.`);
+    datasetFileReader.readAsArrayBuffer(files[0]);
+  }, false);
+}
+
 
 
 /*
@@ -2170,7 +2167,6 @@ $(document).click(function(event) {
 });
 
 async function getdatasets(v) {
-  console.log(v);
   var params = {
     Bucket: "xperimusmodels", 
     Key: v, 
@@ -2196,10 +2192,8 @@ async function getmodels(v) {
      else     console.log(data);           
      //document.location = 'data:audio/midi;base64,' + btoa(file.toBytes());
      var __e = data.Body.toString();
-     console.log(__e);
     var _e = JSON.parse(__e);
     //_e.metadata = recornizer.;
-    console.log(_e); 
     var __v = v.replace('Models/','');
 
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(__e));
@@ -2246,7 +2240,6 @@ async function getSameModelMetadata(v) {
 
 var _metadata;
 async function _well(v) {
-  console.log(v);
   var DBOpenRequest = window.indexedDB.open("tensorflowjs", dbVersion);
   DBOpenRequest.onupgradeneeded = function(event) {
     var db = event.target.result;
@@ -2329,42 +2322,42 @@ async function sendingDataSockets() {
   console.log(_isMobile);
 }
 
-var buttonIDDownload = 0;
-document.getElementById('load-transfer-model').onclick = function() {
-  modalContent.innerHTML = "";
+// var buttonIDDownload = 0;
+// document.getElementById('load-transfer-model').onclick = function() {
+//   modalContent.innerHTML = "";
 
-  s3.listObjects(function (err, data) {
-    if(err)throw err;
-    //var e = data.Contents[0].Key;
-    var e = data.Contents
-    var _e = JSON.stringify(e);
+//   s3.listObjects(function (err, data) {
+//     if(err)throw err;
+//     //var e = data.Contents[0].Key;
+//     var e = data.Contents
+//     var _e = JSON.stringify(e);
   
-    Object.keys(e).forEach((key, index) => {  
-      if (e[key].Key.includes("Models") == true && !e[key].Key.includes("metadata") && !e[key].Key.includes("weights") && e[key].Key.includes(".json")) {
+//     Object.keys(e).forEach((key, index) => {  
+//       if (e[key].Key.includes("Models") == true && !e[key].Key.includes("metadata") && !e[key].Key.includes("weights") && e[key].Key.includes(".json")) {
 
-        var button = document.createElement("button");
-        button.style["height"] = "10%"; 
-        button.style["overflow"] = "auto"; 
-        button.style["position"] = "relative"; 
-        button.style["width"] = "60%"; 
-        button.style["left"] = "20%"; 
-        button.style["top"] = "30%"; 
-        button.style["text-align"] = "center"; 
-        button.style["background-color"] = "rgba(42,42,42,1)"; 
-        button.style["border-radius"] = "3px"; 
-        button.style["border"] = "1px solid #888"; 
-        button.style["color"] = "grey"; 
-        button.id = buttonIDDownload;
-        button.onclick = downloadFilesDirectly;
+//         var button = document.createElement("button");
+//         button.style["height"] = "10%"; 
+//         button.style["overflow"] = "auto"; 
+//         button.style["position"] = "relative"; 
+//         button.style["width"] = "60%"; 
+//         button.style["left"] = "20%"; 
+//         button.style["top"] = "30%"; 
+//         button.style["text-align"] = "center"; 
+//         button.style["background-color"] = "rgba(42,42,42,1)"; 
+//         button.style["border-radius"] = "3px"; 
+//         button.style["border"] = "1px solid #888"; 
+//         button.style["color"] = "grey"; 
+//         button.id = buttonIDDownload;
+//         button.onclick = downloadFilesDirectly;
 
-        var e_ = e[key].Key.replace("Models/", "");
-        var e__ = e_.replace(".json", "");
-        button.innerHTML = e__;
-        modalContent.appendChild(button);
-      }
-      buttonIDDownload++;
-    });
-  });
+//         var e_ = e[key].Key.replace("Models/", "");
+//         var e__ = e_.replace(".json", "");
+//         button.innerHTML = e__;
+//         modalContent.appendChild(button);
+//       }
+//       buttonIDDownload++;
+//     });
+//   });
 
   //wordDiv.style['margin'] = '2px';
 
@@ -2385,8 +2378,8 @@ document.getElementById('load-transfer-model').onclick = function() {
   }
 
   console.log($el_.children());*/
-  modal.style.display = "block";
-};
+//   modal.style.display = "block";
+// };
 
 var newArrayOfNames;
 function reqListener () {
@@ -2411,7 +2404,6 @@ async function downloadFilesDirectly() {
 
 
 span.onclick = function() {
-  console.log("works");
   modal.style.display = "none";
 }
 window.onclick = function(event) {
@@ -2420,17 +2412,19 @@ window.onclick = function(event) {
   }
 }
 
+if (_isMobile != true) {
+  var c = document.getElementById("door");
+  var ctx = c.getContext("2d");
+  ctx.beginPath();
+  ctx.lineWidth = 4;
+  ctx.arc(0, 130, 90, 10, 2 * Math.PI);
+  ctx.fillStyle = 'rgba(32,32,32,1)';
+  ctx.fill();
+  ctx.lineTo(0, 130);
+  ctx.strokeStyle = 'black';
+  ctx.stroke();
+}
 
-var c = document.getElementById("door");
-var ctx = c.getContext("2d");
-ctx.beginPath();
-ctx.lineWidth = 4;
-ctx.arc(0, 130, 90, 10, 2 * Math.PI);
-ctx.fillStyle = 'rgba(32,32,32,1)';
-ctx.fill();
-ctx.lineTo(0, 130);
-ctx.strokeStyle = 'black';
-ctx.stroke();
 
 function blinkSender() {
   if ($('#socketblink').length > 0) {
@@ -2479,16 +2473,19 @@ _triggerWaveOnDetect.addEventListener('click', () => {
   }
 });
 */
-var _stopConnect = document.getElementById('stop-room-connect');
-_stopConnect.addEventListener('click', () => {
-  if (isRecruiting == false) {
-    isRecruiting = true;
-    _stopConnect.style["background-color"] = "rgba(52,52,52,1)";
-    _stopConnect.style["color"] = "rgba(200,200,200,1)";
-  } else if (isRecruiting == true){
-    isRecruiting = false;
-    _stopConnect.style["background-color"] = "rgba(38,165,164,1)";
-    _stopConnect.style["color"] = "black";
-  }
-  console.log(isRecruiting);
-});
+
+if (_isMobile != true) {
+  var _stopConnect = document.getElementById('stop-room-connect');
+  _stopConnect.addEventListener('click', () => {
+    if (isRecruiting == false) {
+      isRecruiting = true;
+      _stopConnect.style["background-color"] = "rgba(52,52,52,1)";
+      _stopConnect.style["color"] = "rgba(200,200,200,1)";
+    } else if (isRecruiting == true){
+      isRecruiting = false;
+      _stopConnect.style["background-color"] = "rgba(38,165,164,1)";
+      _stopConnect.style["color"] = "black";
+    }
+  });
+}
+
