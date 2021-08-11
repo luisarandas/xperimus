@@ -15,9 +15,9 @@ python3 -m venv xpenv && source xpenv/bin/activate
 pip3 install -r requirements.txt
 ```
 
-Some of the dependencies are not really used like `passlib` and yet they are kept here as they come from some of the needs from the beginning of the research (e.g. how to store multiple server instances in a postgres database). The project is interconnected with Heroku through hooks so you can find a Procfile to build your own personal server, as well as with Amazon AWS S3 (currently unused and with the code commented out for future use).
+Some of the dependencies are not really used (e.g. `passlib`) and yet they are kept here as they come from some of the needs from the beginning of the research (e.g. how to store multiple server instances in a postgres database). The project is interconnected with Heroku through hooks so you can find a Procfile to build your own personal server, as well as with Amazon AWS S3 (currently unused and with the code commented out for future use).
 
-The interface is calibrated for 15,4-inch (2880 x 1800) browser displays but it has also been tested in 27-inch and it adapts the containers so no overlapping happens. The example in this readme is not with Heroku but with a local server but it should be straightforward to adapt to other services. 
+The interface is calibrated for 15,4-inch (2880 x 1800) browser displays but it has also been tested in 27-inch and it adapts the containers so no overlapping happens. Regarding the network, the example in this readme is not with Heroku but with a local server but it should be straightforward to adapt to other services. 
 
 ## Play custom audio in connected interfaces
 
