@@ -7,7 +7,7 @@ This repository belongs to an academic research encompassing music ritual, music
 
 ## Setup and Dependencies
 
-Git clone this repository to a folder in your machine and install the dependencies. This is web project composed of a python Flask server and the front-end. 
+Git clone this repository to a folder in your machine and install the dependencies. This is web project composed of a python Flask server and the front-end. This tutorial assumes that Git is installed on the system
 
 ```
 git clone https://github.com/luisArandas/xperimus.git
@@ -29,7 +29,7 @@ To get straight to what we want to do we can skip some of the parts of the inter
 
 1) **create a room where several devices can connect**
 
-When in Sttera's main page press 1 to jump to a new page with a code editor and some buttons. On the `Current Room` container write a new room name e.g. "jardim" and click `Lock`
+When in Sttera's main page press 1 on the keyboard to jump to a new page with a code editor and some buttons. On the `Current Room` container write a new room name e.g. "jardim" and click `Lock`
 
 2) **create a virtual device (another browser on the same network) which will receive impulses and play audio** 
 
@@ -37,7 +37,7 @@ To simulate a mobile phone just connect to the localhost with a browser resized 
 
 3) **upload and stream an arbitrary audio file**
 
-Go back to the original interface by clicking 1 and in the Audio File Streaming Panel choose `Play Current Buffer on Devices` so you can see a white flickr display in the virtual mobile phone. That signals when the buffer is meant to be played from a successful detection. Now to upload a buffer click `Load Local Audio File`, that will popup a dialog to your native file system. It will be loaded and displayed in the interface and you can stream it to the connected device(s) by clicking `Stream Last Loaded Audio File`. This will make a blue rectangle appear in the mobile phone so you know that at least one buffer is loaded for them to play. 
+Go back to the original interface by clicking 1 on the keyboard and in the Audio File Streaming Panel choose `Play Current Buffer on Devices` so you can see a white flickr display in the virtual mobile phone. That signals when the buffer is meant to be played from a successful detection. Now to upload a buffer click `Load Local Audio File`, that will popup a dialog to your native file system. It will be loaded and displayed in the interface and you can stream it to the connected device(s) by clicking `Stream Last Loaded Audio File`. This will make a blue rectangle appear in the mobile phone so you know that at least one buffer is loaded for them to play. 
 
 4) **use the microphone-based detection system with a pre-trained model so it can play the files on the connected devices when a detection is successful**
 
