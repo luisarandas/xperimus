@@ -51,6 +51,4 @@ It is also possible to train a model in the front-end given the current advances
 
 ## Acknowledgements
 
-© Luís Arandas and Rui Penha 2020/2021
-
 The research leading to these results was financially supported by the Portuguese Foundation for Science and Technology (FCT) through an individual doctoral research grant, and by the project “Experimentation in music in Portuguese culture: History, contexts and practices in the 20th and 21st centuries” (POCI-01-0145- FEDER-031380) co-funded by the European Union through the Operational Program Competitiveness and Internationalization, in its ERDF component, and by national funds, through the FCT.
